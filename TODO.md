@@ -6,6 +6,7 @@ Everything in **bold** has been finished, otherwise is still being worked on. An
 - Mockup
 - Assets
     - Graphics
+            - [http://i.imgur.com/vkqwZBi.jpg](**Alerts & Pops!**)
     - Audio
 - Importing to Game
 
