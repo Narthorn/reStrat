@@ -1,6 +1,6 @@
 #Todo
 
-Everything in **bold** has been finished, otherwise is still being worked on. Any code is 
+Everything in **bold** has been finished, otherwise is still being worked on. Any code is purely theoretical at this point. Baby steps.
 
 ##Interface
 - Mockup
