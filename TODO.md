@@ -47,4 +47,14 @@ Creates a  pop when the specified cast starts from the specified unit. If a call
 #####createAuraPop("strPop", "strUnit", "strAura", [fCallback])
 Creates a pop when the specified unit gains the specified aura. If a callback is indicated it will be executed when the alert ends.
 
+##Inspection Tools
+The inspection tools are a set of optional features which are intended to allow filtering, searching, and inspection of fight abilities, mechanics, and so on. These will be resource intensive during the fight, but will log in detail every aspect of the fight. Certain tools will be completely optional, for example if a fight has no important buffs or debuffs there is absolutely no reason to scan them.
 
+###Combat Log
+This includes events such as dispels, resource gains, and with optional logging for debuffs and casts which would be resource intensive. It's possible that this could be made fairly efficient by scanning at a set interval and calculating application times from how far the aura is into the total duration. Casts can also have this functionality if we get the max IA instead of the current IA at the time of scanning. 
+
+###Detailed Unit List
+A list of all units encountered during the last combat event, any casts will be linked to these units. The unit pane will include information about their health, shield, and other relevant properties. 
+
+###Spell/Aura Inspection
+Once combat has concluded every spell and aura cast will be checked for tooltip text, and other useful information. Casts and auras will be linked to their respective units in the unit list.
