@@ -60,4 +60,4 @@ A list of all units encountered during the last combat event, any casts will be 
 Once combat has concluded every spell and aura cast will be checked for tooltip text, and other useful information. Casts and auras will be linked to their respective units in the unit list.
 
 ###Icon List
-A simple list of every icon with their path names for reference.
+A simple list of every icon with their path for reference.
