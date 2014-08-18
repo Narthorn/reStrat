@@ -48,7 +48,7 @@ Creates a  pop when the specified cast starts from the specified unit. If a call
 #####createAuraPop("strPop", "strUnit", "strAura", [fCallback])
 Creates a pop when the specified unit gains the specified aura. If a callback is indicated it will be executed when the alert ends.
 
-####Generic functions
+####Unit State Hooks
 These functions are generic logic builders used to construct the required functionality to model an encounter. Each hook is added to a library for the encounter, checked at an interval.
 
 #####createHealthHook("strUnit", iPercent, fCallback)
