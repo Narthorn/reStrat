@@ -1,6 +1,6 @@
 #Todo
 
-Everything in **bold** has been finished, otherwise is still being worked on. Any code is purely theoretical at this point. Baby steps.
+Everything in **bold** has been finished, otherwise is still being worked on. 
 
 ##Interface
 - Mockup
@@ -47,6 +47,20 @@ Creates a pop with the indicated string. If a callback is indicated it will be e
 Creates a  pop when the specified cast starts from the specified unit. If a callback is indicated it will be executed when the alert ends.
 #####createAuraPop("strPop", "strUnit", "strAura", [fCallback])
 Creates a pop when the specified unit gains the specified aura. If a callback is indicated it will be executed when the alert ends.
+
+####Generic functions
+These functions are generic logic builders used to construct the required functionality to model an encounter. Each hook is added to a library for the encounter, checked at an interval.
+
+#####createHealthHook("strUnit", iPercent, fCallback)
+Creates a hook to execute the specified function when the desired unit hits the given health percentage.
+
+#####createDeathHook("strUnit", fCallback)
+Creates a hook to execute the specified function when the desired unit dies.
+
+#####createSpawnHook("strUnit", fCallback)
+Creates a hook to execute the specified function when the desired unit is created or spawned.
+
+
 
 ##Inspection Tools
 The inspection tools are a set of optional features which are intended to allow filtering, searching, and inspection of fight abilities, mechanics, and so on. These will be resource intensive during the fight, but will log in detail every aspect of the fight. Certain tools will be completely optional, for example if a fight has no important buffs or debuffs there is absolutely no reason to scan them.
