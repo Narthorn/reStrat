@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Addon Author="Reglitch" APIVersion="9" Name="ReStrat" Description="Rapid iteration boss mods">
+
+	<!-- Stem files -->
+    <Script Name="ReStrat.lua"/>
+    <Form Name="ReStrat.xml"/>
+	
+	<!-- Test Encounter lel -->
+    <Script Name="profiles\debug\debug.lua"/>
+</Addon>
