@@ -10,20 +10,6 @@ require "Sound"
 local ReStrat = {} 
  
 -----------------------------------------------------------------------------------------------
--- Constants
------------------------------------------------------------------------------------------------
-local color = {
-	red = "ffb8413d",
-	orange = "ffdd7649",
-	yellow = "fff8fd6b",
-	green = "ff58cc5d",
-	blue = "ff5196ec",
-	purple = "ff915fc2",
-	black = "black",
-	white = "white",
-}
- 
------------------------------------------------------------------------------------------------
 -- Initialization
 -----------------------------------------------------------------------------------------------
 function ReStrat:new(o)
@@ -58,6 +44,8 @@ function ReStrat:OnDocLoaded()
 
 	if self.xmlDoc ~= nil and self.xmlDoc:IsLoaded() then
 	    self.wndAlerts = Apollo.LoadForm(self.xmlDoc, "alertForm", nil, self);
+		self.wndPop = Apollo.LoadForm(self.xmlDoc, "popForm", nil, self);
+
 		
 	    self.wndAlerts:Show(true, true)
 		
@@ -66,12 +54,30 @@ function ReStrat:OnDocLoaded()
 		Apollo.RegisterEventHandler("UnitCreated", "OnUnitCreated", self)
 		Apollo.RegisterEventHandler("UnitDestroyed", "OnUnitDestroyed", self)
 		Apollo.RegisterEventHandler("UnitEnteredCombat", "OnEnteredCombat", self)
+		
+		--Color library, can't be stored in constants
+		self.color = {
+			red = "ffb8413d",
+			orange = "ffdd7649",
+			yellow = "fff8fd6b",
+			green = "ff58cc5d",
+			blue = "ff5196ec",
+			purple = "ff915fc2",
+			black = "black",
+			white = "white",
+		}
+		
+		--This timer drives UI events exclusively, in game checks are fired on a seperate timer
 		self.alertTimer = ApolloTimer.Create(0.01, true, "OnAlarmTick", self);
+		
+		--This timer drives in game logging and event handling
+		self.gameTimer = ApolloTimer.Create(0.1, true, "OnGameTick", self);
 
 		-- Do additional Addon initialization here
 		self.tAlerts = {}
 		self.tUnits = {}
 		self.bInCombat = false;
+		
 		
 		if not self.tEncounters then
 			self.tEncounters = {}
@@ -86,6 +92,8 @@ end
 -----------------------------------------------------------------------------------------------
 --On alarm tick
 function ReStrat:OnAlarmTick()
+
+	--This counts down all alarms registered to self.tAlerts
 	for i,v in ipairs(self.tAlerts) do
 		if self.tAlerts[i].alert then
 			local alertInstance = self.tAlerts[i];
@@ -113,7 +121,7 @@ function ReStrat:OnAlarmTick()
 				table.remove(self.tAlerts, i);
 				
 				--Reshuffle windows
-				self.wndAlerts:ArrangeChildrenVert();
+				self:arrangeAlerts();
 			end
 						
 		end
@@ -187,12 +195,20 @@ function ReStrat:OnEnteredCombat(unit, combat)
 	end
 end
 
+--[TODO] make this a lot more customizable
+function ReStrat:arrangeAlerts()
+	for i,v in ipairs(self.tAlerts) do
+		local wndHeight = self.tAlerts[i].alert:GetHeight();
+		local spacing = 9;
+		local vOffset = wndHeight*(i-1) + spacing*(i-1);
+		
+		self.tAlerts[i].alert:SetAnchorOffsets(0,vOffset,0,vOffset+wndHeight);
+	end
+end
+
 --Generate alert
 function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	local alertBar = Apollo.LoadForm("ReStrat.xml", "alertInstance", self.wndAlerts, self);
-	
-	--Arrange vertically [TODO - Create custom function to allow spacing]
-	self.wndAlerts:ArrangeChildrenVert();
 	
 	--Set bar label
 	alertBar:FindChild("ProgressBarContainer"):FindChild("spellName"):SetText(strLabel);
@@ -202,7 +218,7 @@ function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	
 	--Handle optional color
 	if not strColor then
-		alertBar:FindChild("ProgressBarContainer"):FindChild("progressBar"):SetBarColor(color.red);
+		alertBar:FindChild("ProgressBarContainer"):FindChild("progressBar"):SetBarColor(self.color.red);
 	else
 		alertBar:FindChild("ProgressBarContainer"):FindChild("progressBar"):SetBarColor(strColor);
 	end
@@ -221,6 +237,9 @@ function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	
 	--Add to tAlerts
 	self.tAlerts[#self.tAlerts+1] = {alert = alertBar, callback = fCallback, currDuration = duration, maxDuration = duration}
+	
+	--Arrange vertically
+	self:arrangeAlerts();
 end
 
 
@@ -228,7 +247,8 @@ end
 function ReStrat:OnReStratOn()
 	--self.wndMain:Invoke() -- show the window
 	self:createAlert("Entered Combat", 3, nil, nil, nil)
-	self:createAlert("TEST BAR", 5, nil, color.purple, nil)
+	self:createAlert("Big Bad Casterino", 6, nil, self.color.purple, nil)
+	self:createAlert("Next Phase", 8, nil, self.color.green, nil)
 end
 
 
