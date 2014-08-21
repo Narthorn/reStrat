@@ -19,8 +19,6 @@ These functions will all handle casts, currently we have no event on iniation of
 Automatically creates an alert on cast for the indicated unit. If a callback is indicated it will be executed when the alert ends.  
 #####isCasting("strUnit", "strCast")
 Return whether or not the indicated cast is active on the indicated unit.
-#####getCast("strUnit", "strCast")
-Returns the length of a cast as indicated by the game.
 
 ####Buffs or Debuffs
 These functions handle auras on the player, their target, their focus, or an encounter unit.
