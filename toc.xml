@@ -3,6 +3,7 @@
 
 	<!-- Stem files -->
     <Script Name="ReStrat.lua"/>
+	<Script Name="encounterBuilders.lua"/>
     <Form Name="ReStrat.xml"/>
 	
 	<!-- Test Encounter lel -->

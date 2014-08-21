@@ -72,11 +72,18 @@ function ReStrat:OnDocLoaded()
 		
 		--This timer drives in game logging and event handling
 		self.gameTimer = ApolloTimer.Create(0.1, true, "OnGameTick", self);
+		
+		--This time drives pop appearances
+		self.popTimer = ApolloTimer.Create(0.75, true, "OnPopTick", self);
+		self.popTimer:Stop();
 
 		-- Do additional Addon initialization here
 		self.tAlerts = {}
 		self.tUnits = {}
 		self.bInCombat = false;
+		self.fPopCallback = nil;
+		self.bPopTicked = false;
+		self.tWatchedCasts = {}
 		
 		
 		if not self.tEncounters then
@@ -90,40 +97,68 @@ end
 -----------------------------------------------------------------------------------------------
 -- ReStrat Functions
 -----------------------------------------------------------------------------------------------
+--On Game Tick
+function ReStrat:OnGameTick()
+	self:OnGameTickManageCasts()
+
+end
+
+--On pop tick
+function ReStrat:OnPopTick()
+	if self.bPopTicked then
+		--We've ticked before
+		--Set text
+		self.wndPop:SetText("");
+		
+		--Execute callback if exists
+		if self.fPopCallback then
+			self.fPopCallback();
+			self.fPopCallback = nil;
+		end
+		
+		self.popTimer:Stop();
+		self.bPopTicked = false;	
+	else
+		self.bPopTicked = true;
+	end
+end
+
 --On alarm tick
 function ReStrat:OnAlarmTick()
-
-	--This counts down all alarms registered to self.tAlerts
-	for i,v in ipairs(self.tAlerts) do
-		if self.tAlerts[i].alert then
+	if #self.tAlerts > 0 then
+		--This counts down all alarms registered to self.tAlerts
+		for i,v in ipairs(self.tAlerts) do
 			local alertInstance = self.tAlerts[i];
 			local timer = alertInstance.alert:FindChild("ProgressBarContainer"):FindChild("timeLeft");
 			local pBar = alertInstance.alert:FindChild("ProgressBarContainer"):FindChild("progressBar");
 			
-			--Set timer
-			alertInstance.currDuration = alertInstance.currDuration-0.01;
+			--Manage actual time degradation
+			if alertInstance.lastTime then
+				alertInstance.currDuration = alertInstance.currDuration-(GameLib.GetGameTime()-alertInstance.lastTime);
+			end
+			
+			alertInstance.lastTime = GameLib.GetGameTime();
 			
 			--Update time and bar
 			if alertInstance.currDuration >= -0.01 then
-				timer:SetText(tostring(round(alertInstance.currDuration, 1)) .. "S");
-				pBar:SetProgress(alertInstance.currDuration);
-			else
-				
+					timer:SetText(tostring(round(alertInstance.currDuration, 1)) .. "S");
+					pBar:SetProgress(alertInstance.currDuration);
+				else
+						
 				--Close bar
 				alertInstance.alert:Close();
-				
+					
 				--Execute callback
 				if alertInstance.callback then
 					alertInstance.callback()
 				end
-				
+						
 				--Remove from table
 				table.remove(self.tAlerts, i);
-				
+					
 				--Reshuffle windows
 				self:arrangeAlerts();
 			end
-						
 		end
 	end
 end
@@ -188,7 +223,6 @@ function ReStrat:OnEnteredCombat(unit, combat)
 				--We're entering combat with an encounter
 				--Initiate pull function
 				self.tEncounters[self.tUnits[i].name].fInitFunction();
-				
 				return
 			end
 		end
@@ -236,19 +270,38 @@ function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	end
 	
 	--Add to tAlerts
-	self.tAlerts[#self.tAlerts+1] = {alert = alertBar, callback = fCallback, currDuration = duration, maxDuration = duration}
+	self.tAlerts[#self.tAlerts+1] = {alert = alertBar, name = strLabel, callback = fCallback, currDuration = duration, maxDuration = duration}
 	
 	--Arrange vertically
 	self:arrangeAlerts();
+end
+
+--Create pop
+function ReStrat:createPop(strLabel, fCallback)
+	--If we're overriding an existing pop
+	if self.wndPop:GetText() ~= "" and self.fPopCallback then
+		self.fPopCallback();
+		self.fPopCallback = nil;
+	end
+	
+	--Set our text
+	self.wndPop:SetText(tostring(strLabel));
+	
+	--Cache our callback
+	self.fPopCallback = fCallback;
+	
+	--Initiate our timer to close
+	self.popTimer:Start();
 end
 
 
 --/restrat
 function ReStrat:OnReStratOn()
 	--self.wndMain:Invoke() -- show the window
-	self:createAlert("Entered Combat", 3, nil, nil, nil)
 	self:createAlert("Big Bad Casterino", 6, nil, self.color.purple, nil)
-	self:createAlert("Next Phase", 8, nil, self.color.green, nil)
+	self:createAlert("Big Bad Casterino", 1.5, nil, self.color.purple, nil)
+	
+	self:createPop("Test Pop", function() Print("Pop Done") end)
 end
 
 
