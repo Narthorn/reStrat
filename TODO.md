@@ -34,7 +34,7 @@ Creates an alert with the indicated label, duration, and icon. If a callback is 
 #####broadcastAlert("strAlert")
 Broadcasts the alert in the party channel.
 #####syncAlert("strAlertLabel", duration, ["strIcon"], [fCallback])
-Syncs an alert to everyone in your party using reStrat, this is helpful for players "out of range."
+Syncs an alert to everyone in your party using ReStrat, this is helpful for players "out of range."
 
 ####Pop notifications
 These functions handle "pops", these are brief text notifications accompanied by a sound.

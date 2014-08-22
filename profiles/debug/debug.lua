@@ -2,6 +2,10 @@
 --Debug Profile, only works on easy mobs in Large Training Grounds
 -----------------------------------------------------------------------------
 
+-----------------------------------------------------------------------------
+--Encounter Logic
+-----------------------------------------------------------------------------
+
 --Example fight initiate function
 local function profileDebug()
 	ReStrat:createAlert("Entered Combat", 2.5, nil, nil, nil)
@@ -11,6 +15,7 @@ local function profileDebug()
 	ReStrat:createCastAlert("Holographic Shootbot", "Slasher Dash", nil, nil, ReStrat.color.red, nil)
 	ReStrat:createCastAlert("Holographic Chompacabra", "Snap Trap", nil, nil, ReStrat.color.yellow, nil)
 	ReStrat:createCastAlert("Holographic Chompacabra", "Feeding Frenzy", nil, nil, ReStrat.color.blue, nil)
+	ReStrat:createAuraAlert("Reglitch", "Fissure", nil, nil, nil)
 end
 
 --Example spam function, there should be very little if anything in here
@@ -18,7 +23,11 @@ local function profileDebugRepeat()
 	Print("Spammerino Cappucino");
 end
 
---Package encounter
+
+
+-----------------------------------------------------------------------------
+--Encounter Packaging
+-----------------------------------------------------------------------------
 if not ReStrat.tEncounters then
 	ReStrat.tEncounters = {}
 end

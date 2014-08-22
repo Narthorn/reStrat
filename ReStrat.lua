@@ -78,12 +78,13 @@ function ReStrat:OnDocLoaded()
 		self.popTimer:Stop();
 
 		-- Do additional Addon initialization here
-		self.tAlerts = {}
-		self.tUnits = {}
+		self.tAlerts = {};
+		self.tUnits = {};
 		self.bInCombat = false;
 		self.fPopCallback = nil;
 		self.bPopTicked = false;
-		self.tWatchedCasts = {}
+		self.tWatchedCasts = {};
+		self.tWatchedAuras = {};
 		
 		
 		if not self.tEncounters then
@@ -100,7 +101,7 @@ end
 --On Game Tick
 function ReStrat:OnGameTick()
 	self:OnGameTickManageCasts()
-
+	self:OnGameTickManageAuras()
 end
 
 --On pop tick
@@ -140,7 +141,7 @@ function ReStrat:OnAlarmTick()
 			alertInstance.lastTime = GameLib.GetGameTime();
 			
 			--Update time and bar
-			if alertInstance.currDuration >= -0.01 then
+			if alertInstance.currDuration >= 0 then
 					timer:SetText(tostring(round(alertInstance.currDuration, 1)) .. "S");
 					pBar:SetProgress(alertInstance.currDuration);
 				else
