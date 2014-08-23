@@ -57,6 +57,7 @@ function ReStrat:OnDocLoaded()
 		Apollo.RegisterEventHandler("UnitCreated", "OnUnitCreated", self)
 		Apollo.RegisterEventHandler("UnitDestroyed", "OnUnitDestroyed", self)
 		Apollo.RegisterEventHandler("UnitEnteredCombat", "OnEnteredCombat", self)
+		Apollo.RegisterEventHandler("WindowManagementReady", "OnWindowManagementReady", self)
 		
 		--Color library, can't be stored in constants
 		self.color = {
@@ -95,17 +96,78 @@ function ReStrat:OnDocLoaded()
 			self.tEncounters = {}
 		end
 		
-		self.bLoaded = true;
+		self.bLoaded = false;
 	end
 end
 
 -----------------------------------------------------------------------------------------------
 -- ReStrat Functions
 -----------------------------------------------------------------------------------------------
+--Add windows to carbines window management
+function ReStrat:OnWindowManagementReady()
+	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndAlerts, strName = "restratAlerts"})
+	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndPop, strName = "restratPops"})
+end
+
+--Save data between sessions
+function ReStrat:OnSave(eLevel)
+  if eLevel ~= GameLib.CodeEnumAddonSaveLevel.Character then
+    return nil
+  end
+
+  local tSavedData = { }
+  
+  tSavedData = {
+    encounters = self.tEncounters;
+  }
+
+  return tSavedData
+
+end
+
+--Restore data on session
+function ReStrat:OnRestore(eType, savedData)
+		local encounterCache = nil;
+		
+		if self.tEncounters then
+			encounterCache = self.tEncounters;
+			SendVarToRover("Cache", encounterCache, 1);
+		end
+		
+		if savedData.encounters then
+			self.tEncounters = savedData.encounters;
+			
+			if encounterCache then
+				for k,v in pairs(encounterCache) do
+					local newEntry = true;
+					
+					for q,t in pairs(self.tEncounters) do
+						if k == q then newEntry = false end
+					end
+					
+					if newEntry then
+						self.tEncounters[k] = v;
+					end
+				end
+			end
+			
+			--Functions can't be stored between sessions, retrieve from cache
+			for k,v in pairs(self.tEncounters) do
+				self.tEncounters[k].fInitFunction = encounterCache[k].fInitFunction;
+				self.tEncounters[k].fSpamFunction = encounterCache[k].fSpamFunction;
+			end
+		else
+			self.tEncounters = {}
+		end
+end
+
+
 --On Game Tick
 function ReStrat:OnGameTick()
-	self:OnGameTickManageCasts()
-	self:OnGameTickManageAuras()
+	if self.bInCombat then
+		self:OnGameTickManageCasts()
+		self:OnGameTickManageAuras()
+	end
 end
 
 --On pop tick
@@ -192,6 +254,14 @@ function ReStrat:OnUnitCreated(unit)
 				bActive = true
 		}
 	end
+	
+	--Unit has been created in combat
+	--If it's a unit in our list
+	if self:isWatchedUnit(unit) and unit:IsInCombat() then
+		if self.bInCombat then
+			self:initUnit(unit);
+		end
+	end
 end
 
 function ReStrat:OnUnitDestroyed(unit)
@@ -221,15 +291,28 @@ function ReStrat:OnEnteredCombat(unit, combat)
 		end
 	end
 	
-	--Is it a unit in our encounter library?
-	if combat then
-		for i,v in ipairs(self.tUnits) do
-			if self.tEncounters[self.tUnits[i].name] then
-				--We're entering combat with an encounter
-				--Initiate pull function
-				self.tEncounters[self.tUnits[i].name].fInitFunction();
-				return
-			end
+	--If it's a unit in our list
+	if self:isWatchedUnit(unit) and combat then
+		self:initUnit(unit);
+	end
+end
+
+--Initiate a unit
+function ReStrat:initUnit(unit)
+	for i,v in ipairs(self.tUnits) do
+		if self.tUnits[i].bActive and self.tUnits[i].unit == unit then
+			Print(self.tUnits[i].name);
+			self.tEncounters[self.tUnits[i].name].fInitFunction(); --Initiate pull function
+			return
+		end
+	end
+end
+
+--If the unit is in tEncounters
+function ReStrat:isWatchedUnit(unit)
+	for k,v in pairs(self.tEncounters) do
+		if unit:GetName() == k then
+			return true;
 		end
 	end
 end
@@ -331,26 +414,30 @@ end
 
 --UI Init
 function ReStrat:OnInitUI()
-	local zoneList = self.wndMain:FindChild("zoneList");
-	
-	--Go through our encounters and populate zone list
-	for k,v in pairs(self.tEncounters) do
-		--Create the list
-		if not self.tZones[v.strCategory] then
-			self.tZones[v.strCategory] = {};
+	if not self.bLoaded then
+		local zoneList = self.wndMain:FindChild("zoneList");
+		
+		--Go through our encounters and populate zone list
+		for k,v in pairs(self.tEncounters) do
+			--Create the list
+			if not self.tZones[v.strCategory] then
+				self.tZones[v.strCategory] = {};
+			end
+			
+			table.insert(self.tZones[v.strCategory], k);
 		end
 		
-		table.insert(self.tZones[v.strCategory], k);
-	end
-	
-	--Create zone buttons
-	for k,v in pairs(self.tZones) do
-		local btnZone = Apollo.LoadForm(self.xmlDoc, "btnZone", zoneList, self);
-		btnZone:SetText(k);
-		btnZone:SetData(k);
-	end
-	
-	ReStrat:arrangeChildren(zoneList);		
+		--Create zone buttons
+		for k,v in pairs(self.tZones) do
+			local btnZone = Apollo.LoadForm(self.xmlDoc, "btnZone", zoneList, self);
+			btnZone:SetText(k);
+			btnZone:SetData(k);
+		end
+		
+		ReStrat:arrangeChildren(zoneList);
+		
+		self.bLoaded = true;
+	end	
 end
 
 
@@ -392,9 +479,31 @@ function ReStrat:onEncounterSelected(wndHandler, wndControl)
 		
 		moduleButton:SetText(v.strLabel);
 		moduleButton:SetData({encounter = encounterName, module = k});
+		
+		--Gray out if disabled
+		if not self.tEncounters[encounterName].tModules[k].bEnabled then
+			moduleButton:SetBGColor("vdarkgray");
+		end
+		
 	end
 	
 	self:arrangeChildren(moduleList);
+end
+
+--Handles module toggling
+function ReStrat:onModuleToggled(wndHandler, wndControl)
+	local encounterName = wndHandler:GetData().encounter;
+	local moduleName = wndHandler:GetData().module;
+	local bIsEnabled = self.tEncounters[encounterName].tModules[moduleName].bEnabled;
+	
+	if bIsEnabled then
+		self.tEncounters[encounterName].tModules[moduleName].bEnabled = false;
+		wndHandler:SetBGColor("vdarkgray");
+	else
+		self.tEncounters[encounterName].tModules[moduleName].bEnabled = true;
+		wndHandler:SetBGColor(self.color.green);
+	end
+
 end
 
 -----------------------------------------------------------------------------------------------

@@ -15,15 +15,13 @@ local function profileDebug()
 	ReStrat:createCastAlert("Holographic Shootbot", "Slasher Dash", nil, nil, ReStrat.color.red, nil)
 	ReStrat:createCastAlert("Holographic Chompacabra", "Snap Trap", nil, nil, ReStrat.color.yellow, nil)
 	ReStrat:createCastAlert("Holographic Chompacabra", "Feeding Frenzy", nil, nil, ReStrat.color.blue, nil)
-	ReStrat:createAuraAlert("Reglitch", "Fissure", nil, nil, nil)
+
 end
 
 --Example spam function, there should be very little if anything in here
 local function profileDebugRepeat()
 	Print("Spammerino Cappucino");
 end
-
-
 
 -----------------------------------------------------------------------------
 --Encounter Packaging
@@ -37,8 +35,6 @@ ReStrat.tEncounters["Holographic Moodie"] = {
 	fInitFunction = profileDebug,
 	fSpamFunction = profileDebugRepeat,
 	strCategory  = "Large Training Grounds",
-	strEncounter = "Easy",
-	bEnabled = true,
 	tModules = {
 		["Firestorm"] = {
 			strLabel = "Firestorm",
@@ -55,8 +51,6 @@ ReStrat.tEncounters["Holographic Shootbot"] = {
 	fInitFunction = profileDebug,
 	fSpamFunction = profileDebugRepeat,
 	strCategory  = "Large Training Grounds",
-	strEncounter = "Easy",
-	bEnabled = true,
 	tModules = {
 		["Jump Shot"] = {
 			strLabel = "Jump Shot",
@@ -73,8 +67,6 @@ ReStrat.tEncounters["Holographic Chompacabra"] = {
 	fInitFunction = profileDebug,
 	fSpamFunction = profileDebugRepeat,
 	strCategory  = "Large Training Grounds",
-	strEncounter = "Easy",
-	bEnabled = true,
 	tModules = {
 		["Snap Trap"] = {
 			strLabel = "Snap Trap",
@@ -86,3 +78,4 @@ ReStrat.tEncounters["Holographic Chompacabra"] = {
 		},
 	}
 }
+

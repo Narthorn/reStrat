@@ -46,16 +46,18 @@ end
 --We add the spell and unit into the tWatchedCasts table then during the game tick we iterate on that instead
 --To see the function which manages the processing of that search for ReStrat:OnGameTickManageCasts()
 function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i)
-	ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
-		name = strUnit,
-		cast = strCast,
-		tAlertInfo = {
-			duration = duration_i,
-			strIcon = strIcon_i,
-			fCallback = fCallback_i,
-			strColor = color_i
+	if ReStrat.tEncounters[strUnit].tModules[strCast].bEnabled then
+		ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
+			name = strUnit,
+			cast = strCast,
+			tAlertInfo = {
+				duration = duration_i,
+				strIcon = strIcon_i,
+				fCallback = fCallback_i,
+				strColor = color_i
+			}
 		}
-	}
+	end
 end
 
 
@@ -91,16 +93,18 @@ end
 --Again modular, adds to tWatchedAuras
 --All processing is handled by OnGameTickManageAuras
 function ReStrat:createAuraAlert(strUnit, strAuraName, duration_i, icon_i, fCallback_i)
-	ReStrat.tWatchedAuras[#ReStrat.tWatchedAuras+1] = {
-		name = strUnit,
-		aura = strAuraName,
-		tAlertInfo = {
-			duration = duration_i,
-			strIcon = strIcon_i,
-			fCallback = fCallback_i,
-			strColor = color_i
+	if ReStrat.tEncounters[strUnit].tModules[strAuraName].bEnabled then
+		ReStrat.tWatchedAuras[#ReStrat.tWatchedAuras+1] = {
+			name = strUnit,
+			aura = strAuraName,
+			tAlertInfo = {
+				duration = duration_i,
+				strIcon = strIcon_i,
+				fCallback = fCallback_i,
+				strColor = color_i
+			}
 		}
-	}
+	end
 end
 
 --Manages creating the timer when a certain buff is found
