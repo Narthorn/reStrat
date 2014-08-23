@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Sprites>
+    <Sprite Name="bartex1" Cycle="1">
+        <Frame Texture="ReStrat\sprites\bartex1.tga" x0="0" x1="0" x2="0" x3="74" x4="76" x5="80" y0="0" y1="0" y2="0" y3="0" y4="0" y5="40" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <Sprite Name="wndtex1" Cycle="1">
+        <Frame Texture="ReStrat\sprites\window.tga" x0="0" x1="0" x2="0" x3="116" x4="198" x5="200" y0="0" y1="2" y2="3" y3="3" y4="78" y5="80" Stretchy="1" HotspotX="0" HotspotY="0" Duration="1.000" StartColor="white" EndColor="white"/>
+    </Sprite>
+    <AutoButton Name="btntex1" Texture="ReStrat\sprites\interfacebtn.tga" x0="0" x1="0" x2="0" x3="2" x4="200" x5="200" y0="0" y1="0" y2="0" y3="78" y4="78" y5="80" StateBits="5" Direction="Down"/>
+</Sprites>

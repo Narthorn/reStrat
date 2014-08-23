@@ -36,6 +36,8 @@ end
 ReStrat.tEncounters["Holographic Moodie"] = {
 	fInitFunction = profileDebug,
 	fSpamFunction = profileDebugRepeat,
+	strCategory  = "Large Training Grounds",
+	strEncounter = "Easy",
 	bEnabled = true,
 	tModules = {
 		["Firestorm"] = {
@@ -52,14 +54,16 @@ ReStrat.tEncounters["Holographic Moodie"] = {
 ReStrat.tEncounters["Holographic Shootbot"] = {
 	fInitFunction = profileDebug,
 	fSpamFunction = profileDebugRepeat,
+	strCategory  = "Large Training Grounds",
+	strEncounter = "Easy",
 	bEnabled = true,
 	tModules = {
-		["Firestorm"] = {
-			strLabel = "Firestorm",
+		["Jump Shot"] = {
+			strLabel = "Jump Shot",
 			bEnabled = true,
 		},
-		["Erupting Fissure"] = {
-			strLabel = "Erupting Fissue",
+		["Slasher Dash"] = {
+			strLabel = "Slasher Dash",
 			bEnabled = true,
 		},
 	}
@@ -68,14 +72,16 @@ ReStrat.tEncounters["Holographic Shootbot"] = {
 ReStrat.tEncounters["Holographic Chompacabra"] = {
 	fInitFunction = profileDebug,
 	fSpamFunction = profileDebugRepeat,
+	strCategory  = "Large Training Grounds",
+	strEncounter = "Easy",
 	bEnabled = true,
 	tModules = {
-		["Firestorm"] = {
-			strLabel = "Firestorm",
+		["Snap Trap"] = {
+			strLabel = "Snap Trap",
 			bEnabled = true,
 		},
-		["Erupting Fissure"] = {
-			strLabel = "Erupting Fissue",
+		["Feeding Frenzy"] = {
+			strLabel = "Feeding Frenzy",
 			bEnabled = true,
 		},
 	}

@@ -35,6 +35,7 @@ end
 function ReStrat:OnLoad()
 	self.xmlDoc = XmlDoc.CreateFromFile("ReStrat.xml")
 	self.xmlDoc:RegisterCallback("OnDocLoaded", self)
+	Apollo.LoadSprites("respr.xml", "SassyMedicSimSprites")
 end
 
 -----------------------------------------------------------------------------------------------
@@ -42,12 +43,14 @@ end
 -----------------------------------------------------------------------------------------------
 function ReStrat:OnDocLoaded()
 
+
 	if self.xmlDoc ~= nil and self.xmlDoc:IsLoaded() then
+		self.wndMain = Apollo.LoadForm(self.xmlDoc, "mainForm", nil, self);
 	    self.wndAlerts = Apollo.LoadForm(self.xmlDoc, "alertForm", nil, self);
 		self.wndPop = Apollo.LoadForm(self.xmlDoc, "popForm", nil, self);
 
 		
-	    self.wndAlerts:Show(true, true)
+	    self.wndMain:Show(false, true)
 		
 		-- Register handlers for events, slash commands and timer, etc.
 		Apollo.RegisterSlashCommand("restrat", "OnReStratOn", self)
@@ -77,7 +80,7 @@ function ReStrat:OnDocLoaded()
 		self.popTimer = ApolloTimer.Create(0.75, true, "OnPopTick", self);
 		self.popTimer:Stop();
 
-		-- Do additional Addon initialization here
+		--Variables, tables, etc.
 		self.tAlerts = {};
 		self.tUnits = {};
 		self.bInCombat = false;
@@ -85,6 +88,7 @@ function ReStrat:OnDocLoaded()
 		self.bPopTicked = false;
 		self.tWatchedCasts = {};
 		self.tWatchedAuras = {};
+		self.tZones = {};
 		
 		
 		if not self.tEncounters then
@@ -241,6 +245,20 @@ function ReStrat:arrangeAlerts()
 	end
 end
 
+--Test arrange function
+function ReStrat:arrangeChildren(frm)
+	local tChildren = frm:GetChildren()
+	
+	for i,v in ipairs(tChildren) do
+		local wndHeight = v:GetHeight();
+		local wndWidth = v:GetWidth();
+		local spacing = 9;
+		local vOffset = wndHeight*(i-1) + spacing+spacing*(i-1);
+		
+		v:SetAnchorOffsets(-wndWidth/2,vOffset,wndWidth/2,vOffset+wndHeight);
+	end
+end
+
 --Generate alert
 function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	local alertBar = Apollo.LoadForm("ReStrat.xml", "alertInstance", self.wndAlerts, self);
@@ -298,17 +316,85 @@ end
 
 --/restrat
 function ReStrat:OnReStratOn()
-	--self.wndMain:Invoke() -- show the window
+	--Show Window
+	self.wndMain:Invoke()
+	
+	--Fake alerts
 	self:createAlert("Big Bad Casterino", 6, nil, self.color.purple, nil)
 	self:createAlert("Big Bad Casterino", 1.5, nil, self.color.purple, nil)
-	
 	self:createPop("Test Pop", function() Print("Pop Done") end)
+	
+	--Init UI
+	self:OnInitUI()
+	
+end
+
+--UI Init
+function ReStrat:OnInitUI()
+	local zoneList = self.wndMain:FindChild("zoneList");
+	
+	--Go through our encounters and populate zone list
+	for k,v in pairs(self.tEncounters) do
+		--Create the list
+		if not self.tZones[v.strCategory] then
+			self.tZones[v.strCategory] = {};
+		end
+		
+		table.insert(self.tZones[v.strCategory], k);
+	end
+	
+	--Create zone buttons
+	for k,v in pairs(self.tZones) do
+		local btnZone = Apollo.LoadForm(self.xmlDoc, "btnZone", zoneList, self);
+		btnZone:SetText(k);
+		btnZone:SetData(k);
+	end
+	
+	ReStrat:arrangeChildren(zoneList);		
 end
 
 
 function round(num, idp)
   local mult = 10^(idp or 0)
   return math.floor(num * mult + 0.5) / mult
+end
+
+---------------------------------------------------------------------------------------------------
+-- btnEncounter Functions
+---------------------------------------------------------------------------------------------------
+--Handles zone selection for main menu
+function ReStrat:onZoneSelected(wndHandler, wndControl)
+	local zoneName = wndHandler:GetData();
+	local encounterList = self.wndMain:FindChild("encounterList");
+	
+	encounterList:DestroyChildren();
+	
+	for i,v in ipairs(self.tZones[zoneName]) do
+		local encounterButton = Apollo.LoadForm(self.xmlDoc, "btnEncounter", encounterList, self);
+		
+		encounterButton:SetText(v);
+		encounterButton:SetData(v);
+	end
+	
+	self:arrangeChildren(encounterList);
+end
+
+
+--Handles encounter selection for main menu
+function ReStrat:onEncounterSelected(wndHandler, wndControl)
+	local encounterName = wndHandler:GetData();
+	local moduleList = self.wndMain:FindChild("moduleList");
+	
+	moduleList:DestroyChildren();
+	
+	for k,v in pairs(self.tEncounters[encounterName].tModules) do
+		local moduleButton = Apollo.LoadForm(self.xmlDoc, "btnModule", moduleList, self);
+		
+		moduleButton:SetText(v.strLabel);
+		moduleButton:SetData({encounter = encounterName, module = k});
+	end
+	
+	self:arrangeChildren(moduleList);
 end
 
 -----------------------------------------------------------------------------------------------
