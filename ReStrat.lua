@@ -48,9 +48,11 @@ function ReStrat:OnDocLoaded()
 		self.wndMain = Apollo.LoadForm(self.xmlDoc, "mainForm", nil, self);
 	    self.wndAlerts = Apollo.LoadForm(self.xmlDoc, "alertForm", nil, self);
 		self.wndPop = Apollo.LoadForm(self.xmlDoc, "popForm", nil, self);
+		self.wndIcon = Apollo.LoadForm(self.xmlDoc, "iconForm", nil, self);
 
 		
 	    self.wndMain:Show(false, true)
+		self.wndIcon:Show(false, true)
 		
 		-- Register handlers for events, slash commands and timer, etc.
 		Apollo.RegisterSlashCommand("restrat", "OnReStratOn", self)
@@ -504,6 +506,62 @@ function ReStrat:onModuleToggled(wndHandler, wndControl)
 		wndHandler:SetBGColor(self.color.green);
 	end
 
+end
+
+---------------------------------------------------------------------------------------------------
+-- mainForm Functions
+---------------------------------------------------------------------------------------------------
+
+function ReStrat:onClose()
+	self.wndMain:Close();
+end
+
+function ReStrat:onShowIcons()
+	self.wndIcon:Invoke(); -- open macro window
+	
+	local iconList = self.wndIcon:FindChild("iconList");
+	local icons = MacrosLib.GetMacroIconList();
+	
+	for i = 0, #icons do
+		if icons[i] then
+			local icon = Apollo.LoadForm(self.xmlDoc, "iconPreview", iconList, self);
+			local iconWindow = icon:FindChild("IconContainer"):FindChild("Icon");
+			local iconStringContainer = icon:FindChild("ProgressBarContainer"):FindChild("macroString");
+			local iconBtn = icon:FindChild("ProgressBarContainer"):FindChild("btn_copyIconString");
+			iconBtn:SetActionData(GameLib.CodeEnumConfirmButtonType.CopyToClipboard, icons[i])
+			iconBtn:SetSprite("respr:bartex1");
+			
+			iconWindow:SetSprite(icons[i]);
+			iconStringContainer:SetText(icons[i]);
+		end
+	end
+
+	iconList:ArrangeChildrenVert();
+end
+
+---------------------------------------------------------------------------------------------------
+-- iconForm Functions
+---------------------------------------------------------------------------------------------------
+
+function ReStrat:onCloseIcons()
+	local iconList = self.wndIcon:FindChild("iconList");
+	local icons = iconList:GetChildren()
+	
+	for i = 0, #icons do
+		if icons[i] then
+			icons[i]:Destroy();
+		end
+	end
+	
+	self.wndIcon:Close();
+end
+
+---------------------------------------------------------------------------------------------------
+-- iconPreview Functions
+---------------------------------------------------------------------------------------------------
+
+function ReStrat:onIconStringCopy(wndHandler)
+	local iconString = wndHandler:GetData();
 end
 
 -----------------------------------------------------------------------------------------------
