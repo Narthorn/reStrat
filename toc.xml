@@ -3,7 +3,10 @@
     <!-- Stem files -->
     <Script Name="ReStrat.lua"/>
     <Script Name="encounterBuilders.lua"/>
+    <Script Name="combatLog.lua"/>
     <Form Name="ReStrat.xml"/>
-    <!-- Test Encounter lel -->
+    
+	
+	<!-- Test Encounter lel -->
     <Script Name="profiles\debug\debug.lua"/>
 </Addon>

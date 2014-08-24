@@ -49,12 +49,14 @@ function ReStrat:OnDocLoaded()
 	    self.wndAlerts = Apollo.LoadForm(self.xmlDoc, "alertForm", nil, self);
 		self.wndPop = Apollo.LoadForm(self.xmlDoc, "popForm", nil, self);
 		self.wndIcon = Apollo.LoadForm(self.xmlDoc, "iconForm", nil, self);
+		self.wndLog = Apollo.LoadForm(self.xmlDoc, "logForm", nil, self);
 
 		
 	    self.wndMain:Show(false, true)
 		self.wndIcon:Show(false, true)
-		
-		-- Register handlers for events, slash commands and timer, etc.
+		self.wndLog:Show(false, true)
+
+				-- Register handlers for events, slash commands and timer, etc.
 		Apollo.RegisterSlashCommand("restrat", "OnReStratOn", self)
 		Apollo.RegisterEventHandler("UnitCreated", "OnUnitCreated", self)
 		Apollo.RegisterEventHandler("UnitDestroyed", "OnUnitDestroyed", self)
@@ -92,6 +94,8 @@ function ReStrat:OnDocLoaded()
 		self.tWatchedCasts = {};
 		self.tWatchedAuras = {};
 		self.tZones = {};
+		self.combatTimer = nil;
+		self.combatStarted = nil;
 		
 		
 		if not self.tEncounters then
@@ -167,9 +171,16 @@ end
 --On Game Tick
 function ReStrat:OnGameTick()
 	if self.bInCombat then
-		self:OnGameTickManageCasts()
-		self:OnGameTickManageAuras()
+		self:OnGameTickManageCasts();
+		self:OnGameTickManageAuras();
+		self:OnCombatLogCast();
+		self:UpdateCombatTime();
 	end
+end
+
+--Update time in combat
+function ReStrat:UpdateCombatTime()
+	self.combatTimer = round(GameLib.GetGameTime() - self.combatStarted,2);
 end
 
 --On pop tick
@@ -252,7 +263,9 @@ function ReStrat:OnUnitCreated(unit)
 				id = unit:GetId(),
 				health = unit:GetMaxHealth(),
 				shield = unit:GetShieldCapacityMax(),
+				absorb = unit:GetAbsorptionMax(),
 				baseIA = unit:GetInterruptArmorMax(),
+				assault = unit:GetAssaultPower(),
 				bActive = true
 		}
 	end
@@ -285,6 +298,7 @@ function ReStrat:OnEnteredCombat(unit, combat)
 		if unit == GameLib.GetPlayerUnit() then
 			if combat then
 				self.bInCombat = true;
+				self.combatStarted = GameLib.GetGameTime();
 				return
 			else
 				self.bInCombat = false;
@@ -303,7 +317,6 @@ end
 function ReStrat:initUnit(unit)
 	for i,v in ipairs(self.tUnits) do
 		if self.tUnits[i].bActive and self.tUnits[i].unit == unit then
-			Print(self.tUnits[i].name);
 			self.tEncounters[self.tUnits[i].name].fInitFunction(); --Initiate pull function
 			return
 		end
@@ -539,6 +552,75 @@ function ReStrat:onShowIcons()
 	iconList:ArrangeChildrenVert();
 end
 
+function ReStrat:onShowLog()
+	self.wndLog:Show(true, true); --show the window, duh
+	
+	----------------------------
+	--Unit Tab
+	----------------------------
+	--Grab our labels/forms
+	local unitList     = self.wndLog:FindChild("formContainer"):FindChild("unitForm"):FindChild("unitList");
+	
+	--Create a unit for each unit in tUnits
+	for i=1, #self.tUnits do
+		local unitItem = Apollo.LoadForm(self.xmlDoc, "unitItem", unitList, self);
+		local unitString = unitItem:FindChild("unitString");
+		
+		unitString:SetText(self.tUnits[i].name);
+		unitItem:SetData(i);	
+	end
+	
+	unitList:ArrangeChildrenVert();
+	
+end
+
+--When we switch unit
+function ReStrat:onUnitSwitch(wndHandler, wndControl)
+	--Grab our labels/forms
+	local unitForm     = self.wndLog:FindChild("formContainer"):FindChild("unitForm");
+	local portrait     = unitForm:FindChild("CostumeWindow");
+	local health       = unitForm:FindChild("strHealth");
+	local name         = unitForm:FindChild("strName");
+	local power        = unitForm:FindChild("strPower");
+	local absorb       = unitForm:FindChild("strAbsorb");
+	local shield       = unitForm:FindChild("strShield");
+	local assaultpower = unitForm:FindChild("strAssault");
+	local count        = unitForm:FindChild("strCount");
+	local ia           = unitForm:FindChild("strIA");
+	
+	local unitCache = self.tUnits[wndHandler:GetParent():GetData()];
+	if unitCache.unit then
+		portrait:SetCostume(unitCache.unit);
+	else 
+		portrait:SetCostumeToCreatureId(1);
+	end
+	if unitCache.health then
+		health:SetText("Health: " .. unitCache.health);
+	else
+		health:SetText("Health: N/A");
+	end
+	--power:SetText("Health: " .. unitCache.health);
+	if unitCache.shield then
+		shield:SetText("Shield: " .. unitCache.shield);
+	else
+		shield:SetText("Shield: N/A");
+	end
+	if unitCache.absorb then
+		absorb:SetText("Absorb: " .. unitCache.absorb);
+	else
+		absorb:SetText("Absorb: N/A");
+	end
+	--count:SetText("Health: " .. unitCache.health);
+	ia:SetText("Interrupt Armor: " .. unitCache.baseIA);
+	if unitCache.assault then
+		assaultpower:SetText("Assault Power: " .. round(unitCache.assault,2));
+	else
+		assaultpower:SetText("Assault Power: N/A");
+	end
+	name:SetText("Name: " .. unitCache.name);
+
+end
+
 ---------------------------------------------------------------------------------------------------
 -- iconForm Functions
 ---------------------------------------------------------------------------------------------------
@@ -562,6 +644,17 @@ end
 
 function ReStrat:onIconStringCopy(wndHandler)
 	local iconString = wndHandler:GetData();
+end
+
+---------------------------------------------------------------------------------------------------
+-- logForm Functions
+---------------------------------------------------------------------------------------------------
+
+function ReStrat:onCloseLog(wndHandler, wndControl)
+	self.wndLog:Close();
+	local unitList     = self.wndLog:FindChild("formContainer"):FindChild("unitForm"):FindChild("unitList");
+	unitList:DestroyChildren();
+
 end
 
 -----------------------------------------------------------------------------------------------
