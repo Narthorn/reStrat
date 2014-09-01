@@ -15,13 +15,16 @@ local function profileDebug()
 	ReStrat:createCastAlert("Holographic Shootbot", "Slasher Dash", nil, nil, ReStrat.color.red, function () ReStrat:createAlert("Next Cast", 10, nil, ReStrat.color.purple, nil) end)
 	ReStrat:createCastAlert("Holographic Chompacabra", "Snap Trap", nil, nil, ReStrat.color.yellow, nil)
 	ReStrat:createCastAlert("Holographic Chompacabra", "Feeding Frenzy", nil, nil, ReStrat.color.blue, nil)
-
+	ReStrat:onPlayerHit("Firestorm", "Holographic Moodie", 5, function() Print("Stop getting hit!") end)
+	ReStrat:createCastTrigger("Holographic Moodie", "Firestorm", function() Print("Firestorm Started") end);
 end
 
 --Example spam function, there should be very little if anything in here
 local function profileDebugRepeat()
 	Print("Spammerino Cappucino");
 end
+
+
 
 -----------------------------------------------------------------------------
 --Encounter Packaging
@@ -38,6 +41,10 @@ ReStrat.tEncounters["Holographic Moodie"] = {
 	tModules = {
 		["Firestorm"] = {
 			strLabel = "Firestorm",
+			bEnabled = true,
+		},
+		["Fissure"] = {
+			strLabel = "Fissure",
 			bEnabled = true,
 		},
 		["Erupting Fissure"] = {

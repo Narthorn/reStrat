@@ -7,44 +7,8 @@
 -----------------------------------------------------------------------------------------------
 -- CAST FUNCTIONS
 -----------------------------------------------------------------------------------------------
---OnGameTickManageCasts()
-function ReStrat:OnGameTickManageCasts()
-	for i,v in ipairs(ReStrat.tUnits) do
-		for q,t in ipairs(ReStrat.tWatchedCasts) do
-			if ReStrat.tUnits[i].unit then
-				if ReStrat.tUnits[i].name == ReStrat.tWatchedCasts[q].name and ReStrat.tUnits[i].unit:GetCastName() == ReStrat.tWatchedCasts[q].cast then
-					--Unit is casting, check if alert already exists
-					if ReStrat.tAlerts then
-						for p,r in ipairs(ReStrat.tAlerts) do
-							if ReStrat.tAlerts[p].name == ReStrat.tWatchedCasts[q].cast then
-								return
-							end
-						end
-					end
-					
-					--If no cast time is specified scrape it from unit, divide by 1000 to convert to seconds!
-					if not ReStrat.tWatchedCasts[q].tAlertInfo.duration then
-						ReStrat.tWatchedCasts[q].tAlertInfo.duration = (ReStrat.tUnits[i].unit:GetCastDuration()/1000);
-					end
-					
-					
-					--Some indicated cast timers are actually shorter than the cast
-					if ReStrat.tUnits[i].unit:GetCastTotalPercent() > 50 then
-						return
-					end
-					
-					--If we haven't found cast then create alert
-					ReStrat:createAlert(ReStrat.tWatchedCasts[q].cast, ReStrat.tWatchedCasts[q].tAlertInfo.duration, ReStrat.tWatchedCasts[q].tAlertInfo.strIcon, ReStrat.tWatchedCasts[q].tAlertInfo.strColor, ReStrat.tWatchedCasts[q].tAlertInfo.fCallback)
-				end
-			end
-		end
-	end
-end
-
-
 --Modularization is heavy here, we do not reiterate on the same function to continually check
---We add the spell and unit into the tWatchedCasts table then during the game tick we iterate on that instead
---To see the function which manages the processing of that search for ReStrat:OnGameTickManageCasts()
+--We add the spell and unit into the tWatchedCasts table then check when the cast event is fired by LCLF
 function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i)
 	if ReStrat.tEncounters[strUnit].tModules[strCast].bEnabled then
 		ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
@@ -60,8 +24,16 @@ function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_
 	end
 end
 
+--Add trigger to be checked
+function ReStrat:createCastTrigger(strUnit, strCast, fCallback_i)
+	self.tSpellTriggers[#self.tSpellTriggers+1] = {
+		name = strUnit,
+		cast = strCast,
+		fCallback = fCallback_i
+	}
+end
 
---checks if the specified mob is casting ANYTHING
+--Checks if the specified mob is casting ANYTHING
 --strCast is entirely optional, if it isn't there we check for ANYTHING being cast
 function ReStrat:isCasting(strUnit, strCast)
 
@@ -87,12 +59,36 @@ function ReStrat:isCasting(strUnit, strCast)
 	
 end
 
------------------------------------------------------------------------------------------------
+--Adds the requested spell into the checklist
+--This is managed in the combat log hooks in combatlog.lua
+function ReStrat:onPlayerHit(strSpell, strUnitSource, nCooldown, fCallback)
+	if not nCooldown then nCooldown = 1 end -- By default we place a 1 second cooldown on these to avoid spam
+	self.tSpellTriggers[#self.tSpellTriggers] = {source = strUnitSource, spell = strSpell, cooldown = nCooldown, callback = fCallback};
+end
+
+
+-----------------------------------------------------------------------------------
 -- AURA FUNCTIONS
 -----------------------------------------------------------------------------------------------
 --Again modular, adds to tWatchedAuras
---All processing is handled by OnGameTickManageAuras
+--All processing is handled by OnAuraApplied
 function ReStrat:createAuraAlert(strUnit, strAuraName, duration_i, icon_i, fCallback_i)
+
+	if not ReStrat.tEncounters[strUnit] then
+		ReStrat.tWatchedAuras[#ReStrat.tWatchedAuras+1] = {
+			name = strUnit,
+			aura = strAuraName,
+			tAlertInfo = {
+				duration = duration_i,
+				strIcon = strIcon_i,
+				fCallback = fCallback_i,
+				strColor = color_i
+			}
+		}
+		
+		return
+	end
+	
 	if ReStrat.tEncounters[strUnit].tModules[strAuraName].bEnabled then
 		ReStrat.tWatchedAuras[#ReStrat.tWatchedAuras+1] = {
 			name = strUnit,
@@ -104,82 +100,29 @@ function ReStrat:createAuraAlert(strUnit, strAuraName, duration_i, icon_i, fCall
 				strColor = color_i
 			}
 		}
-	end
+		
+		return
+	end	
+	
 end
 
---Manages creating the timer when a certain buff is found
-function ReStrat:OnGameTickManageAuras()
-	for i,v in ipairs(ReStrat.tUnits) do
-		for q,t in ipairs(ReStrat.tWatchedAuras) do
-			--Set aura
-			local aura = ReStrat:findAura(ReStrat.tUnits[i].unit, ReStrat.tWatchedAuras[q].aura);
-			
-			--If we find an aura match
-			if aura and aura.duration > 0.5 then
-				
-				--We attribute each buff to a different player on creation
-				local alertString = ReStrat.tUnits[i].name .. " - " .. ReStrat.tWatchedAuras[q].aura;
-
-				--Check if the alert already exists
-				if ReStrat.tAlerts then
-						for p,r in ipairs(ReStrat.tAlerts) do
-							if ReStrat.tAlerts[p].name == alertString then
-							return
-						end
-					end
-				end
-				
-				--It doesn't, time to craft our alert
-				--If no duration is specified we set it to the duration property of our local aura
-				if not ReStrat.tWatchedAuras[q].tAlertInfo.duration then
-					ReStrat.tWatchedAuras[q].tAlertInfo.duration = aura.duration;
-				end
-				
-				--Create our alert
-				ReStrat:createAlert(alertString, ReStrat.tWatchedAuras[q].tAlertInfo.duration, ReStrat.tWatchedAuras[q].tAlertInfo.strIcon, ReStrat.tWatchedAuras[q].tAlertInfo.strColor, ReStrat.tWatchedAuras[q].tAlertInfo.fCallback)
-				
-			end
-			
-		end
-	end
-end
-
---Finds an aura
-function ReStrat:findAura(unit, strAura)
-	if unit then
-		if unit:GetBuffs() then
-			local n=0;
-			local buffTable = unit:GetBuffs();
-			local buffName = strAura;
-			for k,v in pairs(buffTable) do
-				n=n+1
-				if buffTable.arBeneficial[n] then
-					if buffTable.arBeneficial[n].splEffect:GetName() == buffName then
-						return {
-							name = buffTable.arBeneficial[n].splEffect:GetName(),
-							duration = buffTable.arBeneficial[n].fTimeRemaining,
-							icon = buffTable.arBeneficial[n].splEffect:GetIcon(),
-							flavor = buffTable.arBeneficial[n].splEffect:GetFlavor(),
-							};
-					end
-				end
-				
-				if buffTable.arHarmful[n] then
-					if buffTable.arHarmful[n].splEffect:GetName() == buffName then
-						return {
-							name = buffTable.arHarmful[n].splEffect:GetName(),
-							duration = buffTable.arHarmful[n].fTimeRemaining,
-							icon = buffTable.arHarmful[n].splEffect:GetIcon(),
-							flavor = buffTable.arHarmful[n].splEffect:GetFlavor(),
-							};
-					end
-				end
-			end
-			
-			return false
+--Not very accurate, better than nothing
+function ReStrat:findAuraDuration(strBuffName, unit)
+	local tBuffs = unit:GetBuffs();
+	
+	--Benficial
+	for i=1, #tBuffs["arBeneficial"] do
+		if tBuffs["arBeneficial"][i].splEffect:GetName() == strBuffName then
+			return tBuffs["arBeneficial"][i].fTimeRemaining
 		end
 	end
 	
-	--I have failed you!
-	return false;
+	--Harmful
+	for i=1, #tBuffs["arHarmful"] do
+		if tBuffs["arHarmful"][i].splEffect:GetName() == strBuffName then
+			return tBuffs["arHarmful"][i].fTimeRemaining
+		end
+	end
+
 end
+

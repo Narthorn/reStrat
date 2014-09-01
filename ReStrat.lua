@@ -3,7 +3,8 @@
 -- Copyright (c) NCsoft. All rights reserved
 -- Created by Ryan Park, aka Reglitch of Codex
 -----------------------------------------------------------------------------------------------
- 
+
+require "Apollo"
 require "Window"
 require "Sound"
  
@@ -36,6 +37,7 @@ function ReStrat:OnLoad()
 	self.xmlDoc = XmlDoc.CreateFromFile("ReStrat.xml")
 	self.xmlDoc:RegisterCallback("OnDocLoaded", self)
 	Apollo.LoadSprites("respr.xml", "SassyMedicSimSprites")
+	self.lcf = 	Apollo.GetPackage("LibCombatLogFixes-1.0").tPackage;
 end
 
 -----------------------------------------------------------------------------------------------
@@ -45,23 +47,42 @@ function ReStrat:OnDocLoaded()
 
 
 	if self.xmlDoc ~= nil and self.xmlDoc:IsLoaded() then
-		self.wndMain = Apollo.LoadForm(self.xmlDoc, "mainForm", nil, self);
-	    self.wndAlerts = Apollo.LoadForm(self.xmlDoc, "alertForm", nil, self);
-		self.wndPop = Apollo.LoadForm(self.xmlDoc, "popForm", nil, self);
-		self.wndIcon = Apollo.LoadForm(self.xmlDoc, "iconForm", nil, self);
-		self.wndLog = Apollo.LoadForm(self.xmlDoc, "logForm", nil, self);
+		self.wndMain     = Apollo.LoadForm(self.xmlDoc, "mainForm", nil, self);
+	    self.wndAlerts   = Apollo.LoadForm(self.xmlDoc, "alertForm", nil, self);
+		self.wndPop      = Apollo.LoadForm(self.xmlDoc, "popForm", nil, self);
+		self.wndIcon     = Apollo.LoadForm(self.xmlDoc, "iconForm", nil, self);
+		self.wndLog      = Apollo.LoadForm(self.xmlDoc, "logForm", nil, self);
+		self.wndSettings = Apollo.LoadForm(self.xmlDoc, "settingsForm", nil, self);
+
 
 		
 	    self.wndMain:Show(false, true)
 		self.wndIcon:Show(false, true)
 		self.wndLog:Show(false, true)
-
-				-- Register handlers for events, slash commands and timer, etc.
+		self.wndSettings:Show(false, true)
+		
+		-- Register handlers for events, slash commands and timer, etc.
 		Apollo.RegisterSlashCommand("restrat", "OnReStratOn", self)
 		Apollo.RegisterEventHandler("UnitCreated", "OnUnitCreated", self)
 		Apollo.RegisterEventHandler("UnitDestroyed", "OnUnitDestroyed", self)
 		Apollo.RegisterEventHandler("UnitEnteredCombat", "OnEnteredCombat", self)
 		Apollo.RegisterEventHandler("WindowManagementReady", "OnWindowManagementReady", self)
+		
+		--[[
+		Register LCLF events
+		_LCLF_SpellAuraApplied(intSpellId, intStackCount, tTargetUnit)
+		_LCLF_SpellAuraAppliedDose(intSpellId, intStackCount, tTargetUnit)
+		_LCLF_SpellAuraRemoved(intSpellId, intStackCount, tTargetUnit)
+		_LCLF_SpellAuraRemovedDose(intSpellId, intStackCount, tTargetUnit)
+		_LCLF_SpellCastStart(strSpellName, tCasterUnit)
+		_LCLF_SpellCastSuccess(strSpellName, tCasterUnit)
+		]]--
+		Apollo.RegisterEventHandler("_LCLF_SpellAuraApplied", "OnAuraApplied", self);
+		Apollo.RegisterEventHandler("_LCLF_SpellAuraAppliedDose", "OnAuraStackAdded", self);
+		Apollo.RegisterEventHandler("_LCLF_SpellAuraRemoved", "OnAuraRemoved", self);
+		Apollo.RegisterEventHandler("_LCLF_SpellAuraRemovedDose", "OnAuraStackRemoved", self);
+		Apollo.RegisterEventHandler("_LCLF_SpellCastStart", "OnCastStart", self);
+		
 		
 		--Color library, can't be stored in constants
 		self.color = {
@@ -77,9 +98,11 @@ function ReStrat:OnDocLoaded()
 		
 		--This timer drives UI events exclusively, in game checks are fired on a seperate timer
 		self.alertTimer = ApolloTimer.Create(0.01, true, "OnAlarmTick", self);
+		self.alertTimer:Stop();
 		
 		--This timer drives in game logging and event handling
 		self.gameTimer = ApolloTimer.Create(0.1, true, "OnGameTick", self);
+		self.gameTimer:Stop();
 		
 		--This time drives pop appearances
 		self.popTimer = ApolloTimer.Create(0.75, true, "OnPopTick", self);
@@ -96,12 +119,23 @@ function ReStrat:OnDocLoaded()
 		self.tZones = {};
 		self.combatTimer = nil;
 		self.combatStarted = nil;
+		self.combatLog = {};
+		self.tSpellTriggers = {}
+		self.tAuraCache = {}
 		
-		
+		--If we haven't initiated encounters
 		if not self.tEncounters then
 			self.tEncounters = {}
 		end
 		
+		--If this is our first time loading in
+		if not self.tSettings then
+			self.tSettings = {
+				combatlog = { auras = true, casts = true, enemyauras = true, enemycasts = true }
+			}	
+		end
+		
+		self:HookCombatLog() --this is hella performance intensive
 		self.bLoaded = false;
 	end
 end
@@ -111,8 +145,9 @@ end
 -----------------------------------------------------------------------------------------------
 --Add windows to carbines window management
 function ReStrat:OnWindowManagementReady()
-	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndAlerts, strName = "restratAlerts"})
-	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndPop, strName = "restratPops"})
+	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndAlerts, strName = "reStratAlert"})
+	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndPop, strName = "ReStratPop"})
+	
 end
 
 --Save data between sessions
@@ -137,7 +172,6 @@ function ReStrat:OnRestore(eType, savedData)
 		
 		if self.tEncounters then
 			encounterCache = self.tEncounters;
-			SendVarToRover("Cache", encounterCache, 1);
 		end
 		
 		if savedData.encounters then
@@ -171,9 +205,6 @@ end
 --On Game Tick
 function ReStrat:OnGameTick()
 	if self.bInCombat then
-		self:OnGameTickManageCasts();
-		self:OnGameTickManageAuras();
-		self:OnCombatLogCast();
 		self:UpdateCombatTime();
 	end
 end
@@ -226,7 +257,7 @@ function ReStrat:OnAlarmTick()
 				else
 						
 				--Close bar
-				alertInstance.alert:Close();
+				alertInstance.alert:Destroy();
 					
 				--Execute callback
 				if alertInstance.callback then
@@ -297,11 +328,25 @@ function ReStrat:OnEnteredCombat(unit, combat)
 	if GameLib.GetPlayerUnit() then
 		if unit == GameLib.GetPlayerUnit() then
 			if combat then
+				--Clear combat log
+				self.combatLog = {};
+			
+				--Start/stop timers
 				self.bInCombat = true;
 				self.combatStarted = GameLib.GetGameTime();
+				self.alertTimer:Start();
+				self.gameTimer:Start();
 				return
 			else
+				self.wndAlerts:DestroyChildren();
+				self.tAlerts = {};
+				self.tWatchedAuras = {};
+				self.tWatchedCasts = {};
+			
+				--Stop/start timers
 				self.bInCombat = false;
+				self.alertTimer:Stop();
+				self.gameTimer:Stop();
 				return
 			end
 		end
@@ -393,6 +438,22 @@ function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	self:arrangeAlerts();
 end
 
+--Destroy alert
+function ReStrat:DestroyAlert(name, bExecCallback)
+	for i = 1, #self.tAlerts do
+		if self.tAlerts[i].name == name then
+			if bExecCallback then
+				self.tAlerts[i].callback();
+			end
+		
+			--Destroy and remove
+			self.tAlerts[i].alert:Destroy();
+			table.remove(self.tAlerts, i);
+			self:arrangeAlerts();
+		end
+	end
+end
+
 --Create pop
 function ReStrat:createPop(strLabel, fCallback)
 	--If we're overriding an existing pop
@@ -417,14 +478,8 @@ function ReStrat:OnReStratOn()
 	--Show Window
 	self.wndMain:Invoke()
 	
-	--Fake alerts
-	self:createAlert("Big Bad Casterino", 6, nil, self.color.purple, nil)
-	self:createAlert("Big Bad Casterino", 1.5, nil, self.color.purple, nil)
-	self:createPop("Test Pop", function() Print("Pop Done") end)
-	
 	--Init UI
 	self:OnInitUI()
-	
 end
 
 --UI Init
@@ -460,6 +515,8 @@ function round(num, idp)
   local mult = 10^(idp or 0)
   return math.floor(num * mult + 0.5) / mult
 end
+
+
 
 ---------------------------------------------------------------------------------------------------
 -- btnEncounter Functions
@@ -621,6 +678,10 @@ function ReStrat:onUnitSwitch(wndHandler, wndControl)
 
 end
 
+function ReStrat:onSettingsShow(wndControl, eMouseButton)
+	self.wndSettings:Show(true, true);
+end
+
 ---------------------------------------------------------------------------------------------------
 -- iconForm Functions
 ---------------------------------------------------------------------------------------------------
@@ -655,6 +716,61 @@ function ReStrat:onCloseLog(wndHandler, wndControl)
 	local unitList     = self.wndLog:FindChild("formContainer"):FindChild("unitForm"):FindChild("unitList");
 	unitList:DestroyChildren();
 
+end
+
+---------------------------------------------------------------------------------------------------
+-- settingsForm Functions
+---------------------------------------------------------------------------------------------------
+
+function ReStrat:onToggleSettings(wndHandler, wndControl)
+	if wndControl:GetText() == "Enabled" then
+		wndControl:SetText("Disabled");
+		wndControl:SetBGColor(self.color.red);
+	else
+		wndControl:SetText("Enabled");
+		wndControl:SetBGColor(self.color.green);
+	end
+end
+
+function ReStrat:onCloseSettings()
+	self.wndSettings:Close();
+end
+
+function ReStrat:onToggleMoving(wndHandler, wndControl)
+	if wndControl:GetText() == "Enabled" then
+		--Display
+		self.wndAlerts:SetBGColor("90000000");
+		self.wndAlerts:SetText("Alerts Frame");
+		self.wndPop:SetBGColor("90000000");
+		self.wndPop:SetText("Pop Frame");
+		
+		--Set properties
+		self.wndAlerts:SetStyle("Moveable", true);
+		self.wndPop:SetStyle("Moveable", true);
+	else
+		--Display
+		self.wndAlerts:SetText("");
+		self.wndAlerts:SetBGColor("00ffffff");
+		self.wndPop:SetText("");
+		self.wndPop:SetBGColor("00ffffff");
+		
+		--Set properties
+		self.wndAlerts:SetStyle("Moveable", false);
+		self.wndPop:SetStyle("Moveable", false);
+	end
+end
+
+--Create our fake timers on request
+function ReStrat:onCreateTestAlarms(wndHandler, wndControl)
+	--Start alert timer
+	self.alertTimer:Start();
+	self.gameTimer:Start();
+	
+	local stopTimers = function() self.gameTimer:Stop(); self.alertTimer:Stop(); end
+	
+	self:createAlert("Energon Cubes", 15, "Icon_SkillMedic_repairstation", self.color.purple, stopTimers);
+	self:createAlert("Flame Walk", 10, "Icon_SkillMisc_Soldier_March", self.color.red, nil)
+	self:createAlert("Knockback", 5, "Icon_SkillSbuff_higherjumpbuff", self.color.blue, function() self:createPop("Knockback!", nil) end)
 end
 
 -----------------------------------------------------------------------------------------------

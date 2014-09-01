@@ -5,8 +5,20 @@
     <Script Name="encounterBuilders.lua"/>
     <Script Name="combatLog.lua"/>
     <Form Name="ReStrat.xml"/>
-    
 	
-	<!-- Test Encounter lel -->
+	<!-- Libs -->
+	<Script Name="lib\LibCombatLogFixes-1.0\LibCombatLogFixes.lua"/>
+	
+    <!-- Encounters -->
     <Script Name="profiles\debug\debug.lua"/>
+	
+		<!--Genetic Archives -->
+			<!-- Experiment X-89 -->
+			<Script Name="profiles\Genetic Archives\experiment.lua"/>
+			
+			<!-- Kuralak the Defiler -->
+			<Script Name="profiles\Genetic Archives\kuralak.lua"/>
+
+			<!-- Phagemaw -->
+			<Script Name="profiles\Genetic Archives\Phagemaw.lua"/>
 </Addon>
