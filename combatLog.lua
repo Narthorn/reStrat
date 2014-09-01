@@ -50,6 +50,7 @@ end
 function ReStrat:OnAuraApplied(intSpellId, intStackCount, tTargetUnit)
 	local spell = GameLib.GetSpell(intSpellId);
 	local duration = ReStrat:findAuraDuration(spell:GetName(), tTargetUnit);
+	local spellName = spell:GetName();
 	
 	--[[Create combat log event
 	self.combatLog[#self.combatLog+1] = { 
@@ -60,14 +61,18 @@ function ReStrat:OnAuraApplied(intSpellId, intStackCount, tTargetUnit)
 	}]]--
 	
 	--Add the information to our cache
-	if not self.tAuraCache[spell:GetName()] then
-		self.tAuraCache[spell:GetName()] = {
+	if not self.tAuraCache[spellName] then
+		self.tAuraCache[spellName] = {
 			nMaxDuration = math.ceil(duration*10)*0.1,
 			strIcon = spell:GetIcon(),
 			strFlavor = spell:GetFlavor()
 		}
 	end
 	
+	--Create pin if needed
+	if self.tPinAuras[spellName] then
+		ReStrat:createPin(spellName .. " - " .. tTargetUnit:GetName(), tTargetUnit, nil);
+	end
 		
 	--Create alert
 	for i = 1, #ReStrat.tWatchedAuras do
@@ -121,14 +126,20 @@ end
 
 --AURA REMOVED EVENT
 function ReStrat:OnAuraRemoved(intSpellId, intStackCount, tTargetUnit)
-	--[[local spell = GameLib.GetSpell(intSpellId)
-	--Create combat log event
+	local spell = GameLib.GetSpell(intSpellId)
+	
+	--[[Create combat log event
 	self.combatLog[#self.combatLog+1] = { 
 		auraName = spell:GetName(), 
 		target = tTargetUnit:GetName(), 
 		type="aura_faded", 
 		time = ReStrat.combatTimer
 	}]]--
+	
+	--Remove pin if needed
+	if self.tPinAuras[spell:GetName()] then
+		ReStrat:destroyPin(tTargetUnit);
+	end
 end
 
 

@@ -11,6 +11,16 @@
 	
     <!-- Encounters -->
     <Script Name="profiles\debug\debug.lua"/>
+		
+		<!--Stormtalon's Lair -->
+			<!-- Blade-Wind the Invoker -->
+			<Script Name="profiles\Stormtalon's Lair\bladewind.lua"/>			
+			
+			<!-- Aethros -->
+			<Script Name="profiles\Stormtalon's Lair\aethros.lua"/>			
+			
+			<!-- Stormtalon -->
+			<Script Name="profiles\Stormtalon's Lair\stormtalon.lua"/>
 	
 		<!--Genetic Archives -->
 			<!-- Experiment X-89 -->
@@ -20,5 +30,11 @@
 			<Script Name="profiles\Genetic Archives\kuralak.lua"/>
 
 			<!-- Phagemaw -->
-			<Script Name="profiles\Genetic Archives\Phagemaw.lua"/>
+			<Script Name="profiles\Genetic Archives\phagemaw.lua"/>
+			
+			<!-- Phagetech Prototypes -->
+			<Script Name="profiles\Genetic Archives\phagetech.lua"/>
+			
+			<!-- Phageborn Convergence -->
+			<Script Name="profiles\Genetic Archives\convergence.lua"/>
 </Addon>

@@ -126,3 +126,8 @@ function ReStrat:findAuraDuration(strBuffName, unit)
 
 end
 
+--Just add into library, look in combatLog.lua for the real functionality
+function ReStrat:createPinFromAura(auraName)
+	self.tPinAuras[auraName] = true
+end
+

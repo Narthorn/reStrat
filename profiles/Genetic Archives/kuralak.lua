@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
---Debug Profile, only works on easy mobs in Large Training Grounds
+--Kuralak the Defiler, Reglitch's Profile
 -----------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
@@ -38,7 +38,9 @@ local function kuralakInit()
 	--Vanish into Darkness
 	local vidCD = function() ReStrat:createAlert("Vanish Cooldown", 60, nil, ReStrat.color.orange, nil) end
 	ReStrat:createCastAlert("Kuralak the Defiler", "Vanish into Darkness", nil, "Icon_SkillMind_UI_espr_cnfs", ReStrat.color.red, vidCD);
-
+	
+	--Chromosome Corruption Pin
+	ReStrat:createPinFromAura("Chromosome Corruption")
 	
 end
 

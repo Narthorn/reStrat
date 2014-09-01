@@ -63,10 +63,13 @@ function ReStrat:OnDocLoaded()
 		
 		-- Register handlers for events, slash commands and timer, etc.
 		Apollo.RegisterSlashCommand("restrat", "OnReStratOn", self)
+		Apollo.RegisterSlashCommand("pull", "OnPull", self)
+		Apollo.RegisterSlashCommand("break", "OnBreak", self)
 		Apollo.RegisterEventHandler("UnitCreated", "OnUnitCreated", self)
 		Apollo.RegisterEventHandler("UnitDestroyed", "OnUnitDestroyed", self)
 		Apollo.RegisterEventHandler("UnitEnteredCombat", "OnEnteredCombat", self)
 		Apollo.RegisterEventHandler("WindowManagementReady", "OnWindowManagementReady", self)
+		Apollo.RegisterEventHandler("ChatMessage", "OnChatMessage", self)
 		
 		--[[
 		Register LCLF events
@@ -96,8 +99,8 @@ function ReStrat:OnDocLoaded()
 			white = "white",
 		}
 		
-		--This timer drives UI events exclusively, in game checks are fired on a seperate timer
-		self.alertTimer = ApolloTimer.Create(0.01, true, "OnAlarmTick", self);
+		--This timer drives alerts exclusively, in game checks are fired on a seperate timer
+		self.alertTimer = ApolloTimer.Create(0.1, true, "OnAlarmTick", self);
 		self.alertTimer:Stop();
 		
 		--This timer drives in game logging and event handling
@@ -107,6 +110,10 @@ function ReStrat:OnDocLoaded()
 		--This time drives pop appearances
 		self.popTimer = ApolloTimer.Create(0.75, true, "OnPopTick", self);
 		self.popTimer:Stop();
+		
+		--Drives pull itmers
+		self.pullTimer = ApolloTimer.Create(1, true, "OnPullTimer", self);
+		self.pullTimer:Stop();
 
 		--Variables, tables, etc.
 		self.tAlerts = {};
@@ -122,6 +129,8 @@ function ReStrat:OnDocLoaded()
 		self.combatLog = {};
 		self.tSpellTriggers = {}
 		self.tAuraCache = {}
+		self.tPins = {}
+		self.tPinAuras = {};
 		
 		--If we haven't initiated encounters
 		if not self.tEncounters then
@@ -241,7 +250,6 @@ function ReStrat:OnAlarmTick()
 		for i,v in ipairs(self.tAlerts) do
 			local alertInstance = self.tAlerts[i];
 			local timer = alertInstance.alert:FindChild("ProgressBarContainer"):FindChild("timeLeft");
-			local pBar = alertInstance.alert:FindChild("ProgressBarContainer"):FindChild("progressBar");
 			
 			--Manage actual time degradation
 			if alertInstance.lastTime then
@@ -253,7 +261,6 @@ function ReStrat:OnAlarmTick()
 			--Update time and bar
 			if alertInstance.currDuration >= 0 then
 					timer:SetText(tostring(round(alertInstance.currDuration, 1)) .. "S");
-					pBar:SetProgress(alertInstance.currDuration);
 				else
 						
 				--Close bar
@@ -270,42 +277,6 @@ function ReStrat:OnAlarmTick()
 				--Reshuffle windows
 				self:arrangeAlerts();
 			end
-		end
-	end
-end
-
---When units are created by the game
-function ReStrat:OnUnitCreated(unit)
-	--Check if we have the unit in our library
-	for i,v in ipairs(self.tUnits) do
-		if self.tUnits[i].unit == unit then
-			self.unitExists = true;
-			return
-		else
-			self.unitExists = false;
-		end
-	end
-	
-	--If not then we add it
-	if not self.unitExists then
-		self.tUnits[#self.tUnits+1]  = {
-				unit = unit,
-				name = unit:GetName(),
-				id = unit:GetId(),
-				health = unit:GetMaxHealth(),
-				shield = unit:GetShieldCapacityMax(),
-				absorb = unit:GetAbsorptionMax(),
-				baseIA = unit:GetInterruptArmorMax(),
-				assault = unit:GetAssaultPower(),
-				bActive = true
-		}
-	end
-	
-	--Unit has been created in combat
-	--If it's a unit in our list
-	if self:isWatchedUnit(unit) and unit:IsInCombat() then
-		if self.bInCombat then
-			self:initUnit(unit);
 		end
 	end
 end
@@ -352,20 +323,35 @@ function ReStrat:OnEnteredCombat(unit, combat)
 		end
 	end
 	
-	--If it's a unit in our list
+	--If it's a unit in our watched list
 	if self:isWatchedUnit(unit) and combat then
 		self:initUnit(unit);
 	end
+	
+	--Check if we have the unit in our library
+	for i,v in ipairs(self.tUnits) do
+		if self.tUnits[i].unit == unit then
+			return
+		end
+	end
+	
+	--If not then we add it
+	self.tUnits[#self.tUnits+1]  = {
+			unit = unit,
+			name = unit:GetName(),
+			id = unit:GetId(),
+			health = unit:GetMaxHealth(),
+			shield = unit:GetShieldCapacityMax(),
+			absorb = unit:GetAbsorptionMax(),
+			baseIA = unit:GetInterruptArmorMax(),
+			assault = unit:GetAssaultPower(),
+			bActive = true
+	}
 end
 
 --Initiate a unit
 function ReStrat:initUnit(unit)
-	for i,v in ipairs(self.tUnits) do
-		if self.tUnits[i].bActive and self.tUnits[i].unit == unit then
-			self.tEncounters[self.tUnits[i].name].fInitFunction(); --Initiate pull function
-			return
-		end
-	end
+	self.tEncounters[unit:GetName()].fInitFunction(); --Initiate pull function
 end
 
 --If the unit is in tEncounters
@@ -405,25 +391,31 @@ end
 --Generate alert
 function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	local alertBar = Apollo.LoadForm("ReStrat.xml", "alertInstance", self.wndAlerts, self);
+	local progressbar = alertBar:FindChild("ProgressBarContainer"):FindChild("progressBar");
+	local icon = alertBar:FindChild("IconContainer");
 	
 	--Set bar label
 	alertBar:FindChild("ProgressBarContainer"):FindChild("spellName"):SetText(strLabel);
 	
 	--Set max for pBar
-	alertBar:FindChild("ProgressBarContainer"):FindChild("progressBar"):SetMax(duration);
+	progressbar:SetMax(duration);
+	
+	--Set to 0
+	progressbar:SetProgress(duration);
+	progressbar:SetProgress(0, 1);
 	
 	--Handle optional color
 	if not strColor then
-		alertBar:FindChild("ProgressBarContainer"):FindChild("progressBar"):SetBarColor(self.color.red);
+		progressbar:SetBarColor(self.color.red);
 	else
-		alertBar:FindChild("ProgressBarContainer"):FindChild("progressBar"):SetBarColor(strColor);
+		progressbar:SetBarColor(strColor);
 	end
 	
 	--Handle optional icon
 	if not strIcon then
-		alertBar:FindChild("IconContainer"):Close();
+		icon:Close();
 	else
-		alertBar:FindChild("IconContainer"):FindChild("Icon"):SetSprite(strIcon);
+		icon:FindChild("Icon"):SetSprite(strIcon);
 	end
 	
 	--Handle callback function
@@ -453,6 +445,29 @@ function ReStrat:DestroyAlert(name, bExecCallback)
 		end
 	end
 end
+
+--Create pin
+function ReStrat:createPin(strLabel, unit, graphic)
+	local pin = Apollo.LoadForm(self.xmlDoc, "pinForm", "FixedHudStratumHigh", self);
+	local label = pin:FindChild("label");
+	local graphicform = pin:FindChild("graphic");
+	
+	if graphic then graphicform:SetSprite(graphic); end --override the graphic if need be
+	
+	label:SetText(strLabel); --set label
+	
+	pin:SetUnit(unit, 0); --attach to unit
+	
+	if self.tPins[unit:GetName()] then self.tPins[unit:GetName()]:Destroy(); end --Overwrite existing pin
+	
+	self.tPins[unit:GetName()] = pin; --Create the new pin
+end
+
+--Destroy pin
+function ReStrat:destroyPin(unit)
+	if self.tPins[unit:GetName()] then self.tPins[unit:GetName()]:Destroy(); self.tPins[unit:GetName()] = nil end
+end
+
 
 --Create pop
 function ReStrat:createPop(strLabel, fCallback)
@@ -765,12 +780,128 @@ function ReStrat:onCreateTestAlarms(wndHandler, wndControl)
 	--Start alert timer
 	self.alertTimer:Start();
 	self.gameTimer:Start();
-	
-	local stopTimers = function() self.gameTimer:Stop(); self.alertTimer:Stop(); end
+	wndControl:Enable(false);
+
+	local stopTimers = function() self.gameTimer:Stop(); self.alertTimer:Stop(); wndControl:Enable(true); end
 	
 	self:createAlert("Energon Cubes", 15, "Icon_SkillMedic_repairstation", self.color.purple, stopTimers);
 	self:createAlert("Flame Walk", 10, "Icon_SkillMisc_Soldier_March", self.color.red, nil)
 	self:createAlert("Knockback", 5, "Icon_SkillSbuff_higherjumpbuff", self.color.blue, function() self:createPop("Knockback!", nil) end)
+end
+
+--OnChatMessages
+function ReStrat:OnChatMessage(channelCurrent, tMessage)
+	if not tMessage then return end --Shouldn't happen but hey this game
+	
+	local command = tMessage.arMessageSegments[1].strText;
+	
+	--Destroy break
+	if string.lower(command) == "stop break" then
+		for i = 1, GroupLib.GetMemberCount() do
+			if GroupLib.GetGroupMember(i).strCharacterName == tMessage.strSender then
+				if GroupLib.GetGroupMember(i).bIsLeader or GroupLib.GetGroupMember(i).bRaidAssistant or GroupLib.GetGroupMember(i).bMainAssist then  
+					self:DestroyAlert("Break HYPE!");
+					return
+				end
+			end
+		end
+	end
+	
+	--Create pull timer
+	if string.match(string.lower(command), "pull in") then
+		for i = 1, GroupLib.GetMemberCount() do
+			if GroupLib.GetGroupMember(i).strCharacterName == tMessage.strSender then
+				if GroupLib.GetGroupMember(i).bIsLeader or GroupLib.GetGroupMember(i).bRaidAssistant or GroupLib.GetGroupMember(i).bMainAssist then  
+					--Start alert timer
+					self.alertTimer:Start();
+					self.gameTimer:Start();
+					
+					local stopTimers = function() if not self.bInCombat and #self.tAlerts <= 1 then self.gameTimer:Stop(); self.alertTimer:Stop(); end end
+					
+					self:createAlert("Pull!", tonumber(string.match(command, "%d+")), "Icon_SkillMisc_Explorer_safefail", self.color.green, stopTimers)
+					
+					return
+				end
+			end
+		end
+	end
+	
+	--Create break timer
+	if string.match(string.lower(command), "break for") then
+		for i = 1, GroupLib.GetMemberCount() do
+			if GroupLib.GetGroupMember(i).strCharacterName == tMessage.strSender then
+				if GroupLib.GetGroupMember(i).bIsLeader or GroupLib.GetGroupMember(i).bRaidAssistant or GroupLib.GetGroupMember(i).bMainAssist then  
+					--Start alert timer
+					self.alertTimer:Start();
+					self.gameTimer:Start();
+					
+					local stopTimers = function() if not self.bInCombat and #self.tAlerts <= 1 then self.gameTimer:Stop(); self.alertTimer:Stop(); end end
+					
+					self:createAlert("Break HYPE!", tonumber(string.match(command, "%d+")), "Icon_SkillMedic_energize", self.color.purple, stopTimers)
+				
+					return
+				end
+			end
+		end
+	end
+	
+end
+
+--On /pull
+function ReStrat:OnPull(cmd, arg)
+	local arg = tonumber(arg);
+
+	for i = 1, GroupLib.GetMemberCount() do 
+		if GroupLib.GetGroupMember(i).strCharacterName == GameLib.GetPlayerUnit():GetName() then
+			if GroupLib.GetGroupMember(i).bIsLeader or GroupLib.GetGroupMember(i).bRaidAssistant or GroupLib.GetGroupMember(i).bMainAssist then
+				--Pull timer
+				if type(arg) == "number" then
+					ChatSystemLib.Command('/p Pull in ' .. arg)
+					self.pulltime = arg;
+					self.pullTimer:Start();
+				else
+					Print("Please enter a number.");
+				end
+				
+				return
+			end
+		end
+	end
+	
+	Print("You are not a Leader/Assistant");
+end
+
+--On /break
+function ReStrat:OnBreak(cmd, arg)
+	local arg = tonumber(arg);
+
+	for i = 1, GroupLib.GetMemberCount() do 
+		if GroupLib.GetGroupMember(i).strCharacterName == GameLib.GetPlayerUnit():GetName() then
+			if GroupLib.GetGroupMember(i).bIsLeader or GroupLib.GetGroupMember(i).bRaidAssistant or GroupLib.GetGroupMember(i).bMainAssist then
+				--Break timer
+				if type(arg) == "number" then
+					ChatSystemLib.Command('/p Break for ' .. arg)
+				else
+					Print("Please enter a number.");
+				end
+				
+				return
+			end
+		end
+	end
+	
+	Print("You are not a Leader/Assistant");
+end
+
+--Pull timer
+function ReStrat:OnPullTimer()
+	if self.pulltime > 1 then
+		self.pulltime = self.pulltime-1;
+		ChatSystemLib.Command('/p ' .. self.pulltime)
+	else
+		self.pullTimer:Stop();
+		ChatSystemLib.Command("/p Pull!")
+	end	
 end
 
 -----------------------------------------------------------------------------------------------

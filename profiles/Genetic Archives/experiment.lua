@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
---Debug Profile, only works on easy mobs in Large Training Grounds
+--Experiment X-89, Reglitch's Profile
 -----------------------------------------------------------------------------
 
 -----------------------------------------------------------------------------
@@ -26,10 +26,12 @@ local function experimentInit()
 	local corruptionCD = function() ReStrat:createAlert("Corruption Globule Cooldown", 5, nil, ReStrat.color.orange, nil) end
 	ReStrat:createAuraAlert(nil, "Corruption Globule", nil, "Icon_SkillWarrior_Plasma_Pulse_Alt", corruptionCD);
 	
-	--Corruption Globule (Small bomb)
+	--Strain Bomb (Huge Bomb)
 	local strainCD = function() ReStrat:createAlert("Strain Bomb Cooldown", 10, nil, ReStrat.color.orange, nil) end
 	ReStrat:createAuraAlert(nil, "Strain Bomb", nil, "Icon_SkillStalker_Amplifide_Spike", strainCD);
 	
+	--Corruption Globule Pin
+	ReStrat:createPinFromAura("Corruption Globule")
 end
 
 --Spam function, ONLY USE IF NECESSARY
