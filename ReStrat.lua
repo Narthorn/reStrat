@@ -131,6 +131,7 @@ function ReStrat:OnDocLoaded()
 		self.tAuraCache = {}
 		self.tPins = {}
 		self.tPinAuras = {};
+		self.tEncounterVariables = {}
 		
 		--If we haven't initiated encounters
 		if not self.tEncounters then
@@ -313,6 +314,7 @@ function ReStrat:OnEnteredCombat(unit, combat)
 				self.tAlerts = {};
 				self.tWatchedAuras = {};
 				self.tWatchedCasts = {};
+				self.tEncounterVariables = {};
 			
 				--Stop/start timers
 				self.bInCombat = false;

@@ -37,4 +37,7 @@
 			
 			<!-- Phageborn Convergence -->
 			<Script Name="profiles\Genetic Archives\convergence.lua"/>
+			
+			<!-- Dreadphage Ohmna -->
+			<Script Name="profiles\Genetic Archives\ohmna.lua"/>
 </Addon>

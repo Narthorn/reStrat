@@ -24,8 +24,10 @@ function ReStrat:OnCastStart(strSpellName, tCasterUnit)
 	for i = 1, #ReStrat.tSpellTriggers do
 		if strSpellName == ReStrat.tSpellTriggers[i].cast and tCasterUnit:GetName() == ReStrat.tSpellTriggers[i].name then
 			ReStrat.tSpellTriggers[i].fCallback();
+		else if strSpellName == ReStrat.tSpellTriggers[i].cast and ReStrat.tSpellTriggers[i].name == nil then
+			ReStrat.tSpellTriggers[i].fCallback();
 		end
-	
+		end
 	end
 	
 	--Do we have to start a timer?
