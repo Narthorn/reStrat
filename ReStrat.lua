@@ -315,6 +315,8 @@ function ReStrat:OnEnteredCombat(unit, combat)
 				self.tWatchedAuras = {};
 				self.tWatchedCasts = {};
 				self.tEncounterVariables = {};
+				self.tSpellTriggers = {};
+				
 			
 				--Stop/start timers
 				self.bInCombat = false;
@@ -435,15 +437,19 @@ end
 --Destroy alert
 function ReStrat:DestroyAlert(name, bExecCallback)
 	for i = 1, #self.tAlerts do
-		if self.tAlerts[i].name == name then
-			if bExecCallback then
-				self.tAlerts[i].callback();
+		if self.tAlerts[i] then
+			if self.tAlerts[i].name then
+				if self.tAlerts[i].name == name then
+					if bExecCallback then
+						self.tAlerts[i].callback();
+					end
+				
+					--Destroy and remove
+					self.tAlerts[i].alert:Destroy();
+					table.remove(self.tAlerts, i);
+					self:arrangeAlerts();
+				end
 			end
-		
-			--Destroy and remove
-			self.tAlerts[i].alert:Destroy();
-			table.remove(self.tAlerts, i);
-			self:arrangeAlerts();
 		end
 	end
 end

@@ -11,6 +11,13 @@ local function golgoxInit()
 	local golgox = "Golgox the Lifecrusher";
 	
 	ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil)
+	
+	--Destroy ALL alerts here for ALL middle phases
+	local destroyAlerts = function()
+		ReStrat:DestroyAlert("Scatter Cooldown", false);
+		ReStrat:DestroyAlert("Demolish Cooldown", false);
+		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
+	end
 
 	--Scatter
 	local scatterCD = function() ReStrat:createAlert("Scatter Cooldown", 33, nil, ReStrat.color.orange, nil) end
@@ -24,12 +31,6 @@ local function golgoxInit()
 	local golgoxPop = function() destroyAlerts(); ReStrat:createPop("Golgox Mid!", nil);  ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(golgox, "Teleport", golgoxPop);
 	
-	--Destroy ALL alerts here for ALL middle phases
-	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Scatter Cooldown", false);
-		ReStrat:DestroyAlert("Demolish Cooldown", false);
-		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
-	end
 	
 	
 end
@@ -37,6 +38,13 @@ end
 --Terax init function
 local function teraxInit()
 	local terax = "Terax Blightweaver";
+	
+	--Destroy ALL alerts here for ALL middle phases
+	local destroyAlerts = function()
+		ReStrat:DestroyAlert("Scatter Cooldown", false);
+		ReStrat:DestroyAlert("Demolish Cooldown", false);
+		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
+	end
 	
 	--Stitching Strain
 	local stitchCD = function() ReStrat:createAlert("Stitching Strain Cooldown", 55, nil, ReStrat.color.orange, nil) end
@@ -46,12 +54,6 @@ local function teraxInit()
 	local teraxPop = function() destroyAlerts(); ReStrat:createPop("Terax Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(terax, "Teleport", teraxPop);
 	
-	--Destroy ALL alerts here for ALL middle phases
-	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Scatter Cooldown", false);
-		ReStrat:DestroyAlert("Demolish Cooldown", false);
-		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
-	end
 	
 end
 
@@ -60,9 +62,22 @@ end
 local function vratorgInit()
 	local vratorg = "Fleshmonger Vratorg";
 	
+	--Destroy ALL alerts here for ALL middle phases
+	local destroyAlerts = function()
+		ReStrat:DestroyAlert("Scatter Cooldown", false);
+		ReStrat:DestroyAlert("Demolish Cooldown", false);
+		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
+	end
+	
 	--Teleport
 	local vratorgPop = function() destroyAlerts(); ReStrat:createPop("Vratorg Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(vratorg, "Teleport", vratorgPop);
+	
+end
+
+--Noxmind init function
+local function noxmindInit()
+	local noxmind = "Noxmind the Insidious";
 	
 	--Destroy ALL alerts here for ALL middle phases
 	local destroyAlerts = function()
@@ -70,12 +85,6 @@ local function vratorgInit()
 		ReStrat:DestroyAlert("Demolish Cooldown", false);
 		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
 	end
-
-end
-
---Noxmind init function
-local function noxmindInit()
-	local noxmind = "Noxmind the Insidious";
 	
 	--Essence Rot
 	local erCD = function() ReStrat:createAlert("Essence Rot Cooldown", 17, nil, ReStrat.color.orange, nil) end
@@ -85,28 +94,22 @@ local function noxmindInit()
 	local noxmindPop = function() destroyAlerts(); ReStrat:createPop("Noxmind Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(noxmind, "Teleport", noxmindPop);
 	
-	--Destroy ALL alerts here for ALL middle phases
-	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Scatter Cooldown", false);
-		ReStrat:DestroyAlert("Demolish Cooldown", false);
-		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
-	end
 end
 
 --Ersoth Curseform init function
 local function ersothInit()
 	local ersoth = "Ersoth Curseform";
 	
-	--Teleport
-	local ersothInit = function() destroyAlerts(); ReStrat:createPop("Ersoth Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
-	ReStrat:createCastTrigger(ersoth, "Teleport", ersothInit);
-	
 	--Destroy ALL alerts here for ALL middle phases
 	local destroyAlerts = function()
 		ReStrat:DestroyAlert("Scatter Cooldown", false);
 		ReStrat:DestroyAlert("Demolish Cooldown", false);
 		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
 	end
+	
+	--Teleport
+	local ersothInit = function() destroyAlerts(); ReStrat:createPop("Ersoth Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
+	ReStrat:createCastTrigger(ersoth, "Teleport", ersothInit);
 
 end
 

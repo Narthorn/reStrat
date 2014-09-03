@@ -10,17 +10,19 @@
 --Modularization is heavy here, we do not reiterate on the same function to continually check
 --We add the spell and unit into the tWatchedCasts table then check when the cast event is fired by LCLF
 function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i)
-	if ReStrat.tEncounters[strUnit].tModules[strCast].bEnabled then
-		ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
-			name = strUnit,
-			cast = strCast,
-			tAlertInfo = {
-				duration = duration_i,
-				strIcon = strIcon_i,
-				fCallback = fCallback_i,
-				strColor = color_i
+	if ReStrat.tEncounters[strUnit] then		
+		if ReStrat.tEncounters[strUnit].tModules[strCast].bEnabled then
+			ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
+				name = strUnit,
+				cast = strCast,
+				tAlertInfo = {
+					duration = duration_i,
+					strIcon = strIcon_i,
+					fCallback = fCallback_i,
+					strColor = color_i
+				}
 			}
-		}
+		end
 	end
 end
 

@@ -40,4 +40,8 @@
 			
 			<!-- Dreadphage Ohmna -->
 			<Script Name="profiles\Genetic Archives\ohmna.lua"/>
+			
+		<!--Datascape -->
+			<!-- System Daemons -->
+			<Script Name="profiles\Datascape\daemons.lua"/>
 </Addon>

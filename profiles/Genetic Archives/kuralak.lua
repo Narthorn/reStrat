@@ -80,6 +80,10 @@ ReStrat.tEncounters["Kuralak the Defiler"] = {
 			strLabel = "Outbreak",
 			bEnabled = true,
 		},
+		["Vanish into Darkness"] = {
+			strLabel = "Vanish into Darkness",
+			bEnabled = true,
+		},
 	}
 }
 

@@ -177,24 +177,30 @@ function ReStrat:HookCombatLog()
 		if #self.tSpellTriggers > 0 then
 			if tEventArgs.unitTarget:GetType() == "Player" then
 				for i = 0, #self.tSpellTriggers do
-					if tEventArgs.splCallingSpell:GetName() == self.tSpellTriggers[i].spell then --If the spell is right
-						if not self.tSpellTriggers[i].source then
-							if not self.tSpellTriggers[i].lastcast then -- First time cast
-								self.tSpellTriggers[i].lastcast = self.combatTimer;
-								self.tSpellTriggers[i].callback();
-							else --Else we check to see if the cooldown has expired
-								if self.tSpellTriggers[i].lastcast+self.tSpellTriggers[i].cooldown < self.combatTimer then
-									self.tSpellTriggers[i].callback();
-								end
-							end	
-						else
-							if self.tSpellTriggers[i].source == tEventArgs.unitCaster:GetName() then --If we have a unit filter
-								if not self.tSpellTriggers[i].lastcast then -- First time cast
-									self.tSpellTriggers[i].lastcast = self.combatTimer;
-									self.tSpellTriggers[i].callback();
-								else --Else we check to see if the cooldown has expired
-									if self.tSpellTriggers[i].lastcast+self.tSpellTriggers[i].cooldown < self.combatTimer then
-										self.tSpellTriggers[i].callback();
+					if tEventArgs.splCallingSpell then
+						if self.tSpellTriggers[i] then
+							if self.tSpellTriggers[i].spell then
+								if tEventArgs.splCallingSpell:GetName() == self.tSpellTriggers[i].spell then --If the spell is right
+									if not self.tSpellTriggers[i].source then
+										if not self.tSpellTriggers[i].lastcast then -- First time cast
+											self.tSpellTriggers[i].lastcast = self.combatTimer;
+											self.tSpellTriggers[i].callback();
+										else --Else we check to see if the cooldown has expired
+											if self.tSpellTriggers[i].lastcast+self.tSpellTriggers[i].cooldown < self.combatTimer then
+												self.tSpellTriggers[i].callback();
+											end
+										end	
+									else
+										if self.tSpellTriggers[i].source == tEventArgs.unitCaster:GetName() then --If we have a unit filter
+											if not self.tSpellTriggers[i].lastcast then -- First time cast
+												self.tSpellTriggers[i].lastcast = self.combatTimer;
+												self.tSpellTriggers[i].callback();
+											else --Else we check to see if the cooldown has expired
+												if self.tSpellTriggers[i].lastcast+self.tSpellTriggers[i].cooldown < self.combatTimer then
+													self.tSpellTriggers[i].callback();
+												end
+											end
+										end
 									end
 								end
 							end
