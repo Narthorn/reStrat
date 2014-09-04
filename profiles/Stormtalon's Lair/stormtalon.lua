@@ -12,7 +12,7 @@ local function experimentInit()
 	
 	--Lightning Strike
 	ReStrat:createCastAlert(boss, "Lightning Strike", nil, nil, nil, nil)
-	
+
 	--Lightning Storm
 	ReStrat:createCastAlert(boss, "Lightning Storm", nil, nil, nil, nil)
 	

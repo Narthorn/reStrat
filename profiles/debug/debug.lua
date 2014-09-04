@@ -16,7 +16,18 @@ local function profileDebug()
 	ReStrat:createCastAlert("Holographic Chompacabra", "Snap Trap", nil, nil, ReStrat.color.yellow, nil)
 	ReStrat:createCastAlert("Holographic Chompacabra", "Feeding Frenzy", nil, nil, ReStrat.color.blue, nil)
 	ReStrat:onPlayerHit("Firestorm", "Holographic Moodie", 5, function() Print("Stop getting hit!") end)
-	ReStrat:createCastTrigger("Holographic Moodie", "Firestorm", function() Print("Firestorm Started") end);
+	
+	local fsc = function ()
+		Print("Firestorm Started!");
+		if not ReStrat.tEncounterVariables.firestorm then ReStrat.tEncounterVariables.firestorm = 0 end
+		
+		ReStrat.tEncounterVariables.firestorm = ReStrat.tEncounterVariables.firestorm + 1;
+		
+		Print(ReStrat.tEncounterVariables.firestorm);
+	
+	end
+	
+	ReStrat:createCastTrigger("Holographic Moodie", "Firestorm", fsc);
 end
 
 --Example spam function, there should be very little if anything in here

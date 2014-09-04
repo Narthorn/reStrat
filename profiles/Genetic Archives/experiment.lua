@@ -15,7 +15,7 @@ local function experimentInit()
 	
 	--Resounding Shout
 	local resoundingCD = function() ReStrat:createAlert("Resounding Shout Cooldown", 25, nil, ReStrat.color.orange, nil) end
-	ReStrat:createCastAlert("Experiment X-89", "Resounding Shout", nil, "Icon_SkillShadow_UI_stlkr_onslaught", ReStrat.color.red, nil)
+	ReStrat:createCastAlert("Experiment X-89", "Resounding Shout", nil, "Icon_SkillShadow_UI_stlkr_onslaught", ReStrat.color.red, resoundingCD)
 	
 	--Repugnant Spew
 	local repugnantCD = function() ReStrat:createAlert("Repugnant Spew Cooldown", 32, nil, ReStrat.color.orange, nil) end

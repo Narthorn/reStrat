@@ -9,13 +9,17 @@
 --Fight initiation function
 local function ohmnaInit()
 	local ohmna = "Dreadphage Ohmna";
+	
+	--Create CD timer for bored
+	local boredCD = function()
+		ReStrat:createAlert("Bored Cooldown!", 45, nil, ReStrat.color.purple, nil);
+	end
+	
 
 	--Devour
 	local devourCD = function() ReStrat:createAlert("Devour Cooldown", 20, nil, ReStrat.color.orange, nil) end
 	ReStrat:createCastAlert(ohmna, "Devour", nil, "Icon_SkillMedic_devastatorprobes2", ReStrat.color.red, bombsCD);
 	
-	--COME ON AND SLAM
-	ReStrat:onPlayerHit("Body Slam", ohmna, nil, slamTimer)
 	
 	--AND WELCOME TO THE JAM
 	local slamTimer = function()
@@ -31,8 +35,9 @@ local function ohmnaInit()
 		end
 	end
 	
-	--Create torrent notification
-	ReStrat:createCastTrigger(ohmna, "Body Slam", torrentNotification)
+	--COME ON AND SLAM
+	ReStrat:onPlayerHit("Body Slam", ohmna, nil, slamTimer)
+	
 	
 	--Torrent notification logic
 	local torrentNotification = function()
@@ -41,16 +46,15 @@ local function ohmnaInit()
 		end
 	end
 	
+	--Create torrent notification
+	ReStrat:createCastTrigger(ohmna, "Body Slam", torrentNotification)
+	
 	--Genetic Torrent 
 	ReStrat:createCastAlert(ohmna, "Genetic Torrent", nil, "Icon_SkillMedic_devastatorprobes2", ReStrat.color.red, nil);
 	
 	--Bored
-	ReStrat:onPlayerHit("Ravage", ohmna, nil, slamTimer)
+	ReStrat:onPlayerHit("Ravage", ohmna, nil, boredCD)
 	
-	--Create CD timer for bored
-	local boredCD = function()
-		ReStrat:createAlert("Bored Cooldown!", 45, nil, ReStrat.color.purple, nil);
-	end
 	
 	
 end
