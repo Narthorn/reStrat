@@ -11,10 +11,7 @@ local function ohmnaInit()
 	local ohmna = "Dreadphage Ohmna";
 	
 	--Create CD timer for bored
-	local boredCD = function()
-		ReStrat:createAlert("Bored Cooldown!", 45, nil, ReStrat.color.purple, nil);
-	end
-	
+	--local boredCD = function() ReStrat:createAlert("Bored Cooldown!", 45, nil, ReStrat.color.purple, nil) end
 
 	--Devour
 	local devourCD = function() ReStrat:createAlert("Devour Cooldown", 20, nil, ReStrat.color.orange, nil) end
@@ -41,7 +38,7 @@ local function ohmnaInit()
 	
 	--Torrent notification logic
 	local torrentNotification = function()
-		if not ReStrat.tEncounterVariables.slam or ReStrat.tEncounterVariables.slam == 0 then
+		if not ReStrat.tEncounterVariables.slam or ReStrat.tEncounterVariables.slam == 1 then
 			ReStrat:createAlert("Genetic Torrent Incoming!", 12, nil, ReStrat.color.purple, nil);
 		end
 	end
@@ -53,7 +50,7 @@ local function ohmnaInit()
 	ReStrat:createCastAlert(ohmna, "Genetic Torrent", nil, "Icon_SkillMedic_devastatorprobes2", ReStrat.color.red, nil);
 	
 	--Bored
-	ReStrat:onPlayerHit("Ravage", ohmna, nil, boredCD)
+	--ReStrat:onPlayerHit("Ravage", ohmna, nil, boredCD)
 	
 	
 	
