@@ -436,18 +436,20 @@ end
 
 --Destroy alert
 function ReStrat:DestroyAlert(name, bExecCallback)
-	for i = 1, #self.tAlerts do
-		if self.tAlerts[i] then
-			if self.tAlerts[i].name then
-				if self.tAlerts[i].name == name then
-					if bExecCallback then
-						self.tAlerts[i].callback();
+	if ReStrat.tAlerts then
+		for i=1, #ReStrat.tAlerts do
+			if ReStrat.tAlerts[i] then
+				if ReStrat.tAlerts[i].name then
+					if ReStrat.tAlerts[i].name == name then
+						if bExecCallback then
+							ReStrat.tAlerts[i].callback();
+						end
+					
+						--Destroy and remove
+						ReStrat.tAlerts[i].alert:Destroy();
+						table.remove(self.tAlerts, i);
+						ReStrat:arrangeAlerts();
 					end
-				
-					--Destroy and remove
-					self.tAlerts[i].alert:Destroy();
-					table.remove(self.tAlerts, i);
-					self:arrangeAlerts();
 				end
 			end
 		end
@@ -790,9 +792,7 @@ function ReStrat:onCreateTestAlarms(wndHandler, wndControl)
 	self.gameTimer:Start();
 	wndControl:Enable(false);
 
-	local stopTimers = function() self.gameTimer:Stop(); self.alertTimer:Stop(); wndControl:Enable(true); end
-	
-	self:createAlert("Energon Cubes", 15, "Icon_SkillMedic_repairstation", self.color.purple, stopTimers);
+	self:createAlert("Energon Cubes", 15.5, "Icon_SkillMedic_repairstation", self.color.purple, stopTimers);
 	self:createAlert("Flame Walk", 10, "Icon_SkillMisc_Soldier_March", self.color.red, nil)
 	self:createAlert("Knockback", 5, "Icon_SkillSbuff_higherjumpbuff", self.color.blue, function() self:createPop("Knockback!", nil) end)
 end

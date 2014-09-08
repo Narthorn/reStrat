@@ -10,25 +10,30 @@
 local function binaryInit()
 	local binary = "Binary System Daemon";
 	
-	--Power Surge/Purge cooldown
-	local powersurge = function()
-		if not ReStrat.tEncounterVariables.powersurge then ReStrat.tEncounterVariables.powersurge = 0 end
-		ReStrat.tEncounterVariables.powersurge = ReStrat.tEncounterVariables.powersurge + 1;
-		
-		--Power Surge is replaced by Purge every third cast
-		if ReStrat.tEncounterVariables.powersurge == 2 then
-			ReStrat.tEncounterVariables.powersurge = 0;
-			ReStrat:createAlert("[BIN] Purge Incoming", 13, nil, ReStrat.color.orange, nil)
-			return
-		end
-		
-		ReStrat:createAlert("[BIN] Power Surge Cooldown", 13, nil, ReStrat.color.orange, nil)
+	ReStrat.tEncounterVariables.addwaves = function() 
+		ReStrat:createAlert("Next Add Wave", 50, nil, ReStrat.color.green, ReStrat.tEncounterVariables.addwaves) 
 	end
 	
-	--Next purge
-	local nextpurge = function() ReStrat:createAlert("[BIN] Power Surge Incoming", 13, nil, ReStrat.color.orange, nil) end
+	ReStrat.tEncounterVariables.disconnect = function()
+		ReStrat:createAlert("Disconnect", 50, nil, ReStrat.color.purple, ReStrat.tEncounterVariables.disconnect) 
+	end
 	
-	ReStrat:createCastAlert(binary, "Power Surge", nil, "Icon_SkillEsper_Awaken_Alt", ReStrat.color.red, powersurge);
+	-----------------------------
+	--Initial Timers
+	-----------------------------
+	ReStrat:createAlert("Portals Opening", 4, nil, ReStrat.color.orange, nil)
+	ReStrat:createAlert("Add Wave", 15, nil, ReStrat.color.green, ReStrat.tEncounterVariables.addwaves)
+	ReStrat:createAlert("Disconnect", 45, nil, ReStrat.color.purple, ReStrat.tEncounterVariables.disconnect)
+	
+	
+	
+	--Next purge
+	local nextpurge = function() ReStrat:createAlert("[BIN] Purge Cooldown", 24, nil, ReStrat.color.purple, nil) end
+	
+	--Next power surge
+	local nextsurge = function() ReStrat:createAlert("[BIN] Power Surge", 13, nil, ReStrat.color.purple, nil) end
+	
+	ReStrat:createCastAlert(binary, "Power Surge", nil, "Icon_SkillEsper_Awaken_Alt", ReStrat.color.red, nextsurge);
 	ReStrat:createCastAlert(binary, "Purge", nil, "Icon_SkillMisc_UI_srcr_frecho", ReStrat.color.red, nextpurge);
 	
 end
@@ -37,27 +42,14 @@ end
 local function nullInit()
 	local null = "Null System Daemon";
 	
-	--Power Surge/Purge cooldown
-	local powersurge = function()
-		if not ReStrat.tEncounterVariables.powersurge then ReStrat.tEncounterVariables.powersurge = 0 end
-		ReStrat.tEncounterVariables.powersurge = ReStrat.tEncounterVariables.powersurge + 1;
-		
-		--Power Surge is replaced by Purge every third cast
-		if ReStrat.tEncounterVariables.powersurge == 2 then
-			ReStrat.tEncounterVariables.powersurge = 0;
-			ReStrat:createAlert("[NULL] Purge Incoming", 13, nil, ReStrat.color.orange, nil)
-			return
-		end
-		
-		ReStrat:createAlert("[NULL] Power Surge Cooldown", 13, nil, ReStrat.color.orange, nil)
-	end
-	
 	--Next purge
-	local nextpurge = function() ReStrat:createAlert("[NULL] Power Surge Incoming", 13, nil, ReStrat.color.orange, nil) end
+	local nextpurge = function() ReStrat:createAlert("[NULL] Purge Cooldown", 24, nil, ReStrat.color.purple, nil) end
 	
-	ReStrat:createCastAlert(null, "Power Surge", nil, "Icon_SkillEsper_Awaken_Alt", ReStrat.color.red, powersurge);
+	--Next power surge
+	local nextsurge = function() ReStrat:createAlert("[NULL] Power Surge", 13, nil, ReStrat.color.purple, nil) end
+	
+	ReStrat:createCastAlert(null, "Power Surge", nil, "Icon_SkillEsper_Awaken_Alt", ReStrat.color.red, nextsurge);
 	ReStrat:createCastAlert(null, "Purge", nil, "Icon_SkillMisc_UI_srcr_frecho", ReStrat.color.red, nextpurge);
-	
 end
 
 --Defragmentation Unit
