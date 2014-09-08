@@ -133,3 +133,15 @@ function ReStrat:createPinFromAura(auraName)
 	self.tPinAuras[auraName] = true
 end
 
+-----------------------------------------------------------------------------------
+-- DATACHRON FUNCTIONS
+-----------------------------------------------------------------------------------
+--This is used in some fights as a phase trigger, quite useful
+
+function ReStrat:OnDatachron(strText_i, fCallback_i)
+	if not self.tDatachron then self.tDatachron = {} end
+	
+	self.tDatachron[#self.tDatachron+1] = { strText = strText_i, fCallback = fCallback_i };
+
+end
+

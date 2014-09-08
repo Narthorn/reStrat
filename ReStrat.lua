@@ -127,11 +127,12 @@ function ReStrat:OnDocLoaded()
 		self.combatTimer = nil;
 		self.combatStarted = nil;
 		self.combatLog = {};
-		self.tSpellTriggers = {}
-		self.tAuraCache = {}
-		self.tPins = {}
+		self.tSpellTriggers = {};
+		self.tAuraCache = {};
+		self.tPins = {};
 		self.tPinAuras = {};
-		self.tEncounterVariables = {}
+		self.tEncounterVariables = {};
+		self.tDatachron = {};
 		
 		--If we haven't initiated encounters
 		if not self.tEncounters then
@@ -316,6 +317,7 @@ function ReStrat:OnEnteredCombat(unit, combat)
 				self.tWatchedCasts = {};
 				self.tEncounterVariables = {};
 				self.tSpellTriggers = {};
+				self.tDatachron = {};
 				
 			
 				--Stop/start timers
@@ -802,6 +804,15 @@ function ReStrat:OnChatMessage(channelCurrent, tMessage)
 	if not tMessage then return end --Shouldn't happen but hey this game
 	
 	local command = tMessage.arMessageSegments[1].strText;
+	
+	--Get Datachron Messages
+	if channelCurrent:GetName() == "Datachron" then
+		for i=1, #self.tDatachron do
+			if self.tDatachron[i].strText == command then
+				self.tDatachron[i].fCallback();
+			end
+		end
+	end
 	
 	--Destroy break
 	if string.lower(command) == "stop break" then

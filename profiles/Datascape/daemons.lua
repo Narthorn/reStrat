@@ -10,23 +10,38 @@
 local function binaryInit()
 	local binary = "Binary System Daemon";
 	
+	-----------------------------
+	--Initial Timers
+	-----------------------------
 	ReStrat.tEncounterVariables.addwaves = function() 
 		ReStrat:createAlert("Next Add Wave", 50, nil, ReStrat.color.green, ReStrat.tEncounterVariables.addwaves) 
 	end
 	
 	ReStrat.tEncounterVariables.disconnect = function()
-		ReStrat:createAlert("Disconnect", 50, nil, ReStrat.color.purple, ReStrat.tEncounterVariables.disconnect) 
+		ReStrat:createAlert("Next Disconnect", 60, nil, ReStrat.color.purple, ReStrat.tEncounterVariables.disconnect) 
 	end
 	
-	-----------------------------
-	--Initial Timers
-	-----------------------------
 	ReStrat:createAlert("Portals Opening", 4, nil, ReStrat.color.orange, nil)
-	ReStrat:createAlert("Add Wave", 15, nil, ReStrat.color.green, ReStrat.tEncounterVariables.addwaves)
-	ReStrat:createAlert("Disconnect", 45, nil, ReStrat.color.purple, ReStrat.tEncounterVariables.disconnect)
+	ReStrat:createAlert("Next Add Wave", 15, nil, ReStrat.color.green, ReStrat.tEncounterVariables.addwaves)
+	ReStrat:createAlert("Next Disconnect", 45, nil, ReStrat.color.purple, ReStrat.tEncounterVariables.disconnect)
+	
+	-----------------------------
+	--Datachron Hooks
+	-----------------------------
+	local phaseTwo = function() 
+		ReStrat:DestroyAlert("Next Add Wave", false)
+		ReStrat:DestroyAlert("Disconnect", false)
+		ReStrat:DestroyAlert("Next Add Wave", false)
+		ReStrat:createAlert("Next Add Wave", 97, nil, ReStrat.color.green, ReStrat.tEncounterVariables.addwaves)
+		ReStrat:createAlert("Next Disconnect", 95, nil, ReStrat.color.green, ReStrat.tEncounterVariables.disconnect)
+	end
+	
+	ReStrat:OnDatachron("COMMENCING ENHANCEMENT SEQUENCE.", phaseTwo);
 	
 	
-	
+	-----------------------------
+	--Binary Casts
+	-----------------------------
 	--Next purge
 	local nextpurge = function() ReStrat:createAlert("[BIN] Purge Cooldown", 24, nil, ReStrat.color.purple, nil) end
 	
