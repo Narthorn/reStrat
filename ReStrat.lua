@@ -287,11 +287,13 @@ end
 function ReStrat:OnUnitCreated(unit)
 	if self.bInCombat then
 		--Check if unit exists in our library
-		for i=0, #self.tUnits do
-			if self.tUnits[i].id == unit:GetId() then
-					self.tUnits[i].unit = unit;
-					
-				return
+		for i=1, #self.tUnits do
+			if self.tUnits[i] then
+				if self.tUnits[i].id == unit:GetId() then
+						self.tUnits[i].unit = unit;
+						
+					return
+				end
 			end
 		end
 	end
