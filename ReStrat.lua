@@ -253,14 +253,14 @@ function ReStrat:OnAlarmTick()
 			local alertInstance = self.tAlerts[i];
 			local timer = alertInstance.alert:FindChild("ProgressBarContainer"):FindChild("timeLeft");
 			
-			--Manage actual time degradation
+			--Manage actual time degradation, this accounts for lag spikes etc.
 			if alertInstance.lastTime then
 				alertInstance.currDuration = alertInstance.currDuration-(GameLib.GetGameTime()-alertInstance.lastTime);
 			end
 			
 			alertInstance.lastTime = GameLib.GetGameTime();
 			
-			--Update time and bar
+			--Update time, callback if expired
 			if alertInstance.currDuration >= 0 then
 					timer:SetText(tostring(round(alertInstance.currDuration, 1)) .. "S");
 				else
@@ -319,6 +319,12 @@ function ReStrat:OnEnteredCombat(unit, combat)
 				self.tSpellTriggers = {};
 				self.tDatachron = {};
 				
+				--Destroy pins
+				for k,v in pairs(self.tPins) do
+					v:Destroy();
+				end
+				
+				self.tPins = {};
 			
 				--Stop/start timers
 				self.bInCombat = false;
