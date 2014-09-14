@@ -29,9 +29,13 @@ local function binaryInit()
 	--Datachron Hooks
 	-----------------------------
 	local phaseTwo = function() 
-		ReStrat:DestroyAlert("Next Add Wave", false)
-		ReStrat:DestroyAlert("Disconnect", false)
-		ReStrat:DestroyAlert("Next Add Wave", false)
+		for i=1, #ReStrat.tAlerts do
+			ReStrat.tAlerts[i].alert:Destroy();
+		end
+		
+		ReStrat.tAlerts = {};
+		
+		
 		ReStrat:createAlert("Next Add Wave", 97, nil, ReStrat.color.green, ReStrat.tEncounterVariables.addwaves)
 		ReStrat:createAlert("Next Disconnect", 95, nil, ReStrat.color.green, ReStrat.tEncounterVariables.disconnect)
 	end

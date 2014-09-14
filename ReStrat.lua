@@ -133,6 +133,7 @@ function ReStrat:OnDocLoaded()
 		self.tPinAuras = {};
 		self.tEncounterVariables = {};
 		self.tDatachron = {};
+		self.tLandmarks = {};
 		
 		--If we haven't initiated encounters
 		if not self.tEncounters then
@@ -476,6 +477,33 @@ function ReStrat:DestroyAlert(name, bExecCallback)
 					end
 				end
 			end
+		end
+	end
+end
+
+--Create Landmark
+function ReStrat:createLandmark(strLabel, tLocation, graphic)
+	local landmark = Apollo.LoadForm(self.xmlDoc, "landmarkForm", "InWorldHudStratum", self);
+	
+	--Set position
+	landmark:SetWorldLocation(Vector3.New(tLocation));
+	
+	--Set label
+	landmark:FindChild("label"):SetText(strLabel);
+	
+	--Set graphic if need be
+	if graphic then landmark:FindChild("graphic"):SetSprite(graphic) end
+	
+	--Add to tLandmarks
+	self.tLandmarks[#self.tLandmarks+1] = {label = strLabel, form = landmark};
+end
+
+--Destroy Landmark
+function ReStrat:destroyLandmark(strLabel)
+	for i = 1, #self.tLandmarks do
+		if self.tLandmarks[i].label == strLabel then
+			self.tLandmarks[i].form:Destroy();
+			table.remove(self.tLandmarks, i);
 		end
 	end
 end

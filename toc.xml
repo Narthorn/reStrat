@@ -5,43 +5,31 @@
     <Script Name="encounterBuilders.lua"/>
     <Script Name="combatLog.lua"/>
     <Form Name="ReStrat.xml"/>
-	
-	<!-- Libs -->
-	<Script Name="lib\LibCombatLogFixes-1.0\LibCombatLogFixes.lua"/>
-	
+    <!-- Libs -->
+    <Script Name="lib\LibCombatLogFixes-1.0\LibCombatLogFixes.lua"/>
     <!-- Encounters -->
     <Script Name="profiles\debug\debug.lua"/>
-		
-		<!--Stormtalon's Lair -->
-			<!-- Blade-Wind the Invoker -->
-			<Script Name="profiles\Stormtalon's Lair\bladewind.lua"/>			
-			
-			<!-- Aethros -->
-			<Script Name="profiles\Stormtalon's Lair\aethros.lua"/>			
-			
-			<!-- Stormtalon -->
-			<Script Name="profiles\Stormtalon's Lair\stormtalon.lua"/>
-	
-		<!--Genetic Archives -->
-			<!-- Experiment X-89 -->
-			<Script Name="profiles\Genetic Archives\experiment.lua"/>
-			
-			<!-- Kuralak the Defiler -->
-			<Script Name="profiles\Genetic Archives\kuralak.lua"/>
-
-			<!-- Phagemaw -->
-			<Script Name="profiles\Genetic Archives\phagemaw.lua"/>
-			
-			<!-- Phagetech Prototypes -->
-			<Script Name="profiles\Genetic Archives\phagetech.lua"/>
-			
-			<!-- Phageborn Convergence -->
-			<Script Name="profiles\Genetic Archives\convergence.lua"/>
-			
-			<!-- Dreadphage Ohmna -->
-			<Script Name="profiles\Genetic Archives\ohmna.lua"/>
-			
-		<!--Datascape -->
-			<!-- System Daemons -->
-			<Script Name="profiles\Datascape\daemons.lua"/>
+    <!--Stormtalon's Lair -->
+    <!-- Blade-Wind the Invoker -->
+    <Script Name="profiles\Stormtalon&apos;s Lair\bladewind.lua"/>
+    <!-- Aethros -->
+    <Script Name="profiles\Stormtalon&apos;s Lair\aethros.lua"/>
+    <!-- Stormtalon -->
+    <Script Name="profiles\Stormtalon&apos;s Lair\stormtalon.lua"/>
+    <!--Genetic Archives -->
+    <!-- Experiment X-89 -->
+    <Script Name="profiles\Genetic Archives\experiment.lua"/>
+    <!-- Kuralak the Defiler -->
+    <Script Name="profiles\Genetic Archives\kuralak.lua"/>
+    <!-- Phagemaw -->
+    <Script Name="profiles\Genetic Archives\phagemaw.lua"/>
+    <!-- Phagetech Prototypes -->
+    <Script Name="profiles\Genetic Archives\phagetech.lua"/>
+    <!-- Phageborn Convergence -->
+    <Script Name="profiles\Genetic Archives\convergence.lua"/>
+    <!-- Dreadphage Ohmna -->
+    <Script Name="profiles\Genetic Archives\ohmna.lua"/>
+    <!--Datascape -->
+    <!-- System Daemons -->
+    <Script Name="profiles\Datascape\daemons.lua"/>
 </Addon>
