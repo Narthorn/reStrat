@@ -7,19 +7,33 @@
 -----------------------------------------------------------------------------
 
 --Fight initiation function
-local function experimentInit()
+function ReStrat:experimentInit(unit)
 
 	--Create 10 second timer to run like fuark
 	local loldead = function() if GameLib.GetPlayerUnit():IsDead() then Print("Really :D?") end end
 	ReStrat:createAlert("Run!", 10, "Icon_SkillSbuff_higherjumpbuff", ReStrat.color.orange, loldead)
 	
 	--Resounding Shout
-	local resoundingCD = function() ReStrat:createAlert("Resounding Shout Cooldown", 25, nil, ReStrat.color.orange, nil) end
+	local resoundingCD = function()
+		ReStrat:createAlert("Resounding Shout Cooldown", 25, nil, ReStrat.color.orange, nil);
+	end
+	local resoundingpop = function()
+		ReStrat:createPop("Knockback!", nil);
+		ReStrat:Sound("Sound\\knockback.wav")
+	end
+	ReStrat:createCastTrigger("Experiment X-89", "Resounding Shout", resoundingpop)
 	ReStrat:createCastAlert("Experiment X-89", "Resounding Shout", nil, "Icon_SkillShadow_UI_stlkr_onslaught", ReStrat.color.red, resoundingCD)
 	
 	--Repugnant Spew
 	local repugnantCD = function() ReStrat:createAlert("Repugnant Spew Cooldown", 32, nil, ReStrat.color.orange, nil) end
-	local repugnantChannel = function() ReStrat:createAlert("Repugnant Spew Active!", 6, "Icon_SkillPhysical_FountainOfBlood", ReStrat.color.red, repugnantCD) end
+	local repugnantChannel = function()
+		ReStrat:createAlert("Repugnant Spew Active!", 6, "Icon_SkillPhysical_FountainOfBlood", ReStrat.color.red, repugnantCD);
+	end
+	local repugnantpop = function()
+		ReStrat:createPop("Spew!", nil);
+		ReStrat:Sound("Sound\\spew.wav")
+	end
+	ReStrat:createCastTrigger("Experiment X-89", "Repugnant Spew", repugnantpop)
 	ReStrat:createCastAlert("Experiment X-89", "Repugnant Spew", nil, "Icon_SkillShadow_UI_SM_mkrsmrk", ReStrat.color.red, repugnantChannel);
 	
 	--Corruption Globule (Small bomb)
@@ -50,7 +64,7 @@ end
 
 --Profile Settings
 ReStrat.tEncounters["Experiment X-89"] = {
-	fInitFunction = experimentInit,
+	startFunction = experimentInit,
 	fSpamFunction = profileDebugRepeat,
 	strCategory  = "Genetic Archives",
 	tModules = {
@@ -63,11 +77,11 @@ ReStrat.tEncounters["Experiment X-89"] = {
 			bEnabled = true,
 		},
 		["Corruption Globule"] = {
-			strLabel = "Corruption Globule",
+			strLabel = "Small Bomb",
 			bEnabled = true,
 		},
 		["Strain Bomb"] = {
-			strLabel = "Strain Bomb",
+			strLabel = "Big Bomb",
 			bEnabled = true,
 		},
 	}
