@@ -32,4 +32,9 @@
     <!--Datascape -->
     <!-- System Daemons -->
     <Script Name="profiles\Datascape\daemons.lua"/>
+    <Script Name="profiles\Datascape\elementals.lua"/>
+    <Script Name="interface.lua"/>
+    <Script Name="profiles\Datascape\avatus.lua"/>
+    <Script Name="profiles\Datascape\maelstrom.lua"/>
+    <Script Name="profiles\Augmentors.lua"/>
 </Addon>

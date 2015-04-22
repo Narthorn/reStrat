@@ -26,7 +26,7 @@ local function commanderInit()
 	ReStrat:createCastTrigger(commander, "Powering Up", malicious);
 	
 	--Destroy Frames Powering Down
-	local destroyFrames = function() ReStrat:DestroyAlert("Forced Production Cooldown"); ReStrat:DestroyAlert("Destruction Protocol Cooldown"); end
+	local destroyFrames = function() ReStrat:destroyAlert("Forced Production Cooldown"); ReStrat:destroyAlert("Destruction Protocol Cooldown"); end
 	ReStrat:createCastTrigger(commander, "Powering Down", destroyFrames);
 	
 end
@@ -44,7 +44,7 @@ local function augmentorInit()
 	ReStrat:createCastAlert(augmentor, "Summon Repairbot", nil, "Icon_SkillMedic_devastatorprobes2", ReStrat.color.red, rbCD);
 	
 	--Destroy Frames Powering Down
-	local destroyFrames2 = function() ReStrat:DestroyAlert("Phagetech Borer Cooldown"); ReStrat:DestroyAlert("Summon Repairbot Cooldown"); end
+	local destroyFrames2 = function() ReStrat:destroyAlert("Phagetech Borer Cooldown"); ReStrat:destroyAlert("Summon Repairbot Cooldown"); end
 	ReStrat:createCastTrigger(augmentor, "Powering Down", destroyFrames2);
 	
 end
@@ -64,7 +64,7 @@ local function protectorInit()
 	ReStrat:createCastTrigger(protector, "Powering Up", singularity);
 	
 	--Destroy Frames Powering Down
-	local destroyFrames3 = function() ReStrat:DestroyAlert("Pulse-A-Tron Wave Cooldown") end
+	local destroyFrames3 = function() ReStrat:destroyAlert("Pulse-A-Tron Wave Cooldown") end
 	ReStrat:createCastTrigger(protector, "Powering Down", destroyFrames3);
 	
 end
@@ -82,7 +82,7 @@ local function fabricatorInit()
 	ReStrat:createCastTrigger(fabricator, "Powering Up", singularity);
 	
 	--Destroy Frames Powering Down
-	local destroyFrames4 = function() ReStrat:DestroyAlert("Summon Destructobot Cooldown") end
+	local destroyFrames4 = function() ReStrat:destroyAlert("Summon Destructobot Cooldown") end
 	ReStrat:createCastTrigger(fabricator, "Powering Down", destroyFrames4);
 	
 end

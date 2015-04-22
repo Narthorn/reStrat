@@ -14,9 +14,9 @@ local function golgoxInit()
 	
 	--Destroy ALL alerts here for ALL middle phases
 	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Scatter Cooldown", false);
-		ReStrat:DestroyAlert("Demolish Cooldown", false);
-		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
+		ReStrat:destroyAlert("Scatter Cooldown", false);
+		ReStrat:destroyAlert("Demolish Cooldown", false);
+		ReStrat:destroyAlert("Essence Rot Cooldown", false);
 	end
 
 	--Scatter
@@ -41,9 +41,9 @@ local function teraxInit()
 	
 	--Destroy ALL alerts here for ALL middle phases
 	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Scatter Cooldown", false);
-		ReStrat:DestroyAlert("Demolish Cooldown", false);
-		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
+		ReStrat:destroyAlert("Scatter Cooldown", false);
+		ReStrat:destroyAlert("Demolish Cooldown", false);
+		ReStrat:destroyAlert("Essence Rot Cooldown", false);
 	end
 	
 	--Stitching Strain
@@ -64,9 +64,9 @@ local function vratorgInit()
 	
 	--Destroy ALL alerts here for ALL middle phases
 	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Scatter Cooldown", false);
-		ReStrat:DestroyAlert("Demolish Cooldown", false);
-		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
+		ReStrat:destroyAlert("Scatter Cooldown", false);
+		ReStrat:destroyAlert("Demolish Cooldown", false);
+		ReStrat:destroyAlert("Essence Rot Cooldown", false);
 	end
 	
 	--Teleport
@@ -81,9 +81,9 @@ local function noxmindInit()
 	
 	--Destroy ALL alerts here for ALL middle phases
 	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Scatter Cooldown", false);
-		ReStrat:DestroyAlert("Demolish Cooldown", false);
-		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
+		ReStrat:destroyAlert("Scatter Cooldown", false);
+		ReStrat:destroyAlert("Demolish Cooldown", false);
+		ReStrat:destroyAlert("Essence Rot Cooldown", false);
 	end
 	
 	--Essence Rot
@@ -102,9 +102,9 @@ local function ersothInit()
 	
 	--Destroy ALL alerts here for ALL middle phases
 	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Scatter Cooldown", false);
-		ReStrat:DestroyAlert("Demolish Cooldown", false);
-		ReStrat:DestroyAlert("Essence Rot Cooldown", false);
+		ReStrat:destroyAlert("Scatter Cooldown", false);
+		ReStrat:destroyAlert("Demolish Cooldown", false);
+		ReStrat:destroyAlert("Essence Rot Cooldown", false);
 	end
 	
 	--Teleport

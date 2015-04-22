@@ -15,7 +15,7 @@ local function phagemawInit()
 	
 	--Destroy alerts if Aerial bombardment starts
 	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Bomb Cooldown", false);	
+		ReStrat:destroyAlert("Bomb Cooldown", false);	
 	end
 	
 	ReStrat:createCastTrigger("Phage Maw", "Aerial Bombardment", destroyAlerts);

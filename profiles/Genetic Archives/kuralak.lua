@@ -21,8 +21,8 @@ local function kuralakInit()
 	
 	--Destroy Vanish Alerts
 	local destroyAlerts = function()
-		ReStrat:DestroyAlert("Vanish Cooldown", false);
-		ReStrat:DestroyAlert("Vanish into Darkness", false);
+		ReStrat:destroyAlert("Vanish Cooldown", false);
+		ReStrat:destroyAlert("Vanish into Darkness", false);
 	end
 	
 	ReStrat:createCastTrigger("Kuralak the Defiler", "Chromosome Corruption", destroyAlerts);
