@@ -1,5 +1,5 @@
 -----------------------------------------------------------------------------
---- Elemental Pairs, Vim
+--- Elemental Pairs, Vim & Chill
 -- this is a mess sorry I'll get around to cleaning it up someday
 -----------------------------------------------------------------------------
 
@@ -20,8 +20,45 @@ local tMarkerSprites = {
 	"IconSprites:Icon_ItemMisc_UI_Item_Crystal",
 }
 
-local function EarthLogicInit() end
-local function EarthAirInit() end
+local function EarthLogicInit()
+	ReStrat:createPinFromAura("Snake Snack")
+	ReStrat:createAuraAlert(nil, "Snake Snack", nil, "Icon_SkillWarrior_Plasma_Pulse_Alt", nil)
+	--function ReStrat:createAuraAlert(strUnit, strAuraName, duration_i, icon_i, fCallback_i)
+end
+
+local function EarthAirInit()
+
+	local tornados = function()
+		tTornado = {}
+		tTornado.strLabel = "Next tornado"
+		tTornado.fDelay = 17.2
+		tTornado.fDuration = 5
+		tTornado.strColor = ReStrat.color.green
+		tTornado.strIcon = "Icon_SkillSbuff_gasdamovertime"
+	
+		ReStrat:repeatAlert(tTornado, 999)
+	end
+	local supercell = function()
+		ReStrat:destroyAllAlerts()
+		
+		tTornado = {}
+		tTornado.strLabel = "Next tornado"
+		tTornado.fDelay = 17.2
+		tTornado.fDuration = 5
+		tTornado.strColor = ReStrat.color.green
+		tTornado.strIcon = "Icon_SkillSbuff_gasdamovertime"
+	
+		ReStrat:repeatAlert(tTornado, 999)
+	end
+	ReStrat:createAlert("First tornado", 12.4, nil, ReStrat.color.green, tornados)
+	ReStrat:createCastAlert("Aileron", "Supercell", nil, "Icon_SkillStalker_Maelstrom", ReStrat.color.green, supercell)
+end
+
+local function EarthFireInit() 
+	ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
+end
+
+-----
 local function LifeLogicInit()
 	local function LifeOrbs() ReStrat:createAlert("Next: Life Orbs", 2.5, nil, ReStrat.color.blue) end
 	local function BlindingLight() ReStrat:createAlert("Next: Blinding Light", 9, nil, ReStrat.color.blue) end
@@ -92,18 +129,33 @@ local function LifeAirInit()
 	--ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
 end
 
-local function EarthFireInit() 
-	local function MidPhase()
-		ReStrat:createAlert("Midphase", 90, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue)
+local function LifeFireInit()
+
+	ReStrat.tEncounterVariables.tWavesParams = {
+		strLabel = "Wave 1", fRepeat = 10, strColor = ReStrat.color.red,
+		fCallback = function(nWaves) ReStrat.tEncounterVariables.tWavesParams.strLabel = "Wave "..nWaves end}
+	local function Midphase() 
+		ReStrat:repeatAlert({strLabel = "Circles", fDelay = 5, fRepeat = 10, strColor = ReStrat.color.blue})
+		ReStrat:repeatAlert(ReStrat.tEncounterVariables.tWavesParams)
 	end
 	
-	ReStrat:onDatachron("The lava begins to rise through the floor!", function()
-		ReStrat:createAlert("Midphase", 30, "Icon_SkillStalker_Maelstrom", ReStrat.color.red, MidPhase)
-	end)
+	local function MidphaseEndCheck()
+		for id, tUnit in ReStrat.tUnits do
+			if tUnit.strName == "Essence of Life" and tUnit.bActive == true then
+				return -- still one orb up, no midphase end
+			end
+		end
+		-- If we reach this, all orbs are dead, clean up and start another midphase timer
+		ReStrat:destroyAlert("Circles")
+		ReStrat:destroyAlert(tWavesParams.strName)
+		ReStrat:createAlert("Midphase", 90, nil, ReStrat.color.green, Midphase)
+	end
 	
-	MidPhase()
-	ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
+	ReStrat:createAlert("Midphase", 90, nil, ReStrat.color.green, Midphase)
+	ReStrat:onUnitDeath("Essence of Life", MidphaseEndCheck)
+	ReStrat:createPinFromAura("Primal Entanglement")
 end
+-----
 
 -- Hydroflux & Mnemesis 15/02/2015
 local function WaterLogicInit() 
@@ -119,42 +171,22 @@ local function WaterLogicInit()
 	--ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
 end
 
--- Hydroflux & Aileron 05/01/2015, 31/01/2015
 local function WaterAirInit() 
-	--local function IceTombs(timer)
-	--	ReStrat:createAlert("Ice Tombs", timer, "Icon_SkillIce_UI_srcr_iceshrds", ReStrat.color.blue, function()
-	--		ReStrat.tEncounterVariables.IceTombs = false
-	--		ReStrat:createAlert("Ice Tombs", 30, "Icon_SkillIce_UI_srcr_iceshrds", ReStrat.color.blue, nil)
-	--	end)
-	--	ReStrat.tEncounterVariables.IceTombs = true
-	--end
-
-	--ReStrat.tEncounterVariables.nMidPhases = 0
 	ReStrat:createCastAlert("Hydroflux", "Glacial Icestorm", nil, "Icon_SkillStalker_Maelstrom", ReStrat.color.green, function()
-		ReStrat:createAlert("Midphase (approx)", 65, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, nil)
-		--IceTombs(2)
+		ReStrat:createAlert("Midphase", 65, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, nil)
 	end)
 	
-	--ReStrat:createCastTrigger("Hydroflux", "Sinkhole", function()
-	--	if ReStrat.tEncounterVariables.IceTombs then
-	--		ReStrat:destroyAlert("Ice Tombs")
-	--		IceTombs(10)
-	--	end
-	--end)
-	
 	ReStrat:createAlert("Midphase", 60, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, nil)
-	--ReStrat:createAlert("Ice Tombs", 30, "Icon_SkillIce_UI_srcr_iceshrds", ReStrat.color.blue, nil)
 	ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
 end
 
--- Hydroflux & Pyrobane 18/12/2014, 24/02/2015
 local function WaterFireInit() 
 	local tDebuffTimeout = true
 	local function WaterFireDebuff()
 		if tDebuffTimeout then
 			tDebuffTimeout = false
 			ReStrat:createPop("GTFO GTFO GTFO GTFO GTFO GTFO\nGTFO GTFO GTFO GTFO GTFO GTFO", nil)
-			Sound.PlayFile("Sound\\quack.wav")
+			--Sound.PlayFile("Sound\\quack.wav")
 			ReStrat:createAlert("Heat Stroke / Hypothermia", 10, nil, ReStrat.color.green, function()
 				tDebuffTimeout = true
 			end)
@@ -169,52 +201,77 @@ local function WaterFireInit()
 	ReStrat:createAuraAlert(nil, "Hypothermia", 0, nil, WaterFireDebuff) 
 
 	ReStrat:createAlert("Swap (approx)", 30, nil, ReStrat.color.blue, nil)
-	ReStrat:createAlert("Enrage", 510, nil, ReStrat.color.red, nil)
+	ReStrat:createAlert("Enrage", 480, nil, ReStrat.color.red, nil)
 end
 
--- Visceralus & Pyrobane, 22/01/2014
-local function LifeFireInit()
 
-	ReStrat.tEncounterVariables.tWavesParams = {
-		strLabel = "Wave 1", fRepeat = 10, strColor = ReStrat.color.red,
-		fCallback = function(nWaves) ReStrat.tEncounterVariables.tWavesParams.strLabel = "Wave "..nWaves end}
-	local function Midphase() 
-		ReStrat:repeatAlert({strLabel = "Circles", fDelay = 5, fRepeat = 10, strColor = ReStrat.color.blue})
-		ReStrat:repeatAlert(ReStrat.tEncounterVariables.tWavesParams)
-	end
+------
+function ReStrat:waterInit()
+
+	ReStrat.tEncounterVariables.Hydroflux = true
 	
-	local function MidphaseEndCheck()
-		for id, tUnit in ReStrat.tUnits do
-			if tUnit:IsValid() and tUnit.strName == "Essence of Life" and tUnit.bActive == true then
-				return -- still one orb up, no midphase end
-			end
-		end
-		-- If we reach this, all orbs are dead, clean up and start another midphase timer
-		ReStrat:destroyAlert("Circles")
-		ReStrat:destroyAlert(tWavesParams.strName)
-		ReStrat:createAlert("Midphase", 90, nil, ReStrat.color.green, Midphase)
-	end
-	
-	ReStrat:createAlert("Midphase", 90, nil, ReStrat.color.green, Midphase)
-	ReStrat:onUnitDeath("Essence of Life", MidphaseEndCheck)
-	ReStrat:createPinFromAura("Primal Entanglement")
+	if ReStrat.tEncounterVariables.Mnemesis then WaterLogicInit() end
+	if ReStrat.tEncounterVariables.Aileron  then WaterAirInit() end
+	if ReStrat.tEncounterVariables.Pyrobane then WaterFireInit() end
 end
 
----
+function ReStrat:lifeInit()
+
+	ReStrat.tEncounterVariables.Visceralus = true
+	
+	if ReStrat.tEncounterVariables.Mnemesis then LifeLogicInit() end
+	if ReStrat.tEncounterVariables.Aileron  then LifeAirInit() end
+	if ReStrat.tEncounterVariables.Pyrobane then LifeFireInit() end
+end
+
+function ReStrat:fireInit()
+
+	ReStrat.tEncounterVariables.Pyrobane = true
+	
+	if ReStrat.tEncounterVariables.Megalith then EarthFireInit() end
+	if ReStrat.tEncounterVariables.Hydroflux  then WaterFireInit() end
+	if ReStrat.tEncounterVariables.Visceralus then LifeFireInit() end
+end
+
+function ReStrat:logicInit()
+
+	ReStrat.tEncounterVariables.Mnemesis = true
+	
+	if ReStrat.tEncounterVariables.Megalith then EarthLogicInit() end
+	if ReStrat.tEncounterVariables.Hydroflux  then WaterLogicInit() end
+	if ReStrat.tEncounterVariables.Visceralus then LifeLogicInit() end
+end
+
+function ReStrat:earthInit()
+	local jumpquake = function()
+		ReStrat:createPop("JUMP JUMP JUMP\nJUMP JUMP JUMP", nil)
+		ReStrat:Sound("Sound\\jumpnow.wav")
+	end
+	ReStrat:OnDatachron("The ground shudders beneath Megalith!", jumpquake)
+	ReStrat:createCastAlert("Megalith", "Rockfall", nil, "Icon_SkillPhysical_UI_wr_smsh", ReStrat.color.red, nil)
+	ReStrat.tEncounterVariables.Megalith = true
+	
+	if ReStrat.tEncounterVariables.Mnemesis then EarthLogicInit() end
+	if ReStrat.tEncounterVariables.Aileron  then EarthAirInit() end
+	if ReStrat.tEncounterVariables.Pyrobane then EarthFireInit() end
+end
+
+function ReStrat:airInit()
+	local wallofwind = function()
+		ReStrat:createPop("Wind Wall!")
+		ReStrat:createAlert("[Aileron] Wind Wall", 21, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.red, nil)
+	end
+	ReStrat:createCastAlert("Aileron", "Walls of Wind", nil, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.red, wallofwind)
+	ReStrat:createPinFromAura("Twirl")
+	ReStrat.tEncounterVariables.Aileron = true
+	
+	if ReStrat.tEncounterVariables.Megalith   then EarthAirInit() end
+	if ReStrat.tEncounterVariables.Hydroflux  then WaterAirInit() end
+	if ReStrat.tEncounterVariables.Visceralus then LifeAirInit() end
+end
+
 
 ReStrat.tEncounters["Megalith"] = {
-	fInitFunction = function()
-		ReStrat:OnDatachron("The ground shudders beneath Megalith!", function() 
-			ReStrat:createPop("JUMP JUMP JUMP JUMP JUMP JUMP\nJUMP JUMP JUMP JUMP JUMP JUMP", nil)
-			Sound.PlayFile("Sound\\quack.wav")
-		end)
-		ReStrat:createCastAlert("Megalith", "Rockfall", nil, "Icon_SkillPhysical_UI_wr_smsh", ReStrat.color.red, nil)
-		
-		ReStrat.tEncounterVariables.Megalith = true
-		if ReStrat.tEncounterVariables.Mnemesis then EarthLogicInit() end
-		if ReStrat.tEncounterVariables.Aileron  then EarthAirInit() end
-		if ReStrat.tEncounterVariables.Pyrobane then EarthFireInit() end
-	end,
 	strCategory = "Datascape",
 	trackHealth = ReStrat.color.orange,
 	tModules = {
@@ -226,12 +283,6 @@ ReStrat.tEncounters["Megalith"] = {
 }
 
 ReStrat.tEncounters["Hydroflux"] = {
-	fInitFunction = function()
-		ReStrat.tEncounterVariables.Hydroflux = true
-		if ReStrat.tEncounterVariables.Mnemesis then WaterLogicInit() end
-		if ReStrat.tEncounterVariables.Aileron  then WaterAirInit() end
-		if ReStrat.tEncounterVariables.Pyrobane then WaterFireInit() end
-	end,
 	strCategory = "Datascape",
 	trackHealth = ReStrat.color.purple,
 	tModules = {
@@ -239,20 +290,10 @@ ReStrat.tEncounters["Hydroflux"] = {
 			strLabel = "Glacial Icestorm",
 			bEnabled = true,
 		},
-		["Sinkhole"] = {
-			strLabel = "Sinkhole",
-			bEnabled = true,
-		},
 	}
 }
 
 ReStrat.tEncounters["Visceralus"] = {
-	fInitFunction = function()
-		ReStrat.tEncounterVariables.Visceralus = true
-		if ReStrat.tEncounterVariables.Mnemesis then LifeLogicInit() end
-		if ReStrat.tEncounterVariables.Aileron  then LifeAirInit() end
-		if ReStrat.tEncounterVariables.Pyrobane then LifeFireInit() end
-	end,
 	strCategory = "Datascape",
 	trackHealth = ReStrat.color.green,
 	tModules = {
@@ -264,28 +305,10 @@ ReStrat.tEncounters["Visceralus"] = {
 			strLabel = "Annihilate!",
 			bEnabled = true,
 		},
-		["Blinding Light"] = {
-			strLabel = "Blinding Light",
-			bEnabled = true,
-		},
-		["Life Orbs"] = {
-			strLabel = "Life Orbs",
-			bEnabled = true,
-		},
 	},
 }
 
 ReStrat.tEncounters["Mnemesis"] = {
-	fInitFunction = function()
-		ReStrat:createCastAlert("Mnemesis", "Defragment", nil, "Icon_SkillMind_UI_espr_rpls", ReStrat.color.green, nil)
-		ReStrat:createPinFromAura("Snake Logic")
-		ReStrat:createPinFromAura("Snake Snack")
-		
-		ReStrat.tEncounterVariables.Mnemesis = true
-		if ReStrat.tEncounterVariables.Megalith   then EarthLogicInit() end
-		if ReStrat.tEncounterVariables.Hydroflux  then WaterLogicInit() end
-		if ReStrat.tEncounterVariables.Visceralus then LifeLogicInit() end
-	end,
 	strCategory = "Datascape",
 	trackHealth = ReStrat.color.green,
 	tModules = {
@@ -299,21 +322,8 @@ ReStrat.tEncounters["Mnemesis"] = {
 		},
 	}
 }
-
 -- Aileron 27/10/2014
 ReStrat.tEncounters["Aileron"] = {
-	fInitFunction = function()
-		ReStrat:createCastAlert("Aileron", "Walls of Wind", nil, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.blue, function()
-			ReStrat:createAlert("[Aileron] Wind Shield", 22, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.blue, nil)
-		end)
-		
-		ReStrat:createPinFromAura("Twirl")
-		
-		ReStrat.tEncounterVariables.Aileron = true
-		if ReStrat.tEncounterVariables.Megalith   then EarthAirInit() end
-		if ReStrat.tEncounterVariables.Hydroflux  then WaterAirInit() end
-		if ReStrat.tEncounterVariables.Visceralus then LifeAirInit() end
-	end,
 	strCategory = "Datascape",
 	trackHealth = ReStrat.color.blue,
 	tModules = {
@@ -321,17 +331,15 @@ ReStrat.tEncounters["Aileron"] = {
 			strLabel = "Walls of Wind",
 			bEnabled = true,
 		},
+		["Supercell"] = {
+			strLabel = "Supercell",
+			bEnabled = true,
+		},
 	}
 }
 
 ReStrat.tEncounters["Pyrobane"] = {
-	fInitFunction = function()
-		ReStrat.tEncounterVariables.Pyrobane = true
-		if ReStrat.tEncounterVariables.Megalith   then EarthFireInit() end
-		if ReStrat.tEncounterVariables.Hydroflux  then WaterFireInit() end
-		if ReStrat.tEncounterVariables.Visceralus then LifeFireInit() end
-	end,
 	strCategory = "Datascape",
 	trackHealth = ReStrat.color.red,
 	tModules = {}
-}
+}	
