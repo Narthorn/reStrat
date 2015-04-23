@@ -5,6 +5,12 @@
 
 ReStrat is a boss mod for Wildstar, currently in early development. The goal of ReStrat is to have a framework which allows rapid development of strategical aids, such as timers, ability alerts, and so on for progress raiding. 
 
+###Important for Setup
+Do not copy this into another version of ReStrat! Fully delete all other versions that you had prior to this one or at least move it out of the addons folder!
+DrawLib is required.
+The folder that contains the addon has to be called "reStrat" or some functions will not work correctly.
+(C:\Users\<Your Username>\AppData\Roaming\NCSOFT\WildStar\Addons\reStrat) <-- 
+
 ###Goals
 
 ReStrat is an addon which will see primary use in a progress intensive environment, where information on encounters is sparse. As such the main goals of the addon are as follows:
