@@ -8,7 +8,7 @@
 local boss = "Blade-Wind the Invoker"
 
 --Fight initiation function
-local function experimentInit()
+function ReStrat:bladeInit()
 	
 	--Thunder Cross
 	local crossCD = function() ReStrat:createAlert("Thunder Cross Cooldown", 10, nil, ReStrat.color.orange, nil) end
@@ -39,13 +39,8 @@ end
 -----------------------------------------------------------------------------
 --Encounter Packaging
 -----------------------------------------------------------------------------
-if not ReStrat.tEncounters then
-	ReStrat.tEncounters = {}
-end
-
---Profile Settings
-ReStrat.tEncounters[boss] = {
-	fInitFunction = experimentInit,
+ReStrat.tEncounters["Blade-Wind the Invoker"] = {
+	startFunction = bladeInit,
 	fSpamFunction = profileDebugRepeat,
 	strCategory  = "Stormtalon's Lair",
 	tModules = {

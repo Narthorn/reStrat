@@ -77,7 +77,7 @@ function ReStrat:daemonInit(unit)
 			ReStrat:createAlert("Next Disconnect", 60, nil, ReStrat.color.purple, nil) 
 		end
 		
-		ReStrat:createAuraAlert(GameLib.GetPlayerUnit(), "Purge", nil, "Icon_SkillFire_UI_srcr_frybrrg", nil)
+		ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Purge", nil, "Icon_SkillFire_UI_srcr_frybrrg", nil)
 		ReStrat:createAlert("Portals Opening", 4, nil, ReStrat.color.orange, nil)
 		ReStrat:createAlert("Next Add Wave (Small)", 15, nil, ReStrat.color.green, AddWaves)
 		ReStrat:createAlert("Next Disconnect", 45, nil, ReStrat.color.purple, nil)

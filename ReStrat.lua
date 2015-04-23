@@ -9,8 +9,8 @@ require "Sound"
  
 ReStrat = {
 	name = "ReStrat",
-	version = "1.8.5", -- Gen Landmarks Settings
-	fileversion = 185,
+	version = "1.8.6",
+	fileversion = 186,
 	tVersions = {},
 	barSpacing = 6,
 	color = {
@@ -260,11 +260,11 @@ function ReStrat:OnPublicEvent(tEventObj) --PublicEventObjectiveUpdate
 		ReStrat:ohmnasouth(tEventObj)
 	elseif eventId == 2160 then -- west
 		ReStrat:ohmnawest(tEventObj)
-	elseif eventId == 1570 then
+	elseif eventId == 1570 then -- left esse
 		ReStrat:leftess(tEventObj)
-	elseif eventId == 1571 then
+	elseif eventId == 1571 then -- right esse
 		ReStrat:rightess(tEventObj)
-	end	--1570 left ess 1571 right ess
+	end	
 	
 end
 
@@ -301,6 +301,18 @@ function ReStrat:OnRestore(loadlevel, tload)
 	if ReStrat.tEncounters["Avatus"].tModules["Lines to Devourers"] == nil then
 		ReStrat.tEncounters["Avatus"].tModules["Lines to Devourers"] = {
 			strLabel = "Lines to Devourers",
+			bEnabled = true,
+		}
+	end
+	if ReStrat.tEncounters["Gloomclaw"].tModules["Spawn Landmarks"] == nil then
+		ReStrat.tEncounters["Gloomclaw"].tModules["Spawn Landmarks"] = {
+			strLabel = "Spawn Landmarks",
+			bEnabled = true,
+		}
+	end
+	if ReStrat.tEncounters["Gloomclaw"].tModules["Track Essence HP"] == nil then
+		ReStrat.tEncounters["Gloomclaw"].tModules["Track Essence HP"] = {
+			strLabel = "Track Essence HP",
 			bEnabled = true,
 		}
 	end
@@ -527,6 +539,14 @@ function ReStrat:OnDelayLoad()
                 },				
                 ["BossLife"] = {
                         strLabel = "Boss Life",
+                        bEnabled = true,
+                },
+				["Spawn Landmarks"] = {
+                        strLabel = "Spawn Landmarks",
+                        bEnabled = true,
+                },
+				["Track Essence HP"] = {
+                        strLabel = "Spawn Landmarks",
                         bEnabled = true,
                 },
 			},
@@ -884,7 +904,17 @@ function ReStrat:OnDelayLoad()
 			},
 		}
 	end
-	
+	if ReStrat.tEncounters["Fully-Optimized Canimid"] == nil then
+		ReStrat.tEncounters["Fully-Optimized Canimid"] = {
+			strCategory  = "Datascape",
+			tModules = {
+				["Show People with Debuff"] = {
+					strLabel = "Show People with Debuff",
+					bEnabled = true,
+				},
+			},
+		}
+	end
 	
 end
 
@@ -1029,7 +1059,11 @@ function ReStrat:OnEnteredCombat(unit, combat)
 					ReStrat:bladeInit(unit)
 				elseif uName == "Stormtalon" then
 					ReStrat:stormInit(unit)
-				
+					
+				    -- Minis
+				elseif uName == "Fully-Optimized Canimid" then
+					ReStrat:canimidInit(unit)
+	
 					--elementals
 				elseif uName == "Megalith" then
 					ReStrat:earthInit(unit)
@@ -1272,6 +1306,10 @@ function ReStrat:OnReStrat(strCmd, strParam)
 	elseif strParam == "stop" then
 		self:Stop()
 		
+	elseif strParam == "debug" then
+		self:Start()
+		self:debugfunction()
+		
 	elseif strParam == "pull" then
 		for i = 1, GroupLib.GetMemberCount() do
 			if GroupLib.GetGroupMember(i).strCharacterName == GameLib.GetPlayerUnit():GetName() then
@@ -1291,6 +1329,16 @@ function ReStrat:OnReStrat(strCmd, strParam)
 		self.wndMain:Invoke()
 		self:InitUI()
 	end
+end
+
+--debug function
+function ReStrat:debugfunction()
+	ReStrat:destroyAllLandmarks()
+			ReStrat:createLandmark("Frog1", {4288, -568, -17040 })
+			ReStrat:createLandmark("Frog2", {4332, -568, -17040 })
+			ReStrat:createLandmark("Frog3", {4332, -568, -16949 })
+			ReStrat:createLandmark("Frog4", {4288, -568, -16949 })
+		
 end
 
 --Pull timer

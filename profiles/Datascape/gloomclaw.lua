@@ -3,9 +3,30 @@
 -----------------------------------------------------------------------------
  
 function ReStrat:gloomInit(unit)
-		
+	local leftSpawn = {
+		{4288.5, -568.48095703125, -16765.66796875 },
+		{4288.5, -568.30078125656, -16858.9765625 },
+		{4288.5, -568.95300292969, -16949.40234375 },
+		{4288.5, -568.95300292969, -17040.22265625 },
+		{4288.5, -568.95300292969, -17040.099609375 }
+	}
+
+	local rightSpawn = {
+		{4332.5, -568.4833984375, -16765.66796875 },
+		{4332.5, -568.45147705078, -16858.9765625 },
+		{4332.5, -568.95300292969, -16949.40234375 },
+		{4332.5, -568.95300292969, -17040.22265625 },
+		{4332.5, -568.95300292969, -17040.099609375 }
+	}
+	
 	local phase = 2
 	local pull = true
+	
+	if self:IsActivated("Gloomclaw", "Spawn Landmarks") then
+		ReStrat:destroyAllLandmarks()
+		ReStrat:createLandmark("Left", leftSpawn[phase])
+		ReStrat:createLandmark("Right", rightSpawn[phase])
+	end
 	
 	--Rupture
 	
@@ -30,12 +51,12 @@ function ReStrat:gloomInit(unit)
 			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
 		elseif phase == 1 then
 			ReStrat:createAlert("Next Wave (#1)", 25, nil, ReStrat.color.green, function()
-				ReStrat:createAlert("Next Wave (#2)", 27, nil, ReStrat.color.green, function()
-					ReStrat:createAlert("Next Wave (#3)", 29, nil, ReStrat.color.green, nil)end)end)
+				ReStrat:createAlert("Next Wave (#2)", 26, nil, ReStrat.color.green, function()
+					ReStrat:createAlert("Next Wave (#3)", 26, nil, ReStrat.color.green, nil)end)end)
 			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
 		elseif phase == 2 then
 			ReStrat:createAlert("Next Wave (#1)", 35, nil, ReStrat.color.green, function()
-				ReStrat:createAlert("Next Wave (#2)", 35, nil, ReStrat.color.green, function()
+				ReStrat:createAlert("Next Wave (#2)", 32, nil, ReStrat.color.green, function()
 					ReStrat:createAlert("Next Wave (#3)", 35, nil, ReStrat.color.green, nil)end)end)
 			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
 		elseif phase == 3 then
@@ -45,6 +66,16 @@ function ReStrat:gloomInit(unit)
 			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
 		elseif phase == 4 then
 			ReStrat:createAlert("Collect", 110, nil, ReStrat.color.green, nil)
+			
+			if self:IsActivated("Gloomclaw", "Spawn Landmarks") then
+				ReStrat:destroyAllLandmarks()
+				ReStrat:createLandmark("Frog1", {4288, -568, -17040 })
+				ReStrat:createLandmark("Frog2", {4332, -568, -17040 })
+				ReStrat:createLandmark("Frog3", {4332, -568, -16949 })
+				ReStrat:createLandmark("Frog4", {4288, -568, -16949 })
+			end
+					
+			
 		elseif phase == 5 then
 			ReStrat:createAlert("Next Wave (#1)", 21, nil, ReStrat.color.green, function()
 				ReStrat:createAlert("Next Wave (#2)", 21, nil, ReStrat.color.green, function()
@@ -58,7 +89,13 @@ function ReStrat:gloomInit(unit)
 	
 		ReStrat:destroyAllAlerts()
 		phase = phase + 1
-           
+		
+		if self:IsActivated("Gloomclaw", "Spawn Landmarks") and phase ~= 0 then
+			ReStrat:destroyAllLandmarks()
+			ReStrat:createLandmark("Left", leftSpawn[phase])
+			ReStrat:createLandmark("Right", rightSpawn[phase])	
+		end
+		
         ReStrat:createAlert("Gloomclaw MOO!", 15, nil, ReStrat.color.purple, nil)
     end
 
@@ -74,6 +111,12 @@ function ReStrat:gloomInit(unit)
 		ReStrat:destroyAllAlerts()
 
 		phase = phase - 1
+		
+		if self:IsActivated("Gloomclaw", "Spawn Landmarks") and phase ~= 0 then
+			ReStrat:destroyAllLandmarks()
+			ReStrat:createLandmark("Left", leftSpawn[phase])
+			ReStrat:createLandmark("Right", rightSpawn[phase])
+		end
 		
 		if pull then
 			ReStrat:createAlert("Maybe First Rupture", 32, nil, ReStrat.color.purple, nil)
@@ -92,13 +135,17 @@ function ReStrat:gloomInit(unit)
 end
 
 function ReStrat:leftess(tEventObj)
-	tEventObjLeft1 = tEventObj
-	ReStrat:trackEvent(tEventObj, self.color.yellow, "Left Essence")
+	--tEventObjLeft1 = tEventObj
+	if self:IsActivated("Gloomclaw", "Track Essence HP") then
+		ReStrat:trackEvent(tEventObj, self.color.yellow, "Left Essence")
+	end
 end
 
 function ReStrat:rightess(tEventObj)
-	tEventObjRight1 = tEventObj
-	ReStrat:trackEvent(tEventObj, self.color.blue, "Right Essence")
+	--tEventObjRight1 = tEventObj
+	if self:IsActivated("Gloomclaw", "Track Essence HP") then
+		ReStrat:trackEvent(tEventObj, self.color.blue, "Right Essence")
+	end
 end
  
 -----------------------------------------------------------------------------
@@ -121,6 +168,14 @@ ReStrat.tEncounters["Gloomclaw"] = {
                 },				
                 ["BossLife"] = {
                         strLabel = "Boss Life",
+                        bEnabled = true,
+                },
+				["Spawn Landmarks"] = {
+                        strLabel = "Spawn Landmarks",
+                        bEnabled = true,
+                },
+				["Track Essence HP"] = {
+                        strLabel = "Spawn Landmarks",
                         bEnabled = true,
                 },
         }
