@@ -23,16 +23,24 @@ function ReStrat:kuralakInit()
 	
 	
 	--Eggs
-	function ReStrat:chromosomepop()
-		ReStrat:createPop("Eggs!", nil)
-		ReStrat:createAlert("Egg Cooldown", 70, nil, ReStrat.color.orange, nil)
+	local chromosomepop = function()
+		if self:IsActivated(kuralak, "Cultivate Corruption") then
+			ReStrat:createPop("Eggs!", nil)
+			ReStrat:createAlert("Egg Cooldown", 70, nil, ReStrat.color.orange, nil)
+		end
+	end
+	function ReStrat:chromosomepop2()
+		if self:IsActivated(kuralak, "Cultivate Corruption") then
+			ReStrat:createPop("Eggs!", nil)
+			ReStrat:createAlert("Egg Cooldown", 70, nil, ReStrat.color.orange, nil)
+		end
 	end
 	ReStrat:OnDatachron("The corruption begins to fester!", chromosomepop)
 	
 	--Destroy Vanish Alerts
 	local destroyAlerts = function()
 		ReStrat:destroyAllAlerts()
-		self:chromosomepop()
+		self:chromosomepop2()
 	end
 	ReStrat:OnDatachron("you will become one of us...", destroyAlerts)
 	ReStrat:OnDatachron("Through the Strain you will be transformed", destroyAlerts)
@@ -70,7 +78,9 @@ function ReStrat:kuralakInit()
 	end
 	
 	--Chromosome Corruption Pin
-	ReStrat:createPinFromAura("Chromosome Corruption")
+	if self:IsActivated(kuralak, "Track Egg Debuff (Pins)") then
+		ReStrat:createPinFromAura("Chromosome Corruption")
+	end
 	
 end
 
@@ -94,8 +104,8 @@ ReStrat.tEncounters["Kuralak the Defiler"] = {
 	fSpamFunction = profileDebugRepeat,
 	strCategory  = "Genetic Archives",
 	tModules = {
-		["Chromosome Corruption"] = {
-			strLabel = "Chromosome Corruption",
+		["Track Egg Debuff (Pins)"] = {
+			strLabel = "Track Egg Debuff (Pins)",
 			bEnabled = true,
 		},
 		["Cultivate Corruption"] = {
