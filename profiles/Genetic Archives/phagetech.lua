@@ -29,11 +29,12 @@ function ReStrat:commanderInit()
 			ReStrat:createAlert("Power up(Augmentor Next)", 60, nil, ReStrat.color.purple, nil)
 		end
 	end
-	
+		
 	local malicious = function()
 		ReStrat:createAlert("Malicious Uplink!", 5, nil, ReStrat.color.red, nil)
-		
 	end
+	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Malicious Uplink", nil, "Icon_SkillFire_UI_srcr_frybrrg", nil)
+	
 	--ReStrat:createCastTrigger(commander, "Powering Up", malicious);
 	ReStrat:OnDatachron("Phagetech Commander is now active!", malicious)
 	
