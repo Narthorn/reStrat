@@ -9,8 +9,8 @@ require "Sound"
  
 ReStrat = {
 	name = "ReStrat",
-	version = "1.8.7",
-	fileversion = 187,
+	version = "1.8.9",
+	fileversion = 189,
 	tVersions = {},
 	barSpacing = 6,
 	color = {
@@ -1333,12 +1333,23 @@ end
 
 --debug function
 function ReStrat:debugfunction()
-	ReStrat:destroyAllLandmarks()
-			ReStrat:createLandmark("Frog1", {4288, -568, -17040 })
-			ReStrat:createLandmark("Frog2", {4332, -568, -17040 })
-			ReStrat:createLandmark("Frog3", {4332, -568, -16949 })
-			ReStrat:createLandmark("Frog4", {4288, -568, -16949 })
 		
+	
+	
+	--Destroy Vanish Alerts
+	local destroyAlerts = function()
+		ReStrat:destroyAllAlerts()
+		self:chromosomepop()
+		self.tDatachron = {}
+	end
+	ReStrat:OnDatachron("The corruption begins to fester!", chromosomepop)
+	ReStrat:OnDatachron("you will become one of us...", chromosomepop)
+	ReStrat:OnDatachron("Through the Strain you will be transformed", destroyAlerts)
+	ReStrat:OnDatachron("Your form is flawed, but I will make you beautiful", destroyAlerts)
+	ReStrat:OnDatachron("Let the Strain perfect you", destroyAlerts)  
+	ReStrat:OnDatachron("The Experiment has failed", destroyAlerts)  
+	ReStrat:OnDatachron("Join us... become one with the Strain", destroyAlerts) 
+	ReStrat:OnDatachron("One of us... you will become one of us", destroyAlerts)
 end
 
 --Pull timer
