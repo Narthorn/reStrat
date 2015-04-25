@@ -50,9 +50,13 @@ function ReStrat:teraxInit(unit)
 		ReStrat:destroyAlert("Equalize Cooldown", false);
 	end
 	
+	
 	--Stitching Strain
-	local stitchCD = function() ReStrat:createAlert("Stitching Strain Cooldown", 55, nil, ReStrat.color.orange, nil) end
+	local stitchCD = function() ReStrat:createAlert("Stitching Strain Cooldown", 55, nil, ReStrat.color.yellow, nil) end
 	ReStrat:createCastAlert(terax, "Stitching Strain", nil, "Icon_SkillMedic_devastatorprobes2", ReStrat.color.red, stitchCD);
+	if ReStrat:IsActivated("Terax Blightweaver", "Stitching Strain") then
+		ReStrat:createAlert("First Stitching Strain", 14.6, nil, ReStrat.color.yellow, nil)
+	end
 	
 	--Teleport
 	local teraxPop = function() destroyAlerts(); ReStrat:createPop("Terax Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
@@ -107,7 +111,7 @@ function ReStrat:noxmindInit(unit)
 	
 	--Essence Rot
 	local erCD = function()
-		ReStrat:createAlert("Essence Rot Cooldown", 17, nil, ReStrat.color.orange, nil)
+		ReStrat:createAlert("Essence Rot Cooldown", 17, nil, ReStrat.color.blue, nil)
 	end
 	local erpop = function()
 		ReStrat:createPop("Waves incoming!", nil)
