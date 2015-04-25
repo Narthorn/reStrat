@@ -35,6 +35,12 @@ function ReStrat:kuralakInit()
 		self:chromosomepop()
 	end
 	ReStrat:OnDatachron("you will become one of us...", destroyAlerts)
+	ReStrat:OnDatachron("Through the Strain you will be transformed", destroyAlerts)
+	ReStrat:OnDatachron("Your form is flawed, but I will make you beautiful", destroyAlerts)
+	ReStrat:OnDatachron("Let the Strain perfect you", destroyAlerts)  
+	ReStrat:OnDatachron("The Experiment has failed", destroyAlerts)  
+	ReStrat:OnDatachron("Join us... become one with the Strain", destroyAlerts) 
+	ReStrat:OnDatachron("One of us... you will become one of us", destroyAlerts)
 
 	--DNA Siphon
 	local siphonpop = function()
