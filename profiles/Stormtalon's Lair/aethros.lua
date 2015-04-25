@@ -8,7 +8,7 @@
 local boss = "Aethros";
 
 --Fight initiation function
-local function experimentInit()
+function ReStrat:aeInit()
 
 	--Torrent
 	ReStrat:createCastAlert(boss, "Torrent", nil, nil, ReStrat.color.red, nil)
@@ -39,8 +39,8 @@ if not ReStrat.tEncounters then
 end
 
 --Profile Settings
-ReStrat.tEncounters[boss] = {
-	fInitFunction = experimentInit,
+ReStrat.tEncounters["Aethros"] = {
+	startFunction = aeInit,
 	fSpamFunction = profileDebugRepeat,
 	strCategory  = "Stormtalon's Lair",
 	tModules = {

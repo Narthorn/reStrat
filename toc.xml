@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Addon Author="Reglitch" APIVersion="9" Name="ReStrat" Description="Rapid iteration boss mods">
+<Addon Author="Reglitch/Chill" APIVersion="9" Name="ReStrat" Description="Rapid iteration boss mods">
     <!-- Stem files -->
     <Script Name="ReStrat.lua"/>
     <Script Name="encounterBuilders.lua"/>
@@ -35,6 +35,7 @@
     <Script Name="profiles\Datascape\elementals.lua"/>
     <Script Name="interface.lua"/>
     <Script Name="profiles\Datascape\avatus.lua"/>
-    <Script Name="profiles\Datascape\maelstrom.lua"/>
-    <Script Name="profiles\Augmentors.lua"/>
+	<Script Name="profiles\Datascape\maelstrom.lua"/>
+	<Script Name="profiles\Datascape\gloomclaw.lua"/>
+	<Script Name="profiles\Datascape\minis.lua"/>
 </Addon>

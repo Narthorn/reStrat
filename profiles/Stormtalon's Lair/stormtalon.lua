@@ -7,8 +7,7 @@
 -----------------------------------------------------------------------------
 boss = "Stormtalon"
 
---Fight initiation function
-local function experimentInit()
+function ReStrat:stormInit()
 	
 	--Lightning Strike
 	ReStrat:createCastAlert(boss, "Lightning Strike", nil, nil, nil, nil)
@@ -45,8 +44,8 @@ if not ReStrat.tEncounters then
 end
 
 --Profile Settings
-ReStrat.tEncounters[boss] = {
-	fInitFunction = experimentInit,
+ReStrat.tEncounters["Stormtalon"] = {
+	startFunction = stormInit,
 	fSpamFunction = profileDebugRepeat,
 	strCategory  = "Stormtalon's Lair",
 	tModules = {

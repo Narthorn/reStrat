@@ -1,13 +1,8 @@
------------------------------------------------------------------------------------------------
--- Interface handlers
---- Created by Ryan Park, aka Reglitch of Codex
----- Maintained by Vim <Codex>
------------------------------------------------------------------------------------------------
 
 --UI Init
 function ReStrat:InitUI()
 	if not self.bLoaded then
-		--[[local zoneList = self.wndMain:FindChild("zoneList")
+		local zoneList = self.wndMain:FindChild("zoneList")
 		
 		--Go through our encounters and populate zone list
 		for k,v in pairs(self.tEncounters) do
@@ -26,7 +21,7 @@ function ReStrat:InitUI()
 			btnZone:SetData(k)
 		end
 		
-		ReStrat:arrangeChildren(zoneList)--]]
+		ReStrat:arrangeChildren(zoneList)
 		
 		self.bLoaded = true
 	end	
@@ -73,7 +68,7 @@ function ReStrat:onEncounterSelected(wndHandler, wndControl)
 	
 	moduleList:DestroyChildren()
 	
-	--[[for k,v in pairs(self.tEncounters[encounterName].tModules) do
+	for k,v in pairs(self.tEncounters[encounterName].tModules) do
 		local moduleButton = Apollo.LoadForm(self.xmlDoc, "btnModule", moduleList, self)
 		
 		moduleButton:SetText(v.strLabel)
@@ -84,7 +79,7 @@ function ReStrat:onEncounterSelected(wndHandler, wndControl)
 			moduleButton:SetBGColor("vdarkgray")
 		end
 		
-	end--]]
+	end
 	
 	self:arrangeChildren(moduleList)
 end
@@ -113,10 +108,6 @@ function ReStrat:onClose()
 	self.wndMain:Close()
 end
 
----------------------------------------------------------------------------------------------------
--- iconForm Functions
----------------------------------------------------------------------------------------------------
-
 function ReStrat:onShowIcons()
 	self.wndIcon:Invoke() -- open macro window
 	
@@ -140,6 +131,83 @@ function ReStrat:onShowIcons()
 	iconList:ArrangeChildrenVert()
 end
 
+function ReStrat:onShowLog()
+	self.wndLog:Show(true, true)
+	
+	----------------------------
+	--Unit Tab
+	----------------------------
+	--Grab our labels/forms
+	local unitList     = self.wndLog:FindChild("formContainer"):FindChild("unitForm"):FindChild("unitList")
+	
+	--Create a unit for each unit in tUnits
+	for id,tUnit in pairs(self.tUnits) do
+		local unitItem = Apollo.LoadForm(self.xmlDoc, "unitItem", unitList, self)
+		local unitString = unitItem:FindChild("unitString")
+		
+		unitString:SetText(tUnit.name)
+		unitItem:SetData(id)
+	end
+	
+	unitList:ArrangeChildrenVert()
+	
+end
+
+--When we switch unit
+function ReStrat:onUnitSwitch(wndHandler, wndControl)
+	--Grab our labels/forms
+	local unitForm     = self.wndLog:FindChild("formContainer"):FindChild("unitForm")
+	local portrait     = unitForm:FindChild("CostumeWindow")
+	local health       = unitForm:FindChild("strHealth")
+	local name         = unitForm:FindChild("strName")
+	local power        = unitForm:FindChild("strPower")
+	local absorb       = unitForm:FindChild("strAbsorb")
+	local shield       = unitForm:FindChild("strShield")
+	local assaultpower = unitForm:FindChild("strAssault")
+	local count        = unitForm:FindChild("strCount")
+	local ia           = unitForm:FindChild("strIA")
+	
+	local unitCache = self.tUnits[wndHandler:GetParent():GetData()]
+	if unitCache.unit then
+		portrait:SetCostume(unitCache.unit)
+	else 
+		portrait:SetCostumeToCreatureId(1)
+	end
+	if unitCache.health then
+		health:SetText("Health: " .. unitCache.health)
+	else
+		health:SetText("Health: N/A")
+	end
+	--power:SetText("Health: " .. unitCache.health)
+	if unitCache.shield then
+		shield:SetText("Shield: " .. unitCache.shield)
+	else
+		shield:SetText("Shield: N/A")
+	end
+	if unitCache.absorb then
+		absorb:SetText("Absorb: " .. unitCache.absorb)
+	else
+		absorb:SetText("Absorb: N/A")
+	end
+	--count:SetText("Health: " .. unitCache.health)
+	ia:SetText("Interrupt Armor: " .. unitCache.baseIA)
+	if unitCache.assault then
+		assaultpower:SetText("Assault Power: " .. round(unitCache.assault,2))
+	else
+		assaultpower:SetText("Assault Power: N/A")
+	end
+	name:SetText("Name: " .. unitCache.name)
+
+end
+
+function ReStrat:onSettingsShow(wndControl, eMouseButton)
+	self.wndSettings:Show(true, true)
+end
+
+---------------------------------------------------------------------------------------------------
+-- iconForm Functions
+---------------------------------------------------------------------------------------------------
+
 function ReStrat:onCloseIcons()
 	local iconList = self.wndIcon:FindChild("iconList")
 	local icons = iconList:GetChildren()
@@ -154,12 +222,27 @@ function ReStrat:onCloseIcons()
 end
 
 ---------------------------------------------------------------------------------------------------
--- settingsForm Functions
+-- iconPreview Functions
 ---------------------------------------------------------------------------------------------------
 
-function ReStrat:onSettingsShow(wndControl, eMouseButton)
-	self.wndSettings:Show(true, true)
+function ReStrat:onIconStringCopy(wndHandler)
+	local iconString = wndHandler:GetData()
 end
+
+---------------------------------------------------------------------------------------------------
+-- logForm Functions
+---------------------------------------------------------------------------------------------------
+
+function ReStrat:onCloseLog(wndHandler, wndControl)
+	self.wndLog:Close()
+	local unitList     = self.wndLog:FindChild("formContainer"):FindChild("unitForm"):FindChild("unitList")
+	unitList:DestroyChildren()
+
+end
+
+---------------------------------------------------------------------------------------------------
+-- settingsForm Functions
+---------------------------------------------------------------------------------------------------
 
 function ReStrat:onToggleSettings(wndHandler, wndControl)
 	if wndControl:GetText() == "Enabled" then
@@ -176,19 +259,37 @@ function ReStrat:onCloseSettings()
 end
 
 function ReStrat:onToggleMoving(wndHandler, wndControl) --[TODO]: ugh
-	local bEnabled = (wndControl:GetText() == "Enabled")
-	
-	self.wndHealthBars:SetBGColor(bEnabled and "90000000" or "00ffffff")
-	self.wndHealthBars:SetText(bEnabled and "Health Bars" or "")
-	self.wndAlerts:SetBGColor(bEnabled and "90000000" or "00ffffff")
-	self.wndAlerts:SetText(bEnabled and "Alerts" or "")
-	self.wndPop:SetBGColor(bEnabled and "90000000" or "00ffffff")
-	self.wndPop:SetText(bEnabled and "Pop Frame" or "")
-	
-	self.wndHealthBars:SetStyle("Moveable", bEnabled)
-	self.wndHealthBars:SetStyle("Sizable", bEnabled)
-	self.wndAlerts:SetStyle("Moveable", bEnabled)
-	self.wndAlerts:SetStyle("Sizable", bEnabled)
-	self.wndPop:SetStyle("Moveable", bEnabled)
-	self.wndPop:SetStyle("Sizable", bEnabled)
+	if wndControl:GetText() == "Enabled" then
+		--Display
+		self.wndHealthBars:SetBGColor("90000000")
+		self.wndHealthBars:SetText("Health Bars")
+		self.wndAlerts:SetBGColor("90000000")
+		self.wndAlerts:SetText("Alerts")
+		self.wndPop:SetBGColor("90000000")
+		self.wndPop:SetText("Pop Frame")
+		
+		--Set properties
+		self.wndHealthBars:SetStyle("Moveable", true)
+		self.wndHealthBars:SetStyle("Sizable", true)
+		self.wndAlerts:SetStyle("Moveable", true)
+		self.wndAlerts:SetStyle("Sizable", true)
+		self.wndPop:SetStyle("Moveable", true)
+		self.wndPop:SetStyle("Sizable", true)		
+	else
+		--Display
+		self.wndHealthBars:SetText("")
+		self.wndHealthBars:SetBGColor("00ffffff")
+		self.wndAlerts:SetText("")
+		self.wndAlerts:SetBGColor("00ffffff")
+		self.wndPop:SetText("")
+		self.wndPop:SetBGColor("00ffffff")
+		
+		--Set properties
+		self.wndHealthBars:SetStyle("Moveable", false)
+		self.wndHealthBars:SetStyle("Sizable", false)
+		self.wndAlerts:SetStyle("Moveable", false)
+		self.wndAlerts:SetStyle("Sizable", false)
+		self.wndPop:SetStyle("Moveable", false)
+		self.wndPop:SetStyle("Sizable", false)
+	end
 end
