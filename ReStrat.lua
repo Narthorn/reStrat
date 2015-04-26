@@ -103,6 +103,11 @@ function ReStrat:OnLoad()
 	--This timer drives health bar updates
 	self.healthTimer = ApolloTimer.Create(0.5, true, "OnHealthTick", self)
 	self.healthTimer:Stop()
+
+	--This timer delays stopping the fight until 7 seconds after the player gets out of combat
+    --to allow i.e. spellslingers to voidslip without timers ripping
+	self.outofcombatTimer = ApolloTimer.Create(7, false, "OnCombatTimeout", self)
+	self.outofcombatTimer:Stop()
 end
 
 -----------------------------------------------------------------------------------------------
@@ -203,11 +208,17 @@ function ReStrat:OnUnitDestroyed(unit)
 end
 
 function ReStrat:OnEnteredCombat(unit, combat)
-	if unit:IsInYourGroup() or unit:IsThePlayer() then
-		if combat then
+	if unit:IsInYourGroup() then
+		if combat then 
 			self:Start()
 		elseif not self:IsGroupInCombat() then
 			self:Stop()
+		end
+	elseif unit:IsThePlayer() then
+		if combat then
+			self:Start()
+		else
+			self.outofcombatTimer:Start()
 		end
 	else
 		--If combat starts, init unit profile
@@ -243,6 +254,7 @@ function ReStrat:Start()
 	self.combatStarted = GameLib.GetGameTime()
 	self.gameTimer:Start()
 	self.healthTimer:Start()
+	self.outofcombatTimer:Stop()
 end
 
 function ReStrat:Stop()
@@ -278,6 +290,10 @@ function ReStrat:IsGroupInCombat()
 end
 
 function ReStrat:OnPlayerResurrected()
+	ReStrat:Stop()
+end
+
+function ReStrat:OnCombatTimeout()
 	ReStrat:Stop()
 end
 
