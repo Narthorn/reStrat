@@ -65,7 +65,7 @@ function ReStrat:OnLoad()
 	self.wndSettings:Show(false, true)
 	
 	-- Communications channel
-	self.channel = ICCommLib.JoinChannel(self.name, "OnICCommMessageReceived", self)
+	--self.channel = ICCommLib.JoinChannel(self.name, "OnICCommMessageReceived", self)
 	
 	-- Register handlers for events, slash commands and timer, etc.
 	Apollo.RegisterSlashCommand("restrat", "OnReStrat", self)
