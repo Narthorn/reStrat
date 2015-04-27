@@ -27,10 +27,11 @@ function ReStrat:golgoxInit(unit)
 	
 	--Demolish
 	local demoCD = function() ReStrat:createAlert("Demolish Cooldown", 14, nil, ReStrat.color.orange, nil) end
-	ReStrat:createCastAlert(golgox, "Demolish", nil, "Icon_SkillMedic_devastatorprobes2", ReStrat.color.red, demoCD);
+	local demoPop = function() ReStrat:createPop("Demolish!"); ReStrat:Sound("Sound\\demolish.wav"); end
+	ReStrat:createCastAlert(golgox, "Demolish", nil, "Icon_SkillMedic_devastatorprobes2", ReStrat.color.red, demoCD, demoPop);
 	
 	--Mid phase
-	local golgoxPop = function() destroyAlerts(); ReStrat:createPop("Golgox Mid!", nil);  ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
+	local golgoxPop = function() destroyAlerts(); ReStrat:createPop("Golgox Mid!", 5);  ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(golgox, "Teleport", golgoxPop);
 	
 	
@@ -59,7 +60,7 @@ function ReStrat:teraxInit(unit)
 	end
 	
 	--Teleport
-	local teraxPop = function() destroyAlerts(); ReStrat:createPop("Terax Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
+	local teraxPop = function() destroyAlerts(); ReStrat:createPop("Terax Mid!", 5); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(terax, "Teleport", teraxPop);
 	
 	
@@ -80,7 +81,7 @@ function ReStrat:vratorgInit(unit)
 	end
 	
 	--Teleport
-	local vratorgPop = function() destroyAlerts(); ReStrat:createPop("Vratorg Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
+	local vratorgPop = function() destroyAlerts(); ReStrat:createPop("Vratorg Mid!", 5); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(vratorg, "Teleport", vratorgPop);
 	
 end
@@ -122,7 +123,7 @@ function ReStrat:noxmindInit(unit)
 	
 	
 	--Teleport
-	local noxmindPop = function() destroyAlerts(); ReStrat:createPop("Noxmind Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
+	local noxmindPop = function() destroyAlerts(); ReStrat:createPop("Noxmind Mid!", 5); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(noxmind, "Teleport", noxmindPop);
 	
 end
@@ -141,7 +142,7 @@ function ReStrat:ersothInit(unit)
 	end
 	
 	--Teleport
-	local ersothInit = function() destroyAlerts(); ReStrat:createPop("Ersoth Mid!", nil); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
+	local ersothInit = function() destroyAlerts(); ReStrat:createPop("Ersoth Mid!", 5); ReStrat:createAlert("Next Convergence", 85, nil, ReStrat.color.purple, nil) end
 	ReStrat:createCastTrigger(ersoth, "Teleport", ersothInit);
 
 end
