@@ -178,7 +178,7 @@ function ReStrat:trackHealth(unit, strColor, displayname)
 		else
 			wndBarContainer:FindChild("unitName"):SetText(displayname)
 		end
-		self.tHealth[unit:GetId()] = {bar = wndBar, unit = unit}
+		self.tHealth[unit:GetId()] = {bar = wndBar, unit = unit, current = 100}
 			
 		self:OnHealthTick()
 		self:arrangeBars(self.tHealth, "health")
@@ -200,7 +200,7 @@ function ReStrat:trackEvent(tEventObj, strColor, displayname)
 			end
 			
 			--Print("new event")
-			self.tHealth[tEventObj:GetObjectiveId()] = {bar = wndBar, tEventObj = tEventObj, isevent = true}
+			self.tHealth[tEventObj:GetObjectiveId()] = {bar = wndBar, tEventObj = tEventObj, isevent = true, current = 100}
 			
 			
 			self:OnHealthTick()
@@ -302,7 +302,9 @@ function ReStrat:createPin(strLabel, unit, graphic, strFont)
 		
 		pin:SetUnit(unit, 0) --attach to unit
 		
-		if self.tPins[unit:GetName()] then self.tPins[unit:GetName()]:Destroy() end --Overwrite existing pin
+		if unit:GetName() ~= "Detonation Bomb" then -- special case for bombs at phagemaw
+			if self.tPins[unit:GetName()] then self.tPins[unit:GetName()]:Destroy() end --Overwrite existing pin
+		end
 		
 		self.tPins[unit:GetName()] = pin --Create the new pin
 		
@@ -319,7 +321,7 @@ end
 -----------------------------------------------------------------------------------------------
 --Modularization is heavy here, we do not reiterate on the same function to continually check
 --We add the spell and unit into the tWatchedCasts table then check when the cast event is fired by LCLF
-function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i)
+function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i, fCallbackStart_i) --fCallbackStart will be called when the cast starts and fCallback will be called once it ends
 	if ReStrat.tEncounters[strUnit] then		
 		if ReStrat.tEncounters[strUnit].tModules[strCast].bEnabled then
 			ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
@@ -329,7 +331,8 @@ function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_
 					duration = duration_i,
 					strIcon = strIcon_i,
 					fCallback = fCallback_i,
-					strColor = color_i
+					strColor = color_i,
+					fCallbackStart = fCallbackStart_i
 				}
 			}
 		end

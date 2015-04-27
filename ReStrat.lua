@@ -9,8 +9,8 @@ require "Sound"
  
 ReStrat = {
 	name = "ReStrat",
-	version = "1.8.9",
-	fileversion = 189,
+	version = "1.9.3",
+	fileversion = 193,
 	tVersions = {},
 	barSpacing = 6,
 	color = {
@@ -34,6 +34,7 @@ ReStrat = {
 	combatStarted = nil,
 	combatLog = {},
 	tSpellTriggers = {},
+	tShortcutBars = {},
 	tHealTriggers = {},
 	tAuraCache = {},
 	tPins = {},
@@ -59,6 +60,7 @@ function ReStrat:OnLoad()
 	self.wndLog        = Apollo.LoadForm(self.xmlDoc, "logForm", nil, self)
 	self.wndSettings   = Apollo.LoadForm(self.xmlDoc, "settingsForm", nil, self)
 	self.wndversion    = Apollo.LoadForm(self.xmlDoc, "versionform", nil, self)
+	self.wndActionBarItem = Apollo.LoadForm(self.xmlDoc, "ActionBarShortcutItem", nil, self)
 		
 	self.wndversion:Show(false, true)
 	self.wndMain:Show(false, true)
@@ -76,11 +78,17 @@ function ReStrat:OnLoad()
 	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
 	Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self)
 	Apollo.RegisterEventHandler("UnitEnteredCombat",     "OnEnteredCombat",     self)
+	
 	Apollo.RegisterEventHandler("ChatMessage",           "OnChatMessage",       self)
+	Apollo.RegisterEventHandler("ShowActionBarShortcut", "OnShowActionBarShortcut", self)
+	
 	Apollo.RegisterEventHandler("PlayerResurrected",     "OnPlayerResurrected", self)
 	--Apollo.RegisterEventHandler("Group_AcceptInvite",	 "OnGroupAcceptInvite", self)
 	Apollo.RegisterEventHandler("Group_Join",            "OnGroup_Join",        self)
 	Apollo.RegisterEventHandler("PublicEventObjectiveUpdate", "OnPublicEvent",  self)
+	Apollo.RegisterEventHandler("SubZoneChanged",        		 "OnZone",        				    self)
+	
+	
 	
 	Apollo.RegisterEventHandler("CombatLogDamage" ,              "OnCombatLogDamage",               self)
 	Apollo.RegisterEventHandler("CombatLogDeflect",              "OnCombatLogDeflect",              self)
@@ -88,8 +96,6 @@ function ReStrat:OnLoad()
 	Apollo.RegisterEventHandler("CombatLogModifyInterruptArmor", "OnCombatLogModifyInterruptArmor", self)
 	Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self)
 	Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self)
-	Apollo.RegisterEventHandler("SubZoneChanged",        		 "OnZone",        				    self)
-	
 	
 	Apollo.RegisterEventHandler("_LCLF_UnitDied",             "OnUnitDied",         self)
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraApplied",     "OnAuraApplied",      self)
@@ -105,6 +111,11 @@ function ReStrat:OnLoad()
 	--This timer drives health bar updates
 	self.healthTimer = ApolloTimer.Create(0.5, true, "OnHealthTick", self)
 	self.healthTimer:Stop()
+	
+	--This timer delays stopping the fight until 7 seconds after the player gets out of combat
+    --to allow i.e. spellslingers to voidslip without timers ripping -- credits to Vim
+	self.outofcombatTimer = ApolloTimer.Create(7, false, "OnCombatTimeout", self)
+	self.outofcombatTimer:Stop()
 	
 	self.loadTimer = ApolloTimer.Create(3.5, false, "OnDelayLoad", self)
 	self.loadTimer:Stop()
@@ -170,6 +181,7 @@ function ReStrat:OnHealthTick() -- also events
 		
 			progressBar:SetMax(max)
 			progressBar:SetProgress(cur)
+			tHealth.current = cur/max*100
 			wndBar:FindChild("healthAmount"):SetText(string.format("%.1fk/%.1fk", cur/1000, max/1000))
 			wndBar:FindChild("healthPercent"):SetText(string.format("%.1f%%", cur/max*100))
 		else -- event
@@ -180,6 +192,7 @@ function ReStrat:OnHealthTick() -- also events
 				
 				progressBar:SetMax(max)
 				progressBar:SetProgress(cur)
+				tHealth.current = cur/max*100
 				wndBar:FindChild("healthAmount"):SetText(" ")
 				wndBar:FindChild("healthPercent"):SetText("0")
 				wndBar:FindChild("healthPercent"):SetText(string.format("%.1f%%", cur/max*100))
@@ -196,6 +209,7 @@ function ReStrat:OnHealthTick() -- also events
 			end
 		end
 	end
+	self:arrangeBars(self.tHealth, "health")
 end
 
 function ReStrat:OnZone()
@@ -315,6 +329,43 @@ function ReStrat:OnRestore(loadlevel, tload)
 			strLabel = "Track Essence HP",
 			bEnabled = true,
 		}
+	end
+	if ReStrat.tEncounters["Kuralak the Defiler"].tModules["Track Egg Debuff (Pins)"] == nil then
+		ReStrat.tEncounters["Kuralak the Defiler"].tModules["Track Egg Debuff (Pins)"] = {
+			strLabel = "Track Egg Debuff (Pins)",
+			bEnabled = true,
+		}
+	end
+	if ReStrat.tEncounters["Dreadphage Ohmna"].tModules["Boredom (Tank Switch)"] == nil then
+		ReStrat.tEncounters["Dreadphage Ohmna"].tModules["Boredom (Tank Switch)"] = {
+			strLabel = "Boredom (Tank Switch)",
+			bEnabled = true,
+		}
+	end
+	if ReStrat.tEncounters["Dreadphage Ohmna"].tModules["Tentacle Spawns"] == nil then
+		ReStrat.tEncounters["Dreadphage Ohmna"].tModules["Tentacle Spawns"] = {
+			strLabel = "Tentacle Spawns",
+			bEnabled = true,
+		}
+	end
+	if ReStrat.tEncounters["Kuralak the Defiler"].trackHealth == nil then
+		ReStrat.tEncounters["Kuralak the Defiler"].trackHealth = ReStrat.color.red
+	end
+	if ReStrat.tEncounters["Experiment X-89"].trackHealth == nil then
+		ReStrat.tEncounters["Experiment X-89"].trackHealth = ReStrat.color.red
+	end
+	
+
+	--Delete Old Entries
+	if ReStrat.tEncounters["Kuralak the Defiler"].tModules["Chromosome Corruption"] ~= nil then
+		ReStrat.tEncounters["Kuralak the Defiler"].tModules["Chromosome Corruption"] = nil
+	end
+	
+	if ReStrat.tEncounters["Holo Hand"] ~= nil then
+		ReStrat.tEncounters["Holo Hand"]= nil
+	end
+	if ReStrat.tEncounters["Phage Maw"].trackHealth ~= nil then
+		ReStrat.tEncounters["Phage Maw"].trackHealth = nil
 	end
 	
 	
@@ -453,13 +504,6 @@ function ReStrat:OnDelayLoad()
 					bEnabled = true,
 				},
 			},
-		}
-	end
-	if ReStrat.tEncounters["Holo Hand"] == nil then
-		ReStrat.tEncounters["Holo Hand"] = {
-			strCategory  = "Not Important",
-			trackHealth = ReStrat.color.blue,
-			tModules = {},
 		}
 	end
 	
@@ -618,7 +662,7 @@ function ReStrat:OnDelayLoad()
 	if ReStrat.tEncounters["Experiment X-89"] == nil then
 		ReStrat.tEncounters["Experiment X-89"] = {
 			strCategory  = "Genetic Archives",
-			trackHealth = nil,
+			trackHealth = ReStrat.color.red,
 			tModules = {
 				["Resounding Shout"] = {
 					strLabel = "Resounding Shout",
@@ -642,10 +686,10 @@ function ReStrat:OnDelayLoad()
 	if ReStrat.tEncounters["Kuralak the Defiler"] == nil then
 		ReStrat.tEncounters["Kuralak the Defiler"] = {
 			strCategory  = "Genetic Archives",
-			trackHealth = nil,
+			trackHealth = ReStrat.color.red,
 			tModules = {
-				["Chromosome Corruption"] = {
-					strLabel = "Chromosome Corruption",
+				["Track Egg Debuff (Pins)"] = {
+					strLabel = "Track Egg Debuff (Pins)",
 					bEnabled = true,
 				},
 				["Cultivate Corruption"] = {
@@ -670,27 +714,35 @@ function ReStrat:OnDelayLoad()
 	if ReStrat.tEncounters["Dreadphage Ohmna"] == nil then
 		ReStrat.tEncounters["Dreadphage Ohmna"] = {
 			strCategory  = "Genetic Archives",
-			trackHealth = nil,
+			trackHealth = ReStrat.color.red,
 			tModules = {
-				["Devour"] = {
-					strLabel = "Devour",
-					bEnabled = true,
-				},
-				["Genetic Torrent"] = {
-					strLabel = "Genetic Torrent (Spew)",
-					bEnabled = true,
-				},
-				["Track Generators [Event]"] = {
-					strLabel = "Track Generators [Event]",
-					bEnabled = true,
-				},
+			["Devour"] = {
+				strLabel = "Devour",
+				bEnabled = true,
 			},
-		}
+			["Genetic Torrent"] = {
+				strLabel = "Genetic Torrent (Spew)",
+				bEnabled = true,
+			},
+			["Track Generators [Event]"] = {
+				strLabel = "Track Generators [Event]",
+				bEnabled = true,
+			},
+			["Boredom (Tank Switch)"] = {
+				strLabel = "Boredom (Tank Switch)",
+				bEnabled = false,
+			},
+			["Tentacle Spawns"] = {
+				strLabel = "Tentacle Spawns",
+				bEnabled = true,
+			},
+		},
+	}
 	end
 	if ReStrat.tEncounters["Phage Maw"] == nil then
 		ReStrat.tEncounters["Phage Maw"] = {
 			strCategory  = "Genetic Archives",
-			trackHealth = nil,
+			trackHealth = ReStrat.color.red,
 			tModules = {
 				["Detonation Bombs"] = {
 					strLabel = "Detonation Bombs",
@@ -958,7 +1010,7 @@ function ReStrat:OnUnitDestroyed(unit)
 end
 
 function ReStrat:OnEnteredCombat(unit, combat)
-	if unit:IsInYourGroup() or unit:IsThePlayer() then
+	if unit:IsInYourGroup() then
 		if combat then
 			--Clear combat log
 			self.combatLog = {}
@@ -966,6 +1018,14 @@ function ReStrat:OnEnteredCombat(unit, combat)
 		elseif not self:IsGroupInCombat() then
 			self:Stop()
 		end
+		
+	elseif unit:IsThePlayer() then
+		if combat then
+			self:Start()
+		else
+			self.outofcombatTimer:Start()
+		end
+	
 	else
 		--If combat starts, init unit profile
 		if combat then
@@ -989,8 +1049,10 @@ function ReStrat:OnEnteredCombat(unit, combat)
 					else
 						ReStrat:avatusInit(unit)
 					end
-				elseif uName == "Holo Hand" then
-					ReStrat:avatusInit(unit)
+				elseif uName == "Mobius Physics Constructor" then
+					ReStrat:yellowInit(unit)
+				elseif uName == "Infinite Logic Loop" then
+					ReStrat:blueInit(unit)
 				elseif uName == "Data Devourer" then
 					ReStrat:devourerInit(unit)
 					
@@ -1117,6 +1179,7 @@ function ReStrat:Start()
 	self.combatStarted = GameLib.GetGameTime()
 	self.gameTimer:Start()
 	self.healthTimer:Start()
+	self.outofcombatTimer:Stop()
 end
 
 function ReStrat:Stop()
@@ -1134,6 +1197,7 @@ function ReStrat:Stop()
 	self.tDatachron = {}
 	self.tPinAuras = {}
 	self.tPins = {}
+	self.tShortcutBars = {}
 	ReStrat:destroyAllLandmarks()
 	
 	self.healthTimer:Stop()
@@ -1153,6 +1217,11 @@ end
 function ReStrat:OnPlayerResurrected()
 	ReStrat:Stop()
 end
+
+function ReStrat:OnCombatTimeout()
+	ReStrat:Stop()
+end
+
 
 function ReStrat:spairs(t, order)
     -- collect the keys
@@ -1183,7 +1252,7 @@ end
 function ReStrat:arrangeBars(tBars, strType)
 	local vOffset = 0
 	if strType == "health" then
-		for _,tBar in pairs(tBars) do
+		for _,tBar in self:spairs(tBars, function(t,a,b) return t[b].current < t[a].current end) do
 			local wndHeight = tBar.bar:GetHeight()		
 			tBar.bar:SetAnchorOffsets(0,vOffset,0,vOffset+wndHeight)
 			vOffset = vOffset + (wndHeight + self.barSpacing)
@@ -1250,6 +1319,17 @@ function ReStrat:OnChatMessage(channel, tMessage)
 
 	
 end
+
+function ReStrat:OnShowActionBarShortcut(nBar, bIsVisible, nShortcuts)
+	self.tShortcutBars[nBar] = {}
+	if bIsVisible then
+		for iBar=0,7 do
+			self.wndActionBarItem:SetContentId(nBar * 12 + iBar)
+			self.tShortcutBars[nBar][iBar+1] = self.wndActionBarItem:GetContent()
+		end
+	end
+end
+
 
 --/restrat
 function ReStrat:OnReStrat(strCmd, strParam)
