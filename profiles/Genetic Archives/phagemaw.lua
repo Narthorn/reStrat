@@ -40,6 +40,7 @@ function ReStrat:bombinit(unit)
 	end
 	--bombtot = bombtot + 1
 	bombnum = bombnum + 1
+	ReStrat:createPin(bombnum, unit, nil, "Subtitle")
 	ReStrat:trackHealth(unit, ReStrat.color.yellow, "Bomb #" .. bombnum)
 	--ReStrat:onPlayerHit("Detonation", nil, 0.5, bombsub)
 end

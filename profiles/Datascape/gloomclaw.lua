@@ -62,7 +62,7 @@ function ReStrat:gloomInit(unit)
 		elseif phase == 3 then
 			ReStrat:createAlert("Next Wave (#1)", 25, nil, ReStrat.color.green, function()
 				ReStrat:createAlert("Next Wave (#2)", 27, nil, ReStrat.color.green, function()
-					ReStrat:createAlert("Next Wave (#3)", 29, nil, ReStrat.color.green, nil)end)end)
+					ReStrat:createAlert("Next Wave (#3)", 27, nil, ReStrat.color.green, nil)end)end)
 			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
 		elseif phase == 4 then
 			ReStrat:createAlert("Collect", 110, nil, ReStrat.color.green, nil)
