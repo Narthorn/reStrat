@@ -62,50 +62,6 @@ function ReStrat:dist2unit(unitSource, unitTarget)
 end
 
 
-
-
---[[
-Apollo.RegisterEventHandler("PublicEventObjectiveUpdate", "OnPublicEvent", self) --event fires if something changes
-OnPublicEvent(eventobj)
-
-eventobj:GetDescription()
-eventobj:GetCount()
-eventobj:GetRequiredCount()
-eventobj:GetEvent()
-
-event = eventobj:GetEvent() --use this to get to the name and event in general
-event:GetName() --identify event by name (on top, darker color)
---check if tracked, if yes then
-tObj = event:GetObjectives()
-for k,v in pairs(tObj) do
-	if tObj[k]:GetObjectiveId() -- is tracked then return
-	if tObj[k]:GetTrackedUnits():GetName()
-	GetHealth()
-	GetMaxHealth()
-end
-
-
-tEvent = PublicEvent.GetActiveEvents()
-tEvent[1]
-tEvent[2]
-etc..
-
-tObj = tEvent[1]:GetObjectives()
-tObj[1]
-tObj[2]
-etc..
-
-nReq = tObj[1]:GetRequiredCount()
-nReq == 100
-
-nStat = tObj[1]:GetStatus()
-nStat == 1
-
-nCount = tObj[1]:GetCount()
-nCount == 3
---]]
-
-
 function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	local alertBar = Apollo.LoadForm("ReStrat.xml", "alertInstance", self.wndAlerts, self)
 	local progressbar = alertBar:FindChild("ProgressBarContainer"):FindChild("progressBar")
@@ -141,6 +97,8 @@ function ReStrat:repeatAlert(tParams, nCount)
 	end
 	ReStrat:createAlert(tParams.strLabel, tParams.fDelay or tParams.fRepeat, tParams.strIcon, tParams.strColor, reAlert)
 end
+
+
 
 --Destroy alert
 function ReStrat:destroyAlert(name, bExecCallback)
@@ -448,13 +406,10 @@ function ReStrat:findAuraDuration(strBuffName, unit)
 
 end
 
---Just add into library, look in combatLog.lua for the real functionality
-function ReStrat:createPinFromAura(auraName, strSprite)
-	if strSprite then
-		self.tPinAuras[auraName] = {sprite = strSprite}
-	else
-		self.tPinAuras[auraName] = {}
-	end
+--"Subtitle" "CRB_Interface14_BO" "CRB_Pixel_O" = Standard
+function ReStrat:createPinFromAura(auraName, strSprite, bShowAuraName, strFont)
+	self.tPinAuras[auraName] = {}
+	self.tPinAuras[auraName] = {sprite = strSprite, bShowName = bShowAuraName, font = strFont}
 end
 
 --This is used in some fights as a phase trigger, quite useful
