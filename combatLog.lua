@@ -67,7 +67,11 @@ function ReStrat:OnAuraApplied(intSpellId, intStackCount, tTargetUnit)
 	
 	--Create pin if needed
 	if self.tPinAuras[spellName] then
-		ReStrat:createPin(spellName .. " - " .. tTargetUnit:GetName(), tTargetUnit, self.tPinAuras[spellName].sprite)
+		if self.tPinAuras[spellName].bShowName == false then
+			ReStrat:createPin(tTargetUnit:GetName(), tTargetUnit, self.tPinAuras[spellName].sprite, self.tPinAuras[spellName].font)
+		else
+			ReStrat:createPin(spellName .. " - " .. tTargetUnit:GetName(), tTargetUnit, self.tPinAuras[spellName].sprite, self.tPinAuras[spellName].font)
+		end
 	end
 		
 	--Create alert
