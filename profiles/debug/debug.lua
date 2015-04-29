@@ -32,6 +32,7 @@ function ReStrat:profileDebug(unit)
 	ReStrat:onPlayerHit("Firestorm", nil, 5, function() Print("Stop getting hit!") end)
 	
 	ReStrat:createAuraAlert(nil, "Melt Armor", nil, nil, nil)
+	ReStrat:createPinFromAura("Interrupt Armor", nil, false, "CRB_Interface12_BO")
 	ReStrat:createAuraAlert(nil, "Interrupt Armor", nil, nil, nil)
 	
 	tStations = {}
