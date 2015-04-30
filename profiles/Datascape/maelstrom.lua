@@ -66,20 +66,16 @@ end
 
 function ReStrat:stationInit(unit2)
 	--stationnum = stationnum +1
-	if ReStrat:IsActivated("Maelstrom Authority", "") then
+	if ReStrat:IsActivated("Maelstrom Authority", "Lines to Stations") then
 		DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit2, ReStrat.color.blue)
 	end
 	ReStrat:createPop("Stun station!", nil)
 	ReStrat:Sound("Sound\\stations.wav")
-	--if stationnum == 2 then
-	--	stationnum = 1
-	--	ReStrat:createAlert("Next station", 25, nil, ReStrat.color.blue, nil)
-	--end
 end
 
 function ReStrat:maelEvent(tEventObj)
 	--Print("mael func")
-	if self:IsActivated("Maelstrom Authority", "Lines to Stations") then
+	if self:IsActivated("Maelstrom Authority", "Track Weather Cycle [Event]") then
 		ReStrat:trackEvent(tEventObj, self.color.yellow, "Weather Cycle")
 	end	
 end
@@ -112,7 +108,11 @@ ReStrat.tEncounters["Maelstrom Authority"] = {
                         strLabel = "Track Weather Cycle [Event]",
                         bEnabled = true,
                 },
-	},
+                ["Lines to Stations"] = {
+				strLabel = "Lines to Stations",
+				bEnabled = true,
+				},
+		},
 }
 
 ReStrat.tEncounters["Weather Station"] = {
