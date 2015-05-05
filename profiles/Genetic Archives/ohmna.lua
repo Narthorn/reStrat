@@ -11,8 +11,10 @@ function ReStrat:ohmnaInit(unit)
 	nextgenerator = "highest"
 	eruptlistener = false
 	local ohmna = "Dreadphage Ohmna";
-	if unit ~= nil then ReStrat:trackHealth(unit, ReStrat.color.red) end
-	firsttentacle = false
+	if unit ~= nil and ReStrat:IsActivated(ohmna, "Boss Life") then 
+		ReStrat:trackHealth(unit, ReStrat.color.red) 
+	end
+	firsttentacle = true
 	lastphasestarted = false
 	
 	--Boredom
@@ -57,12 +59,14 @@ function ReStrat:ohmnaInit(unit)
 	
 	--Generator
 	local generatorCD = function()
-		if nextgenerator == "lowest" then
-			ReStrat:createAlert("Next Generator (lowest HP)", 25, nil, ReStrat.color.yellow, nil)
-			nextgenerator = "highest"
-		else
-			ReStrat:createAlert("Next Generator (highest HP)", 25, nil, ReStrat.color.yellow, nil)
-			nextgenerator = "lowest"
+		if unit:GetHealth() > 3000000 then
+			if nextgenerator == "lowest" then
+				ReStrat:createAlert("Next Generator (lowest HP)", 25, nil, ReStrat.color.yellow, nil)
+				nextgenerator = "highest"
+			else -- highest
+				ReStrat:createAlert("Next Generator (highest HP)", 25, nil, ReStrat.color.yellow, nil)
+				nextgenerator = "lowest"
+			end
 		end
 	end
 	ReStrat:createAlert("First Generator", 25, nil, ReStrat.color.yellow, nil)
@@ -71,13 +75,10 @@ function ReStrat:ohmnaInit(unit)
 	--addphase handler
 	local aftererrupt = function()
 		if eruptlistener then
-			if self:IsActivated("Dreadphage Ohmna", "Boredom (Tank Switch)") then
-				ReStrat:createAlert("Bored Cooldown!", 45, nil, ReStrat.color.purple, nil)
-			end
-			if nextgenerator == "lowest" then
-				ReStrat:createAlert("Next Generator (lowest HP)", 32, nil, ReStrat.color.yellow, nil)
-			else
+			if nextgenerator == "lowest" then -- reversed here :)
 				ReStrat:createAlert("Next Generator (highest HP)", 32, nil, ReStrat.color.yellow, nil)
+			else -- highest
+				ReStrat:createAlert("Next Generator (lowest HP)", 32, nil, ReStrat.color.yellow, nil)
 			end
 		end
 		eruptlistener = false
@@ -181,6 +182,10 @@ ReStrat.tEncounters["Dreadphage Ohmna"] = {
 		},
 		["Tentacle Spawns"] = {
 			strLabel = "Tentacle Spawns",
+			bEnabled = true,
+		},
+		["Boss Life"] = {
+			strLabel = "Boss Life",
 			bEnabled = true,
 		},
 	},

@@ -60,43 +60,78 @@ function ReStrat:blueInit(unit)
 	end
 end
 
-function ReStrat:latticeInit() 
+function ReStrat:latticeInit()
 	oblit = 0
-	local function devourerspawn()
-		tdev = {}
-		tdev.strLabel = "Next Devourers"
-		tdev.fDelay = 15
-		tdev.fDuration = 5
-		tdev.strColor = ReStrat.color.orange
-		tdev.strIcon = "Icon_SkillEngineer_Anomaly_Launcher"
-	
-		ReStrat:repeatAlert(tdev, 999)
+	firstbeam = false
+
+	if ReStrat:IsActivated("Avatus", "Devourers Spawn") then
+		-- Devourerer
+		local function devourerspawn()
+			tdev = {}
+			tdev.strLabel = "Next Devourers"
+			tdev.fDelay = 15
+			tdev.fDuration = 5
+			tdev.strColor = ReStrat.color.orange
+			tdev.strIcon = "Icon_SkillEngineer_Anomaly_Launcher"
+		
+			ReStrat:repeatAlert(tdev, 999)
+		end
+		ReStrat:createAlert("Data Devourers", 10, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
 	end
-	
-	ReStrat:createAlert("Data Devourers", 10, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
+
+
+	-- jumppphase
 	local function jumpphase()
 		ReStrat:destroyAllAlerts()
 		ReStrat:createAlert("Get Buff and Jump!", 18.83, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
 			ReStrat:createAlert("Jump!", 7.2, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
-				ReStrat:createAlert("Jump!", 6, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, nil)
+				ReStrat:createAlert("Jump!", 6, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
+
+					ReStrat:createAlert("Next Laser", 26, "Icon_SkillEngineer_Code_Red", ReStrat.color.red, nil)
+
+					if ReStrat:IsActivated("Avatus", "Devourers Spawn") then
+						ReStrat:createAlert("Data Devourers", 41, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
+					end
+
+					ReStrat:createAlert("Next Add Wave", 46, nil, ReStrat.color.purple, deletealldata)
+				end)
 			end)
 		end)
 	end
-	
 	ReStrat:OnDatachron("The Vertical Locomotion Enhancement Ports have been activated!", jumpphase)
+
+	-- Addspawns
+	local function beam()
+		if firstbeam then
+			ReStrat:createAlert("Next Add Wave", 45, nil, ReStrat.color.purple, nil)
+			firstbeam = false
+		end
+	end
+
+	local function deletealldata()
+		firstbeam = true
+	end
+	ReStrat:createAlert("Next Add Wave", 45, nil, ReStrat.color.purple, deletealldata)
+	ReStrat:OnDatachron("Avatus sets his focus on", beam)
+
+
+	
+
+	-- spreadphase
 	ReStrat:OnDatachron("The Secure Sector Enhancement Ports have been activated!", function()
 		ReStrat:destroyAllAlerts()
-		ReStrat:createAlert("Get Buff and Spread!", 19, "Icon_SkillMedic_sheildsurge", ReStrat.color.green, nil)
+		ReStrat:createAlert("Get Buff and Spread!", 19, "Icon_SkillMedic_sheildsurge", ReStrat.color.green, function()
+
+			ReStrat:createAlert("Next Laser", 25, "Icon_SkillEngineer_Code_Red", ReStrat.color.red, nil)
+
+			if ReStrat:IsActivated("Avatus", "Devourers Spawn") then
+				ReStrat:createAlert("Data Devourers", 40, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
+			end
+
+			ReStrat:createAlert("Next Add Wave", 45, nil, ReStrat.color.purple, deletealldata)
+		end)
 	end)
 	
-	ReStrat:createCastAlert("Avatus", "Obliterate", nil, "Icon_SkillEngineer_Energy_Trail", ReStrat.color.purple, function()
-		oblit = oblit + 1
-		if oblit == 2 then
-			ReStrat:createAlert("Data Devourers", 21, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
-		else
-			ReStrat:createAlert("Data Devourers", 11, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
-		end
-	end)
 	
 	ReStrat:createAuraAlert(nil, "Mark of Enmity", nil, "Icon_SkillEngineer_Code_Red", nil)
 end
@@ -121,12 +156,16 @@ ReStrat.tEncounters["Avatus"] = {
 	strCategory = "Datascape",
 	trackHealth = ReStrat.color.red,
 	tModules = {
-		["Obliterate"] = {
-			strLabel = "Obliterate (Lattice)",
-			bEnabled = true,
-		},
 		["Track Exit Power [Event]"] = {
 			strLabel = "Track Exit Power [Event]",
+			bEnabled = true,
+		},
+		["Lines to Devourers"] = {
+			strLabel = "Lines to Devourers",
+			bEnabled = true,
+		},
+		["Devourers Spawn"] = {
+			strLabel = "Devourers Spawn",
 			bEnabled = true,
 		},
 	},

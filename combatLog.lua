@@ -24,9 +24,6 @@ function ReStrat:OnCastStart(strSpellName, tCasterUnit)
 	--Do we have to start a timer?
 	for i = 1, #ReStrat.tWatchedCasts do
 		if ReStrat.tWatchedCasts[i].cast == strSpellName and tCasterUnit:GetName() == ReStrat.tWatchedCasts[i].name then
-			if ReStrat.tWatchedCasts[i].fCallbackStart ~= nil then
-				ReStrat.tWatchedCasts[i].fCallbackStart(tCasterUnit)
-			end
 			
 			--Get cast duration if one isn't given
 			if not ReStrat.tWatchedCasts[i].tAlertInfo.duration then
@@ -145,7 +142,7 @@ end
 -----------------------------------------------------------------------------------------------
 -- Combat Log Hooks
 -----------------------------------------------------------------------------------------------
-function ReStrat:OnCombatLogDamage(tEventArgs)		
+function ReStrat:OnCombatLogDamage(tEventArgs)	
 	if #self.tSpellTriggers > 0 then
 		if tEventArgs.unitTarget then
 			if tEventArgs.unitTarget:GetType() == "Player" then

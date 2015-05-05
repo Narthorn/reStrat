@@ -153,7 +153,31 @@ local function LifeFireInit()
 	
 	ReStrat:createAlert("Midphase", 90, nil, ReStrat.color.green, Midphase)
 	ReStrat:onUnitDeath("Essence of Life", MidphaseEndCheck)
-	ReStrat:createPinFromAura("Primal Entanglement")
+	--ReStrat:createPinFromAura("Primal Entanglement")
+
+	ReStrat:createPinFromAura("Primal Entanglement", nil, false, "CRB_Interface12_BO")
+	ReStrat:createPinFromAura("Life Force Shackle", nil, false)
+	-- Life Force Shackle
+	ReStrat:createAlert("First Blinding Light", 11, nil, ReStrat.color.purple, nil)
+
+	local function blindCD()
+		ReStrat:createAlert("Blind Cooldown", 22, nil, ReStrat.color.purple, nil)
+	end
+	local function blindPop()
+		ReStrat:createPop("Blind!")
+		ReStrat:Sound("Sound\\spew.wav")
+		ReStrat:createAlert("Blinding Light", 8.5, nil, ReStrat.color.red, blindCD)
+	end
+	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Life Force Shackle")
+	ReStrat:createCastTrigger("Visceralus", "Blinding Light", blindPop)
+
+	--ReStrat:createUnitTrigger("Life Force", blindPop2)
+	local function gotHeal(unit)
+		ReStrat:createPop("Healed!")
+		--ReStrat:createAlert("Healed: " .. unit:GetName(), 6, nil, ReStrat.color.green, nil)
+	end
+	ReStrat:onHeal("Visceralus", 3, gotHeal)
+	ReStrat:onHeal("Pyrobane", 3, gotHeal)
 end
 -----
 
@@ -171,12 +195,16 @@ local function WaterLogicInit()
 	--ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
 end
 
-local function WaterAirInit() 
+local function WaterAirInit() --TODO:twirl / tomb timer + bulls eye
 	ReStrat:createCastAlert("Hydroflux", "Glacial Icestorm", nil, "Icon_SkillStalker_Maelstrom", ReStrat.color.green, function()
-		ReStrat:createAlert("Midphase", 65, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, nil)
+		ReStrat:createAlert("Midphase", 65, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, function()
+			ReStrat:createPop("Midphase!")
+		end)
 	end)
-	
-	ReStrat:createAlert("Midphase", 60, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, nil)
+	ReStrat:createAuraAlert(nil, "Twirl")
+	ReStrat:createAlert("Midphase", 60, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, function()
+		ReStrat:createPop("Midphase!")
+	end)
 	ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
 end
 
@@ -258,11 +286,14 @@ end
 
 function ReStrat:airInit()
 	local wallofwind = function()
-		ReStrat:createPop("Wind Wall!")
 		ReStrat:createAlert("[Aileron] Wind Wall", 21, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.red, nil)
 	end
-	ReStrat:createCastAlert("Aileron", "Walls of Wind", nil, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.red, wallofwind)
-	ReStrat:createPinFromAura("Twirl")
+	local wowpop = function()
+		ReStrat:createPop("Wind Wall!")
+	end
+	ReStrat:createCastAlert("Aileron", "Walls of Wind", nil, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.red, wallofwind,wowpop)
+	--ReStrat:createPinFromAura("Twirl")
+	ReStrat:createPinFromAura("Twirl", nil, false,"CRB_Interface12_BO")
 	ReStrat.tEncounterVariables.Aileron = true
 	
 	if ReStrat.tEncounterVariables.Megalith   then EarthAirInit() end

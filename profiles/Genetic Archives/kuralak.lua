@@ -79,7 +79,10 @@ function ReStrat:kuralakInit()
 	
 	--Chromosome Corruption Pin
 	if self:IsActivated(kuralak, "Track Egg Debuff (Pins)") then
-		ReStrat:createPinFromAura("Chromosome Corruption")
+		--ReStrat:createPinFromAura("Chromosome Corruption")
+		--ReStrat:createPinFromAura("Chromosome Corruption", nil, false,"CRB_Interface12_BO")
+		ReStrat:createPinFromAura("Chromosome Corruption", nil, false,"CRB_Interface12_BO")
+		--ReStrat:createPinFromAura("Chromosome Corruption", nil, false, "CRB_Interface14_BO")
 	end
 	
 end

@@ -8,15 +8,15 @@
 
 
 function ReStrat:daemonInit(unit)
-
-	if unit:GetName() == "Null System Daemon" then
-		ReStrat:createPin("S", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+	if ReStrat:IsActivated("Binary System Daemon", "Pin on Daemons (N and S)") then
+		if unit:GetName() == "Null System Daemon" then
+			ReStrat:createPin("S", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+		end
+		
+		if unit:GetName() == "Binary System Daemon" then
+			ReStrat:createPin("N", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+		end
 	end
-	
-	if unit:GetName() == "Binary System Daemon" then
-		ReStrat:createPin("N", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
-	end
-	
 	
 	local pillarphase = 0
 	
@@ -77,11 +77,26 @@ function ReStrat:daemonInit(unit)
 			ReStrat:createAlert("Next Disconnect", 60, nil, ReStrat.color.purple, nil) 
 		end
 		
-		ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Purge", nil, "Icon_SkillFire_UI_srcr_frybrrg", nil)
+		ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Purge", nil, "Icon_SkillFire_UI_srcr_frybrrg", function ()
+			ReStrat:Sound("Sound\\purge.wav")
+		end)
 		ReStrat:createAlert("Portals Opening", 4, nil, ReStrat.color.orange, nil)
 		ReStrat:createAlert("Next Add Wave (Small)", 15, nil, ReStrat.color.green, AddWaves)
 		ReStrat:createAlert("Next Disconnect", 45, nil, ReStrat.color.purple, nil)
 		ReStrat:OnDatachron("INVALID SIGNAL.", Disconnect)
+
+
+		--pillars
+		local function pillarspawn(unit)
+			local distN = ReStrat:dist2coords(unit, {124.18, -225.94, -192,69}) -- north
+			local distS = ReStrat:dist2coords(unit, {140.53, -225.94, -156.73}) -- south
+			if distN < distS then -- it's a north pillar
+				ReStrat:trackHealth(unit, ReStrat.color.orange, "North pillar")
+			else -- it's a south pillar
+				ReStrat:trackHealth(unit, ReStrat.color.orange, "South pillar")
+			end
+		end
+		ReStrat:createUnitTrigger("Enhancement Module", pillarspawn)
 		
 		-- Power Surge Casts (PS)
 		local function fBinPS()
@@ -144,7 +159,6 @@ function ReStrat:daemonInit(unit)
 				end
 				
 			else -- pillarphase == 2
-			
 				if ReStrat:IsActivated("Binary System Daemon", "North Pillar Landmarks") then
 					ReStrat:createLandmark("N1", {109.217, -225.94, -198.71}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
 					ReStrat:createLandmark("N2", {156.22, -225.94, -198.85}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
@@ -238,6 +252,10 @@ ReStrat.tEncounters["Binary System Daemon"] = {
 		["South Pillar Landmarks"] = {
 			strLabel = "South Pillar Landmarks",
 			bEnabled = true,
+		},
+		["Pin on Daemons (N and S)"] = {
+			strLabel = "Pin on Daemons (N and S)",
+			bEnabled = false,
 		},
 	},
 }

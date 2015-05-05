@@ -33,6 +33,7 @@ ReStrat.tEncounters["General Settings"] = {
         },
 }
 
+
 ReStrat.tEncounters["Version"] = {
 			tfileversion = ReStrat.fileversion,
 			tcleanversion = ReStrat.version,
@@ -41,14 +42,27 @@ ReStrat.tEncounters["Version"] = {
 --Generate alert
 
 
-function ReStrat:Sound(file) --"Sound\\quack.wav"
+function ReStrat:Sound(strfile) --"Sound\\quack.wav"
 	if ReStrat.tEncounters["General Settings"].tModules["GenSounds"].bEnabled then
 		Sound.PlayFile("Sound\\TimerNew2.wav")
-		Sound.PlayFile(file)
+		Sound.PlayFile(strfile)
 	end
 end
 
 function ReStrat:dist2unit(unitSource, unitTarget)
+	if not unitSource or not unitTarget then return 999 end
+	local sPos = unitSource:GetPosition()
+	local tPos = unitTarget:GetPosition()
+
+	local sVec = Vector3.New(sPos.x, sPos.y, sPos.z)
+	local tVec = Vector3.New(tPos.x, tPos.y, tPos.z)
+
+	local dist = (tVec - sVec):Length()
+
+	return tonumber(dist)
+end
+
+function ReStrat:dist2coords(unitSource, tCoords)
 	if not unitSource or not unitTarget then return 999 end
 	local sPos = unitSource:GetPosition()
 	local tPos = unitTarget:GetPosition()
@@ -274,14 +288,23 @@ function ReStrat:destroyPin(unit)
 	if self.tPins[unit:GetName()] then self.tPins[unit:GetName()]:Destroy(); self.tPins[unit:GetName()] = nil end
 end
 
+function ReStrat:destroyAllPins()
+	for k,v in pairs(self.tPins) do
+		self.tPins[k]:Destroy()
+	end
+	self.tPins = {}
+end
 -----------------------------------------------------------------------------------------------
 -- CAST FUNCTIONS
 -----------------------------------------------------------------------------------------------
 --Modularization is heavy here, we do not reiterate on the same function to continually check
 --We add the spell and unit into the tWatchedCasts table then check when the cast event is fired by LCLF
-function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i, fCallbackStart_i) --fCallbackStart will be called when the cast starts and fCallback will be called once it ends
+function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i, fCallbackStart) --fCallbackStart will be called when the cast starts and fCallback will be called once it ends
 	if ReStrat.tEncounters[strUnit] then		
 		if ReStrat.tEncounters[strUnit].tModules[strCast].bEnabled then
+			if fCallbackStart ~= nil then
+				ReStrat:createCastTrigger(strUnit, strCast, fCallbackStart)
+			end
 			ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
 				name = strUnit,
 				cast = strCast,
@@ -290,7 +313,7 @@ function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_
 					strIcon = strIcon_i,
 					fCallback = fCallback_i,
 					strColor = color_i,
-					fCallbackStart = fCallbackStart_i
+					fCallbackStart = fCallbackStart
 				}
 			}
 		end

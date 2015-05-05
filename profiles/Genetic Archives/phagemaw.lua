@@ -19,6 +19,7 @@ function ReStrat:phagemawInit()
 		bombtot = 0
 		bombnum = 0
 		ReStrat:destroyAllAlerts()
+		ReStrat:destroyAllPins()
 	end
 	
 	ReStrat:createCastTrigger("Phage Maw", "Aerial Bombardment", destroyAlerts);

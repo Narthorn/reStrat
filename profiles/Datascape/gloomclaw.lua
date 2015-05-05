@@ -35,7 +35,11 @@ function ReStrat:gloomInit(unit)
 			ReStrat:createPop("Rupture soon", nil)
 		end) 
 	end
-						
+	local rupturePop = function()
+		ReStrat:createPop("Rupture!", 4)
+		ReStrat:Sound("Sound\\spew.wav") --Sound\quack.wav
+	end
+		
 	--ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)				
 	
 	if ReStrat.tEncounters["Gloomclaw"].tModules["BossLife"].bEnabled then
@@ -48,22 +52,22 @@ function ReStrat:gloomInit(unit)
 			ReStrat:createAlert("Next Wave (#1)", 25, nil, ReStrat.color.green, function()
 				ReStrat:createAlert("Next Wave (#2)", 25, nil, ReStrat.color.green, function()
 					ReStrat:createAlert("Next Wave (#3)", 25, nil, ReStrat.color.green, nil)end)end)
-			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
+			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD, rupturePop)
 		elseif phase == 1 then
 			ReStrat:createAlert("Next Wave (#1)", 25, nil, ReStrat.color.green, function()
 				ReStrat:createAlert("Next Wave (#2)", 26, nil, ReStrat.color.green, function()
 					ReStrat:createAlert("Next Wave (#3)", 26, nil, ReStrat.color.green, nil)end)end)
-			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
+			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD, rupturePop)
 		elseif phase == 2 then
 			ReStrat:createAlert("Next Wave (#1)", 35, nil, ReStrat.color.green, function()
 				ReStrat:createAlert("Next Wave (#2)", 32, nil, ReStrat.color.green, function()
 					ReStrat:createAlert("Next Wave (#3)", 35, nil, ReStrat.color.green, nil)end)end)
-			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
+			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD, rupturePop)
 		elseif phase == 3 then
 			ReStrat:createAlert("Next Wave (#1)", 25, nil, ReStrat.color.green, function()
 				ReStrat:createAlert("Next Wave (#2)", 27, nil, ReStrat.color.green, function()
 					ReStrat:createAlert("Next Wave (#3)", 27, nil, ReStrat.color.green, nil)end)end)
-			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
+			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD, rupturePop)
 		elseif phase == 4 then
 			ReStrat:createAlert("Collect", 110, nil, ReStrat.color.green, nil)
 			
@@ -80,7 +84,7 @@ function ReStrat:gloomInit(unit)
 			ReStrat:createAlert("Next Wave (#1)", 21, nil, ReStrat.color.green, function()
 				ReStrat:createAlert("Next Wave (#2)", 21, nil, ReStrat.color.green, function()
 					ReStrat:createAlert("Next Wave (#3)", 21, nil, ReStrat.color.green, nil)end)end)
-			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)
+			ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD, rupturePop)
 		end                
     end
 	

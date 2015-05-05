@@ -9,8 +9,8 @@ require "Sound"
  
 ReStrat = {
 	name = "ReStrat",
-	version = "1.9.4",
-	fileversion = 194,
+	version = "1.9.6",
+	fileversion = 196,
 	tVersions = {},
 	barSpacing = 6,
 	color = {
@@ -69,8 +69,6 @@ function ReStrat:OnLoad()
 	self.wndSettings:Show(false, true)
 	
 	-- Communications channel
-	self.channel = ICCommLib.JoinChannel("ATHFReStrat", "OnICCommMessageReceived", self)
-	
 	-- Register handlers for events, slash commands and timer, etc.
 	Apollo.RegisterSlashCommand("restrat", "OnReStrat", self)
 	Apollo.RegisterEventHandler("WindowManagementReady", "OnWindowManagementReady", self)
@@ -348,6 +346,25 @@ function ReStrat:OnRestore(loadlevel, tload)
 			bEnabled = true,
 		}
 	end
+	if ReStrat.tEncounters["Dreadphage Ohmna"].tModules["Boss Life"] == nil then
+		ReStrat.tEncounters["Dreadphage Ohmna"].tModules["Boss Life"] = {
+			strLabel = "Boss Life",
+			bEnabled = true,
+		}
+	end
+	if ReStrat.tEncounters["Binary System Daemon"].tModules["Pin on Daemons (N and S)"] == nil then
+		ReStrat.tEncounters["Binary System Daemon"].tModules["Pin on Daemons (N and S)"] = {
+			strLabel = "Pin on Daemons (N and S)",
+			bEnabled = false,
+		}
+	end
+	if ReStrat.tEncounters["Avatus"].tModules["Devourers Spawn"] == nil then
+		ReStrat.tEncounters["Avatus"].tModules["Devourers Spawn"] = {
+			strLabel = "Devourers Spawn",
+			bEnabled = true,
+		}
+	end
+
 	if ReStrat.tEncounters["Kuralak the Defiler"].trackHealth == nil then
 		ReStrat.tEncounters["Kuralak the Defiler"].trackHealth = ReStrat.color.red
 	end
@@ -359,6 +376,9 @@ function ReStrat:OnRestore(loadlevel, tload)
 	--Delete Old Entries
 	if ReStrat.tEncounters["Kuralak the Defiler"].tModules["Chromosome Corruption"] ~= nil then
 		ReStrat.tEncounters["Kuralak the Defiler"].tModules["Chromosome Corruption"] = nil
+	end
+	if ReStrat.tEncounters["Avatus"].tModules["Obliterate"] ~= nil then
+		ReStrat.tEncounters["Avatus"].tModules["Obliterate"] = nil
 	end
 	
 	if ReStrat.tEncounters["Holo Hand"] ~= nil then
@@ -412,7 +432,7 @@ function ReStrat:OnDelayLoad()
 		}
 	end
 	if ReStrat.tEncounters["General Settings"] == nil then
-		Print("succsess Gen")
+		--Print("succsess Gen")
 		ReStrat.tEncounters["General Settings"] = {
 			startFunction = asdfasdfasdfas,
 			--fSpamFunction = profileDebugRepeat,
@@ -491,16 +511,16 @@ function ReStrat:OnDelayLoad()
 			strCategory = "Datascape",
 			trackHealth = ReStrat.color.red,
 			tModules = {
-				["Obliterate"] = {
-					strLabel = "Obliterate (Lattice)",
-					bEnabled = true,
-				},
 				["Track Exit Power [Event]"] = {
 					strLabel = "Track Exit Power [Event]",
 					bEnabled = true,
 				},
 				["Lines to Devourers"] = {
 					strLabel = "Lines to Devourers",
+					bEnabled = true,
+				},
+				["Devourers Spawn"] = {
+					strLabel = "Devourers Spawn",
 					bEnabled = true,
 				},
 			},
@@ -543,6 +563,10 @@ function ReStrat:OnDelayLoad()
 				["South Pillar Landmarks"] = {
 					strLabel = "South Pillar Landmarks",
 					bEnabled = true,
+				},
+				["Pin on Daemons (N and S)"] = {
+					strLabel = "Pin on Daemons (N and S)",
+					bEnabled = false,
 				},
 			},
 		}
@@ -735,6 +759,10 @@ function ReStrat:OnDelayLoad()
 			["Tentacle Spawns"] = {
 				strLabel = "Tentacle Spawns",
 				bEnabled = true,
+			},
+			["Boss Life"] = {
+			strLabel = "Boss Life",
+			bEnabled = true,
 			},
 		},
 	}
@@ -1333,57 +1361,8 @@ end
 
 --/restrat
 function ReStrat:OnReStrat(strCmd, strParam)
-	versionall = false
-	if strParam == "version" then
-		--self.tVersions = {}
-		self.tMembers = {}
-		for i=1, GroupLib.GetMemberCount() do
-			groupmember = GroupLib.GetGroupMember(i)
-			if groupmember.strCharacterName ~= GameLib.GetPlayerUnit():GetName() then
-				self.tMembers[groupmember.strCharacterName] = "N/A"
-			end
-		end
-		self.channel:SendMessage({ping = true})
-		self.tmrVersionCheck = ApolloTimer.Create(5, false, "OnVersionCheckTimer", self)
-		versionall = false
-		
-	elseif strParam == "versionall" then
-		--self.tVersions = {}
-		self.tMembers = {}
-		for i=1, GroupLib.GetMemberCount() do
-			groupmember = GroupLib.GetGroupMember(i)
-			if groupmember.strCharacterName ~= GameLib.GetPlayerUnit():GetName() then
-				self.tMembers[groupmember.strCharacterName] = "N/A"
-			end
-		end
-		self.channel:SendMessage({ping = true})
-		self.tmrVersionCheck = ApolloTimer.Create(5, false, "OnVersionCheckTimer", self)
-		versionall = true
-		
-	elseif strParam == "vrf" then
-		self.tMembers = {}
-		for i=1, GroupLib.GetMemberCount() do
-			groupmember = GroupLib.GetGroupMember(i)
-			if groupmember.strCharacterName ~= GameLib.GetPlayerUnit():GetName() then
-				self.tMembers[groupmember.strCharacterName] = "N/A"
-			end
-		end
-		self.channel:SendMessage({pong = true})
-		self.tmrVersionCheck = ApolloTimer.Create(5, false, "OnVersionCheckTimer", self)
-		
-	elseif strParam == "fs" then
-		self.tMembers = {}
-		for i=1, GroupLib.GetMemberCount() do
-			groupmember = GroupLib.GetGroupMember(i)
-			if groupmember.strCharacterName ~= GameLib.GetPlayerUnit():GetName() then
-				self.tMembers[groupmember.strCharacterName] = "N/A"
-			end
-		end
-		self.channel:SendMessage({pang = true})
-		self.tmrVersionCheck = ApolloTimer.Create(5, false, "OnVersionCheckTimer", self)
-		
-		
-	elseif strParam == "stop" then
+	versionall = false	
+	if strParam == "stop" then
 		self:Stop()
 		
 	elseif strParam == "debug" then
@@ -1402,9 +1381,6 @@ function ReStrat:OnReStrat(strCmd, strParam)
 				end
 			end
 		end
-		
-		
-		
 	else
 		self.wndMain:Invoke()
 		self:InitUI()
@@ -1413,23 +1389,17 @@ end
 
 --debug function
 function ReStrat:debugfunction()
-		
-	
-	
-	--Destroy Vanish Alerts
-	local destroyAlerts = function()
-		ReStrat:destroyAllAlerts()
-		self:chromosomepop()
-		self.tDatachron = {}
-	end
-	ReStrat:OnDatachron("The corruption begins to fester!", chromosomepop)
-	ReStrat:OnDatachron("you will become one of us...", chromosomepop)
-	ReStrat:OnDatachron("Through the Strain you will be transformed", destroyAlerts)
-	ReStrat:OnDatachron("Your form is flawed, but I will make you beautiful", destroyAlerts)
-	ReStrat:OnDatachron("Let the Strain perfect you", destroyAlerts)  
-	ReStrat:OnDatachron("The Experiment has failed", destroyAlerts)  
-	ReStrat:OnDatachron("Join us... become one with the Strain", destroyAlerts) 
-	ReStrat:OnDatachron("One of us... you will become one of us", destroyAlerts)
+
+					ReStrat:createLandmark("N1", {109.217, -225.94, -198.71}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+					ReStrat:createLandmark("N2", {156.22, -225.94, -198.85}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+					ReStrat:createLandmark("N3", {99.23, -225.94, -174.13}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+					ReStrat:createLandmark("N4", {133.23, -225.94, -207.13}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+
+					ReStrat:createLandmark("S1", {109.217, -225.94, -150.71}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+					ReStrat:createLandmark("S2", {156.22, -225.94, -150.85}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+					ReStrat:createLandmark("S3", {133.23, -225.94, -140.13}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+					ReStrat:createLandmark("S4", {166.23, -225.94, -174.13}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+
 end
 
 --Pull timer
@@ -1442,79 +1412,6 @@ function ReStrat:OnPullTimer()
 		ChatSystemLib.Command("/p Pull!")
 	end
 end
-
-function ReStrat:OnICCommMessageReceived(channel, tMsg, sender)
-
-	if tMsg.ping == true then
-		punit = GameLib.GetPlayerUnit()
-		local tt = {}
-		tt.playername = punit:GetName()
-		tt.reversion = self.version
-		tt.answer = true
-		self.channel:SendMessage(tt)
-		
-	elseif tMsg.pang == true then
-		punit = GameLib.GetPlayerUnit()
-		local tt = {}
-		tt.playername = punit:GetName()
-		tt.reversion = Foresight.version
-		tt.answer = true
-		self.channel:SendMessage(tt)
-		
-	elseif tMsg.pong == true then
-		tVRF = Apollo.GetAddonInfo("VinceRaidFrames")
-		punit = GameLib.GetPlayerUnit()
-		local tt = {}
-		tt.playername = punit:GetName()
-		
-		if tVRF ~= nil then
-		
-			if tVRF.bRunning == 1 then
-				tt.reversion = "Running"
-			else
-				tt.reversion = "Installed"
-			end
-			
-			
-		else
-			tt.reversion = "None"
-		end
-		
-		tt.answer = true
-		self.channel:SendMessage(tt)
-	elseif tMsg.answer == true then
-		if self.tMembers ~= nil then
-			if versionall == false then
-				if self.tMembers[tMsg.playername] ~= nil then -- sender is in raid
-					self.tMembers[tMsg.playername] = tMsg.reversion
-				end
-			else
-				self.tMembers[tMsg.playername] = tMsg.reversion
-			end	
-		end
-	end
-end
-
-function ReStrat:OnVersionCheckTimer()
-	self.wndversion:Invoke()
-	versiontable = self.wndversion:FindChild("versiongrid")
-	versiontable:DeleteAll()
-	
-	Print(self.name .. " version: " .. self.version)
-	for key,value in pairs(self.tMembers) do Print(key.." "..value) end
-	
-	
-	local x = 0
-	for key,value in pairs(self.tMembers) do
-		x = x+1
-		versiontable:AddRow("asdfsadf")
-		versiontable:SetCellText(x,1,key)
-		versiontable:SetCellText(x,2,value)
-	end
-	
-	
-end
-
 function ReStrat:setContains(set, key)
     return set[key] ~= nil
 end
