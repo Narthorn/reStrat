@@ -40,64 +40,68 @@ function ReStrat:OnCastStart(strSpellName, tCasterUnit)
 end
 
 --AURA APPLIED EVENT
-function ReStrat:OnAuraApplied(intSpellId, intStackCount, tTargetUnit)
-	local spell = GameLib.GetSpell(intSpellId)
-	local spellName = spell:GetName()
-	local targetName = tTargetUnit:GetName()
-	local duration = ReStrat:findAuraDuration(spellName, tTargetUnit)
-	
-	--Add the information to our cache
-	if not self.tAuraCache[spellName] then
-		self.tAuraCache[spellName] = {
-			nMaxDuration = math.ceil(duration*10)*0.1,
-			strIcon = spell:GetIcon(),
-			strFlavor = spell:GetFlavor()
-		}
-	end
-	
-	--Create pin if needed
-	if self.tPinAuras[spellName] then
-		ReStrat:createPin(spellName .. " - " .. targetName, tTargetUnit, self.tPinAuras[spellName].sprite)
-	end
+function ReStrat:OnAuraApplied(tTargetUnit, tBuff)
+	if tTargetUnit and tTargetUnit:IsValid() then
+		local intStackCount = tBuff.nCount
+		local spell = tBuff.splEffect
+		local spellName = spell:GetName()
+		local targetName = tTargetUnit:GetName()
+		local duration = tBuff.fTimeRemaining
 		
-	--Create alert
-	for i = 1, #ReStrat.tWatchedAuras do
+		--Add the information to our cache
+		if not self.tAuraCache[spellName] then
+			self.tAuraCache[spellName] = {
+				nMaxDuration = math.ceil(duration*10)*0.1,
+				strIcon = spell:GetIcon(),
+				strFlavor = spell:GetFlavor()
+			}
+		end
 		
-		if ReStrat.tWatchedAuras[i] and ReStrat.tWatchedAuras[i].aura == spellName then
+		--Create pin if needed
+		if self.tPinAuras[spellName] then
+			ReStrat:createPin(spellName .. " - " .. targetName, tTargetUnit, self.tPinAuras[spellName].sprite)
+		end
 		
-			if not ReStrat.tWatchedAuras[i].name or ReStrat.tWatchedAuras[i].name == targetName then
+		--Create alert
+		for i = 1, #ReStrat.tWatchedAuras do
 			
-				--Get duration if none specified
-				if not ReStrat.tWatchedAuras[i].tAlertInfo.duration then
-					ReStrat.tWatchedAuras[i].tAlertInfo.duration = duration
-				end	
+			if ReStrat.tWatchedAuras[i] and ReStrat.tWatchedAuras[i].aura == spellName then
+			
+				if not ReStrat.tWatchedAuras[i].name or ReStrat.tWatchedAuras[i].name == targetName then
 				
-				--Get icon if none specified
-				if not ReStrat.tWatchedAuras[i].tAlertInfo.strIcon then
-					ReStrat.tWatchedAuras[i].tAlertInfo.strIcon = spell:GetIcon()
+					--Get duration if none specified
+					if not ReStrat.tWatchedAuras[i].tAlertInfo.duration then
+						ReStrat.tWatchedAuras[i].tAlertInfo.duration = duration
+					end	
+					
+					--Get icon if none specified
+					if not ReStrat.tWatchedAuras[i].tAlertInfo.strIcon then
+						ReStrat.tWatchedAuras[i].tAlertInfo.strIcon = spell:GetIcon()
+					end
+					
+					local alertString = spellName .. " - " .. targetName
+					
+					if ReStrat.tWatchedAuras[i].tAlertInfo.duration > 0 then
+						--Create alert
+						ReStrat:createAlert(alertString, ReStrat.tWatchedAuras[i].tAlertInfo.duration, ReStrat.tWatchedAuras[i].tAlertInfo.strIcon, ReStrat.tWatchedAuras[i].tAlertInfo.strColor, ReStrat.tWatchedAuras[i].tAlertInfo.fCallback)
+					else
+						ReStrat.tWatchedAuras[i].tAlertInfo.fCallback(tTargetUnit)
+					end
+					
 				end
-				
-				local alertString = spellName .. " - " .. targetName
-				
-				if ReStrat.tWatchedAuras[i].tAlertInfo.duration > 0 then
-					--Create alert
-					ReStrat:createAlert(alertString, ReStrat.tWatchedAuras[i].tAlertInfo.duration, ReStrat.tWatchedAuras[i].tAlertInfo.strIcon, ReStrat.tWatchedAuras[i].tAlertInfo.strColor, ReStrat.tWatchedAuras[i].tAlertInfo.fCallback)
-				else
-					ReStrat.tWatchedAuras[i].tAlertInfo.fCallback(tTargetUnit)
-				end
-				
 			end
 		end
 	end
-end
 
 --AURA REMOVED EVENT
-function ReStrat:OnAuraRemoved(intSpellId, intStackCount, tTargetUnit)
-	local spell = GameLib.GetSpell(intSpellId)
+function ReStrat:OnAuraRemoved(unit, tBuff)
+	if unit and unit:IsValid() then
+		local spell = tBuff.splEffect
 		
-	--Remove pin if needed
-	if self.tPinAuras[spell:GetName()] then
-		ReStrat:destroyPin(tTargetUnit)
+		--Remove pin if needed
+		if self.tPinAuras[spell:GetName()] then
+			ReStrat:destroyPin(tTargetUnit)
+		end
 	end
 end
 
