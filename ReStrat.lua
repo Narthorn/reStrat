@@ -59,11 +59,6 @@ function ReStrat:OnLoad()
 	self.wndSettings      = Apollo.LoadForm(self.xmlDoc, "settingsForm", nil, self)
 	self.wndActionBarItem = Apollo.LoadForm(self.xmlDoc, "ActionBarShortcutItem", nil, self)
 	
-	self.wndMain:Show(false, true)
-	self.wndIcon:Show(false, true)
-	self.wndLog:Show(false, true)
-	self.wndSettings:Show(false, true)
-	
 	-- Communications channel
 	--self.channel = ICCommLib.JoinChannel(self.name, "OnICCommMessageReceived", self)
 	
@@ -76,8 +71,8 @@ function ReStrat:OnLoad()
 	Apollo.RegisterEventHandler("UnitEnteredCombat",     "OnEnteredCombat",     self)
 	Apollo.RegisterEventHandler("PlayerResurrected",     "OnPlayerResurrected", self)
 	
-	Apollo.RegisterEventHandler("ShowResurrectDialog", 		"OnShowResurrectDialog",   self)
-	Apollo.RegisterEventHandler("UpdateResurrectDialog", 	"OnUpdateResurrectDialog", self)
+	Apollo.RegisterEventHandler("ShowResurrectDialog", 	 "OnShowResurrectDialog",   self)
+	Apollo.RegisterEventHandler("UpdateResurrectDialog", "OnUpdateResurrectDialog", self)
 
 	Apollo.RegisterEventHandler("ChatMessage",           "OnChatMessage",       self)
 	Apollo.RegisterEventHandler("ShowActionBarShortcut", "OnShowActionBarShortcut", self)
