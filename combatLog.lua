@@ -92,7 +92,8 @@ function ReStrat:OnAuraApplied(tTargetUnit, tBuff)
 			end
 		end
 	end
-
+end
+	
 --AURA REMOVED EVENT
 function ReStrat:OnAuraRemoved(unit, tBuff)
 	if unit and unit:IsValid() then
