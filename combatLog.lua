@@ -101,7 +101,7 @@ function ReStrat:OnAuraRemoved(unit, tBuff)
 		
 		--Remove pin if needed
 		if self.tPinAuras[spell:GetName()] then
-			ReStrat:destroyPin(tTargetUnit)
+			ReStrat:destroyPin(unit)
 		end
 	end
 end
