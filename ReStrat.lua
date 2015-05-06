@@ -284,13 +284,8 @@ function ReStrat:IsGroupInCombat()
 	return false
 end
 
-function ReStrat:OnPlayerResurrected()
-	ReStrat:Stop()
-end
-
-function ReStrat:OnCombatTimeout()
-	ReStrat:Stop()
-end
+function ReStrat:OnPlayerResurrected() ReStrat:Stop() end
+function ReStrat:OnCombatTimeout()     ReStrat:Stop() end
 
 function ReStrat:OnShowResurrectDialog(bPlayerIsDead, bEnableRezHere, bEnableRezHoloCrypt, bEnableRezExitInstance, bEnableCasterRez) 
 	if bPlayerIsDead and bEnableRezHoloCrypt then
