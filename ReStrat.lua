@@ -89,12 +89,12 @@ function ReStrat:OnLoad()
 	Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self)
 	Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self)
 	
-	Apollo.RegisterEventHandler("_LCLF_UnitDied",             "OnUnitDied",         self)
-	Apollo.RegisterEventHandler("_LCLF_SpellAuraApplied",     "OnAuraApplied",      self)
-	Apollo.RegisterEventHandler("_LCLF_SpellAuraAppliedDose", "OnAuraStackAdded",   self)
-	Apollo.RegisterEventHandler("_LCLF_SpellAuraRemoved",     "OnAuraRemoved",      self)
-	Apollo.RegisterEventHandler("_LCLF_SpellAuraRemovedDose", "OnAuraStackRemoved", self)
-	Apollo.RegisterEventHandler("_LCLF_SpellCastStart",       "OnCastStart",        self)
+	Apollo.RegisterEventHandler("BuffAdded",   "OnAuraApplied", self)
+	Apollo.RegisterEventHandler("BuffUpdated", "OnAuraUpdated", self)
+	Apollo.RegisterEventHandler("BuffRemoved", "OnAuraRemoved", self)
+	
+	Apollo.RegisterEventHandler("_LCLF_UnitDied",       "OnUnitDied",  self)
+	Apollo.RegisterEventHandler("_LCLF_SpellCastStart", "OnCastStart", self)
 	
 	--This timer drives alerts and combat time
 	self.gameTimer = ApolloTimer.Create(0.1, true, "OnGameTick", self)
