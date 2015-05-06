@@ -9,7 +9,6 @@ require "Sound"
 ReStrat = {
 	name = "ReStrat",
 	version = "1.4.16",
-	tVersions = {},
 	barSpacing = 9,
 	color = {
 		red = "ffb8413d",
@@ -58,9 +57,6 @@ function ReStrat:OnLoad()
 	self.wndLog           = Apollo.LoadForm(self.xmlDoc, "logForm", nil, self)
 	self.wndSettings      = Apollo.LoadForm(self.xmlDoc, "settingsForm", nil, self)
 	self.wndActionBarItem = Apollo.LoadForm(self.xmlDoc, "ActionBarShortcutItem", nil, self)
-	
-	-- Communications channel
-	--self.channel = ICCommLib.JoinChannel(self.name, "OnICCommMessageReceived", self)
 	
 	-- Register handlers for events, slash commands and timer, etc.
 	Apollo.RegisterSlashCommand("restrat", "OnReStrat", self)
@@ -342,50 +338,11 @@ end
 
 --/restrat
 function ReStrat:OnReStrat(strCmd, strParam)
-	if strParam == "version" then
-		self.tVersions = {}
-		self.tMembers = {}
-		for i=1, GroupLib.GetMemberCount() do
-			groupmember = GroupLib.GetGroupMember(i)
-			if groupmember.strCharacterName ~= GameLib.GetPlayerUnit():GetName() then
-				self.tMembers[groupmember.strCharacterName] = false
-			end
-		end
-		self.channel:SendMessage({ping = true})
-		self.tmrVersionCheck = ApolloTimer.Create(2, false, "OnVersionCheckTimer", self)
-	elseif strParam == "stop" then
+	if strParam == "stop" then
 		self:Stop()
 	else
 		self.wndMain:Invoke()
 		self:InitUI()
-	end
-end
-
-function ReStrat:OnICCommMessageReceived(channel, message, sender)
-	if message.ping then
-		self.channel:SendMessage({version = self.version})
-	elseif message.version then
-		if not self.tVersions[message.version] then self.tVersions[message.version] = {} end
-		local tUsers = self.tVersions[message.version]
-		tUsers[#tUsers+1] = sender
-	end
-end
-
-function ReStrat:OnVersionCheckTimer()
-	Print(self.name .. " version: " .. self.version)
-	for version, tUsers in pairs(self.tVersions) do
-		for i=1,#tUsers do self.tMembers[tUsers[i]] = nil end
-		if version ~= self.version then
-			Print("Users with v"..version..": "..table.concat(tUsers,","))
-		end
-	end
-	if GroupLib.InGroup() then
-		Print("--")
-		local tMissingUsers = {}
-		for user,_ in pairs(self.tMembers) do tMissingUsers[#tMissingUsers+1] = user end
-		if #tMissingUsers then
-			Print("Group members without "..self.name..": "..table.concat(tMissingUsers,","))
-		end
 	end
 end
 
