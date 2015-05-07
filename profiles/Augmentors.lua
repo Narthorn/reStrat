@@ -6,7 +6,7 @@ local function augmentorsInit(unit)
 		ReStrat:OnDatachron("ENGAGING TECHNOPHAGE TRASMISSION", function() -- sic
 			ReStrat:createAlert("Expulsion", 12, nil, ReStrat.color.red)
 		end)
-		ReStrat.tEncounterVariables.bStarted = true
+		
 		--ReStrat:repeatAlert({strLabel = "Radiation Bath", fDelay = 15, fRepeat = 30, strColor = ReStrat.color.green})
 		ReStrat:createAuraAlert(nil, "Compromised Circuitry", 0, nil, function(unit) 
 			for id,tHealth in pairs(ReStrat.tHealth) do
@@ -15,6 +15,8 @@ local function augmentorsInit(unit)
 		end)
 		
 		ReStrat:createPinFromAura("Strain Incubation")
+		
+		ReStrat.tEncounterVariables.bStarted = true
 	end
 	
 	local pos = unit:GetPosition()
@@ -29,6 +31,18 @@ local function augmentorsInit(unit)
 	-- Pulls below 20 and 60
 	ReStrat:onHealth(unit, 62, push)
 	ReStrat:onHealth(unit, 22, push)
+end
+
+local function hardmodeInit()
+	if not ReStrat.tEncounterVariables.bHardMode then
+	 	-- Interrupt timer for hardmode laser
+			
+		ReStrat:repeatAlert({strLabel = "Laser Interrupt", fDelay = 10, fRepeat = 30, strColor = ReStrat.color.yellow, fCallback = function()
+			ReStrat:createPop("Interrupt !")
+			Sound.Play(Sound.PlayUIQueuePopsPvP)
+		end})
+		ReStrat.tEncounterVariables.bHardMode = true
+	end
 end
 
 ReStrat.tEncounters["Prime Phage Distributor"] = {
