@@ -56,14 +56,12 @@ end
 ReStrat.tEncounters["Binary System Daemon"] = {
 	fInitFunction = daemonInit,
 	strCategory  = "Datascape",
-	trackHealth = ReStrat.color.green,
 	tModules = {},
 }
 
 ReStrat.tEncounters["Null System Daemon"] = {
 	fInitFunction = daemonInit,
 	strCategory  = "Datascape",
-	trackHealth = ReStrat.color.blue,
 	tModules = {},
 }
 
