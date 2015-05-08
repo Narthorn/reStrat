@@ -81,9 +81,8 @@ function ReStrat:OnLoad()
 	Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self)
 	Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self)
 	
-	Apollo.RegisterEventHandler("BuffAdded",   "OnAuraApplied", self)
-	Apollo.RegisterEventHandler("BuffUpdated", "OnAuraUpdated", self)
-	Apollo.RegisterEventHandler("BuffRemoved", "OnAuraRemoved", self)
+	Apollo.RegisterEventHandler("_LCLF_SpellAuraApplied",     "OnAuraApplied", self)
+	Apollo.RegisterEventHandler("_LCLF_SpellAuraRemoved",     "OnAuraRemoved", self)
 	
 	Apollo.RegisterEventHandler("_LCLF_UnitDied",       "OnUnitDied",  self)
 	Apollo.RegisterEventHandler("_LCLF_SpellCastStart", "OnCastStart", self)

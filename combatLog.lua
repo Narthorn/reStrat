@@ -15,7 +15,7 @@ function ReStrat:OnCastStart(strSpellName, tCasterUnit)
 	for i = 1, #ReStrat.tSpellTriggers do
 		if strSpellName == ReStrat.tSpellTriggers[i].cast 
 		   and (not ReStrat.tSpellTriggers[i].name or tCasterUnit:GetName() == ReStrat.tSpellTriggers[i].name) then
-			ReStrat.tSpellTriggers[i].fCallback(unit)
+			ReStrat.tSpellTriggers[i].fCallback(tCasterUnit)
 		end
 	end
 	
@@ -38,13 +38,13 @@ function ReStrat:OnCastStart(strSpellName, tCasterUnit)
 end
 
 --AURA APPLIED EVENT
-function ReStrat:OnAuraApplied(tTargetUnit, tBuff)
+function ReStrat:OnAuraApplied(nBuffId, intStackCount, tTargetUnit)
 	if tTargetUnit and tTargetUnit:IsValid() then
-		local intStackCount = tBuff.nCount
-		local spell = tBuff.splEffect
+		--local intStackCount = tBuff.nCount
+		local spell = GameLib.GetSpell(nBuffId) --tBuff.splEffect
 		local spellName = spell:GetName()
 		local targetName = tTargetUnit:GetName()
-		local duration = tBuff.fTimeRemaining
+		local duration = self:findAuraDuration(spellName, tTargetUnit) --tBuff.fTimeRemaining
 		
 		--Add the information to our cache
 		if not self.tAuraCache[spellName] then
@@ -103,9 +103,9 @@ function ReStrat:OnAuraApplied(tTargetUnit, tBuff)
 end
 	
 --AURA REMOVED EVENT
-function ReStrat:OnAuraRemoved(unit, tBuff)
+function ReStrat:OnAuraRemoved(nBuffId, nStacks, unit)
 	if unit and unit:IsValid() then
-		local spell = tBuff.splEffect
+		local spell = GameLib.GetSpell(nBuffId) -- tBuff.splEffect
 		local strAura = spell:GetName()
 		
 		--Remove pin if needed
