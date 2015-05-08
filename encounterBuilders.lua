@@ -88,9 +88,14 @@ function ReStrat:untrackHealth(unit)
 end
 
 --Create pop
-function ReStrat:createPop(strLabel, fTime)
+function ReStrat:createPop(strLabel, fTime, sound)
 	self.wndPop:SetText(strLabel)
 	self.popTimer = ApolloTimer.Create(fTime or 1.5, false, "destroyPop", self)
+	if sound then 
+		if     type(sound) == "number" then Sound.Play(sound) 
+		elseif type(sound) == "string" then Sound.PlayFile(sound)
+		end
+	end
 end
 
 --Destroy pop
