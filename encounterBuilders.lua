@@ -34,7 +34,7 @@ function ReStrat:repeatAlert(tParams, nCount)
 	nCount = (nCount or 0) + 1
 	local function reAlert()
 		if tParams.fCallback then tParams.fCallback(nCount) end
-		tParams.fDuration = tParams.fRepeat or tParams.fDuration
+		tParams.fDelay = nil
 		ReStrat:repeatAlert(tParams, nCount) 
 	end
 	return ReStrat:createAlert(tParams.strLabel, tParams.fDelay or tParams.fRepeat, tParams.strIcon, tParams.strColor, reAlert)
