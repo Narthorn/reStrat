@@ -91,42 +91,40 @@ function ReStrat:OnAuraApplied(tTargetUnit, tBuff)
 				end
 			end
 		end
-	end
-	
-	for i = 1, #ReStrat.tAuraTriggers do
-		local trigger = ReStrat.tAuraTriggers[i]
 		
-		if trigger and trigger.fOnApply
-		           and trigger.strAura == spellName
-		           and (not trigger.strUnit or trigger.strUnit == targetName) then
-			trigger.fOnApply(tTargetUnit)
-		end
+		for i = 1, #ReStrat.tAuraTriggers do
+			local trigger = ReStrat.tAuraTriggers[i]
+			
+			if trigger and trigger.fOnApply
+			           and trigger.strAura == spellName
+			           and (not trigger.strUnit or trigger.strUnit == targetName) then
+				trigger.fOnApply(tTargetUnit)
+			end
+		end	
 	end	
-				
 end
 	
 --AURA REMOVED EVENT
 function ReStrat:OnAuraRemoved(unit, tBuff)
 	if unit and unit:IsValid() then
 		local spell = tBuff.splEffect
+		local strAura = spell:GetName()
 		
 		--Remove pin if needed
-		if self.tPinAuras[spell:GetName()] then
+		if self.tPinAuras[strAura] then
 			ReStrat:destroyPin(unit)
 		end
+		
+		for i = #ReStrat.tAuraTriggers, 1, -1 do
+			local trigger = ReStrat.tAuraTriggers[i]
+			
+			if trigger and trigger.fOnRemove 
+		        	   and trigger.strAura == strAura
+		    	       and (not trigger.strUnit or trigger.strUnit == unit:GetName()) then
+				trigger.fOnRemove(unit)
+			end
+		end	
 	end
-	
-	for i = #ReStrat.tAuraTriggers, 1, -1 do
-		local trigger = ReStrat.tAuraTriggers[i]
-		
-		if trigger and trigger.fOnRemove 
-		           and trigger.strAura == spellName
-		           and (not trigger.strUnit or trigger.strUnit == targetName) then
-			trigger.fOnApply(tTargetUnit)
-		end
-		
-		ReStrat.tAuraTriggers[i] = nil
-	end	
 end
 
 
