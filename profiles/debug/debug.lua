@@ -21,6 +21,8 @@ local function profileDebug()
 		Print(nFirestorm)
 	end)
 	
+	ReStrat:createAuraTrigger(nil, "Melt Armor", function() Print("Melt Armor started") end, function() Print("Melt Armor ended") end)
+	
 	ReStrat:createPinFromAura("Melt Armor")
 	ReStrat:createPinFromAura("Bleed")
 end
