@@ -92,6 +92,17 @@ function ReStrat:OnAuraApplied(tTargetUnit, tBuff)
 			end
 		end
 	end
+	
+	for i = 1, #ReStrat.tAuraTriggers do
+		local trigger = ReStrat.tAuraTriggers[i]
+		
+		if trigger and trigger.fOnApply
+		           and trigger.strAura == spellName
+		           and (not trigger.strUnit or trigger.strUnit == targetName) then
+			trigger.fOnApply(tTargetUnit)
+		end
+	end	
+				
 end
 	
 --AURA REMOVED EVENT
@@ -104,6 +115,18 @@ function ReStrat:OnAuraRemoved(unit, tBuff)
 			ReStrat:destroyPin(unit)
 		end
 	end
+	
+	for i = #ReStrat.tAuraTriggers, 1, -1 do
+		local trigger = ReStrat.tAuraTriggers[i]
+		
+		if trigger and trigger.fOnRemove 
+		           and trigger.strAura == spellName
+		           and (not trigger.strUnit or trigger.strUnit == targetName) then
+			trigger.fOnApply(tTargetUnit)
+		end
+		
+		ReStrat.tAuraTriggers[i] = nil
+	end	
 end
 
 

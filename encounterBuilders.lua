@@ -215,7 +215,6 @@ end
 -- AURA FUNCTIONS
 -----------------------------------------------------------------------------------------------
 
---All processing is handled by OnAuraApplied
 function ReStrat:createAuraAlert(strUnit, strAuraName, duration, icon, fCallback)
 	ReStrat.tWatchedAuras[#ReStrat.tWatchedAuras+1] = {
 		name = strUnit,
@@ -226,6 +225,15 @@ function ReStrat:createAuraAlert(strUnit, strAuraName, duration, icon, fCallback
 			fCallback = fCallback,
 			strColor = color
 		}
+	}
+end
+
+function ReStrat:createAuraTrigger(strUnit, strAura, fOnApply, fOnRemove)
+	ReStrat.tAuraTriggers[#ReStrat.tAuraTriggers+1] = {
+		strUnit = strUnit,
+		strAura = strAura,
+		fOnApply = fOnApply,
+		fOnRemove = fOnRemove
 	}
 end
 

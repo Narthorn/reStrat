@@ -31,6 +31,7 @@ ReStrat = {
 	combatStarted = nil,
 	combatLog = {},
 	tSpellTriggers = {},
+	tAuraTriggers = {},
 	tShortcutBars = {},
 	tAuraCache = {},
 	tPins = {},
@@ -260,6 +261,7 @@ function ReStrat:Stop()
 	self.tWatchedCasts = {}
 	self.tEncounterVariables = {}
 	self.tSpellTriggers = {}
+	self.tAuraTriggers = {}
 	self.tShortcutBars = {}
 	self.tDatachron = {}
 	self.tPinAuras = {}
