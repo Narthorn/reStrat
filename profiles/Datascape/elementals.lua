@@ -97,7 +97,7 @@ local function EarthFireInit()
 		ReStrat:createAlert("Midphase", 90, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue)
 	end
 	
-	ReStrat:onDatachron("The lava begins to rise through the floor!", function()
+	ReStrat:OnDatachron("The lava begins to rise through the floor!", function()
 		ReStrat:createAlert("Midphase", 30, "Icon_SkillStalker_Maelstrom", ReStrat.color.red, MidPhase)
 	end)
 	
