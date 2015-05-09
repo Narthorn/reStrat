@@ -49,7 +49,7 @@ local function Transmission(unit)
 	Uncorrupted(unit)
 	nHeading = unit:GetHeading()
 	if     nHeading >=  1.5 then Corrupted("West")
-	elseif nHeading <= -2.5 then Corrupted("East")
+	elseif nHeading <= -1.5 then Corrupted("East")
 	else                         Corrupted("North")
 	end
 end
@@ -74,7 +74,7 @@ local function encounterInit()
 	ReStrat:createCastTrigger(nil, "Transmission", Transmission)
 						
 	-- Interrupt timer for hardmode laser
-	ReStrat:repeatAlert({strLabel = "Laser Interrupt", fDelay = 7.5, fRepeat = 13.33, strColor = ReStrat.color.yellow, fCallback = function()
+	ReStrat:repeatAlert({strLabel = "Laser Interrupt", fDelay = 8, fRepeat = 13.2, strColor = ReStrat.color.yellow, fCallback = function()
 		ReStrat:createPop("Interrupt !", nil, Sound.PlayUIQueuePopsPvP)
 	end})
 end
