@@ -45,7 +45,7 @@ function ReStrat:experimentInit(unit)
 	ReStrat:createAuraAlert(nil, "Strain Bomb", nil, "Icon_SkillStalker_Amplifide_Spike", strainCD);
 	
 	--Corruption Globule Pin
-	ReStrat:createPinFromAura("Corruption Globule")
+	ReStrat:createPinFromAura("Corruption Globule", nil, false)
 end
 
 --Spam function, ONLY USE IF NECESSARY

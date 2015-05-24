@@ -36,7 +36,7 @@ function ReStrat:gloomInit(unit)
 		end) 
 	end
 	local rupturePop = function()
-		ReStrat:createPop("Rupture!", 4)
+		ReStrat:createPop("Rupture!", 4) --TODO: add rupture sound
 		ReStrat:Sound("Sound\\spew.wav") --Sound\quack.wav
 	end
 		

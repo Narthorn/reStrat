@@ -14,7 +14,7 @@ function ReStrat:ohmnaInit(unit)
 	if unit ~= nil and ReStrat:IsActivated(ohmna, "Boss Life") then 
 		ReStrat:trackHealth(unit, ReStrat.color.red) 
 	end
-	firsttentacle = true
+	firsttentacle = false
 	lastphasestarted = false
 	
 	--Boredom
