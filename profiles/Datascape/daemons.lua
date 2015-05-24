@@ -77,9 +77,7 @@ function ReStrat:daemonInit(unit)
 			ReStrat:createAlert("Next Disconnect", 60, nil, ReStrat.color.purple, nil) 
 		end
 		
-		ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Purge", nil, "Icon_SkillFire_UI_srcr_frybrrg", function ()
-			ReStrat:Sound("Sound\\purge.wav")
-		end)
+		ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Purge", nil, "Icon_SkillFire_UI_srcr_frybrrg")
 		ReStrat:createAlert("Portals Opening", 4, nil, ReStrat.color.orange, nil)
 		ReStrat:createAlert("Next Add Wave (Small)", 15, nil, ReStrat.color.green, AddWaves)
 		ReStrat:createAlert("Next Disconnect", 45, nil, ReStrat.color.purple, nil)
@@ -88,12 +86,13 @@ function ReStrat:daemonInit(unit)
 
 		--pillars
 		local function pillarspawn(unit)
-			local distN = ReStrat:dist2coords(unit, {124.18, -225.94, -192,69}) -- north
-			local distS = ReStrat:dist2coords(unit, {140.53, -225.94, -156.73}) -- south
+			local distN = ReStrat:dist2coords(unit, 124.18, -225.94, -192,69) -- north
+			local distS = ReStrat:dist2coords(unit, 140.53, -225.94, -156.73) -- south
+			--Print("N: " .. distN .. " S: " .. distS)
 			if distN < distS then -- it's a north pillar
-				ReStrat:trackHealth(unit, ReStrat.color.orange, "North pillar")
+				ReStrat:trackHealth(unit, ReStrat.color.green, "North pillar")
 			else -- it's a south pillar
-				ReStrat:trackHealth(unit, ReStrat.color.orange, "South pillar")
+				ReStrat:trackHealth(unit, ReStrat.color.blue, "South pillar")
 			end
 		end
 		ReStrat:createUnitTrigger("Enhancement Module", pillarspawn)
