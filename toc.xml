@@ -38,4 +38,5 @@
 	<Script Name="profiles\Datascape\maelstrom.lua"/>
 	<Script Name="profiles\Datascape\gloomclaw.lua"/>
 	<Script Name="profiles\Datascape\minis.lua"/>
+    <Script Name="profiles\Augmentors.lua"/>
 </Addon>
