@@ -4,16 +4,18 @@
 -----------------------------------------------------------------------------
 function ReStrat:avatusInit(unit) -- also lattice for some reason
 	if not ReStrat.tEncounterVariables.firstPhase then
+		local disthand1, disthand2
+		ReStrat:trackHealth(unit, ReStrat.color.red)
 		ReStrat.tEncounterVariables.firstPhase = true
 
 		ReStrat:createAlert("Gun Grid", 20, "Icon_SkillEngineer_Target_Acquistion", ReStrat.color.red)
 		
 		ReStrat:OnDatachron("SECURITY PROTOCOL: Gun Grid Activated.", function()
 			ReStrat:destroyAlert("Gun Grid")
-			ReStrat:createAlert("Obliteration Beam", 45, nil, ReStrat.color.blue, function()
-				ReStrat:createAlert("Obliteration Beam", 40, nil, ReStrat.color.blue)
+			ReStrat:createAlert("Obliteration Beam", 45, "Icon_SkillEnergy_UI_ss_plsmasht", ReStrat.color.blue, function()
+				ReStrat:createAlert("Obliteration Beam", 40, "Icon_SkillEnergy_UI_ss_plsmasht", ReStrat.color.blue)
 			end)
-			ReStrat:createAlert("Holo Hands/Guns", 22, nil, ReStrat.color.green, nil)
+			ReStrat:createAlert("Holo Hands/Guns", 22, "Icon_SkillMind_UI_espr_crush", ReStrat.color.orange, nil)
 			ReStrat:createAlert("Gun Grid", 112, "Icon_SkillEngineer_Target_Acquistion", ReStrat.color.red, nil)
 		end)
 		
@@ -23,6 +25,36 @@ function ReStrat:avatusInit(unit) -- also lattice for some reason
 			ReStrat:destroyAlert("Holo Hands/Guns")
 		end)
 		
+		local function handspawn(unit)
+			if not ReStrat.tEncounterVariables.firstHand then
+				ReStrat:createPin("1", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+				ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand 1")
+				ReStrat.tEncounterVariables.firstHand = true
+				hand1unit = unit
+			else
+				ReStrat:createPin("2", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+				ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand 2")
+				hand2unit = unit
+			end
+
+
+			--Print("X: " .. tPos.x)
+			--Print("Y: " .. tPos.y)
+			--Print("Z: " .. tPos.z)
+			--1 628, -198, -156
+			--2 627, -198, -191
+		end
+		ReStrat:createUnitTrigger("Holo Hand", handspawn)
+
+		local function crushblow(unit)
+			local dist = ReStrat:dist2unit(GameLib.GetPlayerUnit(), unit)
+			if dist < 28 then
+				ReStrat:createPop("Crushing Blow!")
+				ReStrat:createAlert("Crushing Blow", 3, nil, ReStrat.color.red, nil)
+			end
+		end
+		ReStrat:createCastTrigger("Holo Hand", "Crushing Blow", crushblow)
+
 		ReStrat:OnDatachron("The Caretaker has returned!", function()
 			ReStrat:destroyAlert("Obliteration Beam")
 			ReStrat:destroyAlert("Gun Grid")

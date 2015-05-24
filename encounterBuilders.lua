@@ -62,13 +62,12 @@ function ReStrat:dist2unit(unitSource, unitTarget)
 	return tonumber(dist)
 end
 
-function ReStrat:dist2coords(unitSource, tCoords)
-	if not unitSource or not unitTarget then return 999 end
+function ReStrat:dist2coords(unitSource, nX, nY, nZ)
+	if not unitSource then return 999 end
 	local sPos = unitSource:GetPosition()
-	local tPos = unitTarget:GetPosition()
 
 	local sVec = Vector3.New(sPos.x, sPos.y, sPos.z)
-	local tVec = Vector3.New(tPos.x, tPos.y, tPos.z)
+	local tVec = Vector3.New(nX, nY, nZ)
 
 	local dist = (tVec - sVec):Length()
 
@@ -274,7 +273,7 @@ function ReStrat:createPin(strLabel, unit, graphic, strFont)
 		
 		pin:SetUnit(unit, 0) --attach to unit
 		
-		if unit:GetName() ~= "Detonation Bomb" then -- special case for bombs at phagemaw
+		if unit:GetName() ~= "Detonation Bomb" and unit:GetName() ~= "Holo Hand" then -- special case for bombs at phagemaw
 			if self.tPins[unit:GetName()] then self.tPins[unit:GetName()]:Destroy() end --Overwrite existing pin
 		end
 		
@@ -299,23 +298,41 @@ end
 -----------------------------------------------------------------------------------------------
 --Modularization is heavy here, we do not reiterate on the same function to continually check
 --We add the spell and unit into the tWatchedCasts table then check when the cast event is fired by LCLF
-function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i, fCallbackStart) --fCallbackStart will be called when the cast starts and fCallback will be called once it ends
-	if ReStrat.tEncounters[strUnit] then		
-		if ReStrat.tEncounters[strUnit].tModules[strCast].bEnabled then
-			if fCallbackStart ~= nil then
-				ReStrat:createCastTrigger(strUnit, strCast, fCallbackStart)
-			end
-			ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
-				name = strUnit,
-				cast = strCast,
-				tAlertInfo = {
-					duration = duration_i,
-					strIcon = strIcon_i,
-					fCallback = fCallback_i,
-					strColor = color_i,
-					fCallbackStart = fCallbackStart
-				}
+function ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i, fCallbackStart, bSkipActivatedCheck) --fCallbackStart will be called when the cast starts and fCallback will be called once it ends
+	if bSkipActivatedCheck == true then
+		if fCallbackStart ~= nil then
+			ReStrat:createCastTrigger(strUnit, strCast, fCallbackStart)
+		end
+		ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
+			name = strUnit,
+			cast = strCast,
+			tAlertInfo = {
+				duration = duration_i,
+				strIcon = strIcon_i,
+				fCallback = fCallback_i,
+				strColor = color_i,
+				fCallbackStart = fCallbackStart
 			}
+		}
+	else
+		if ReStrat.tEncounters[strUnit] then		
+			if ReStrat.tEncounters[strUnit].tModules[strCast].bEnabled then
+
+				if fCallbackStart ~= nil then
+					ReStrat:createCastTrigger(strUnit, strCast, fCallbackStart)
+				end
+				ReStrat.tWatchedCasts[#ReStrat.tWatchedCasts+1] = {
+					name = strUnit,
+					cast = strCast,
+					tAlertInfo = {
+						duration = duration_i,
+						strIcon = strIcon_i,
+						fCallback = fCallback_i,
+						strColor = color_i,
+						fCallbackStart = fCallbackStart
+					}
+				}
+			end
 		end
 	end
 end
