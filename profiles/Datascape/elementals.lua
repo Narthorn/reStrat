@@ -3,7 +3,7 @@
 -- this is a mess sorry I'll get around to cleaning it up someday
 -----------------------------------------------------------------------------
 
-local tMarkerSprites = {
+local tMarkerSprites = { -- TODO: add midphase sound
 	"IconSprites:Icon_Windows_UI_CRB_Marker_Bomb",
 	"IconSprites:Icon_Windows_UI_CRB_Marker_Chicken",
 	"IconSprites:Icon_Windows_UI_CRB_Marker_Ghost",
@@ -56,6 +56,14 @@ end
 
 local function EarthFireInit() 
 	ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
+	ReStrat:createAlert("Midphase", 95, nil, ReStrat.color.green, nil)
+	local function midPop()
+		ReStrat:createPop("Midphase!")
+	end
+	local function afterMid()
+		ReStrat:createAlert("Midphase", 95, nil, ReStrat.color.green, nil)
+	end
+	ReStrat:createCastAlert("Pyrobane", "Ragnarok", nil, "Icon_SkillAMP_AMP_Assault_Support_Buff", ReStrat.color.red, afterMid, midPop, true)
 end
 
 -----
@@ -63,8 +71,14 @@ local function LifeLogicInit()
 	local function LifeOrbs() ReStrat:createAlert("Next: Life Orbs", 2.5, nil, ReStrat.color.blue) end
 	local function BlindingLight() ReStrat:createAlert("Next: Blinding Light", 9, nil, ReStrat.color.blue) end
 
-	ReStrat:createCastAlert("Visceralus", "Blinding Light", nil, nil, ReStrat.color.blue, LifeOrbs)
-	ReStrat:createCastAlert("Visceralus", "Life Orbs", nil, nil, ReStrat.color.blue, BlindingLight)
+	ReStrat:createCastAlert("Visceralus", "Blinding Light", nil, nil, ReStrat.color.blue, LifeOrbs, nil, true)
+	ReStrat:createCastAlert("Visceralus", "Life Orbs", nil, nil, ReStrat.color.blue, BlindingLight, nil, true)
+
+	ReStrat:createPinFromAura("Thorns", "CM_SpellslingerSprites:sprSlinger_NodeBar_InCombatRed", false, "CRB_Interface12_BO")
+	ReStrat:createPinFromAura("Life Force Shackle", "CRB_Basekit:kitAccent_Frame_OrangeStroke", false, "CRB_Interface12_BO")
+	ReStrat:createPinFromAura("Snake Snack")
+	ReStrat:createAuraAlert(nil, "Snake Snack", nil, "Icon_SkillWarrior_Plasma_Pulse_Alt", nil)
+	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Logic Leash")
 
 	ReStrat:createUnitTrigger("Wild Brambles", function()
 		if not ReStrat.tEncounterVariables.WildBrambles then 
@@ -163,7 +177,7 @@ local function LifeFireInit()
 	local function blindCD()
 		ReStrat:createAlert("Blind Cooldown", 22, nil, ReStrat.color.purple, nil)
 	end
-	local function blindPop()
+	local function blindPop()--TODO Blinding Light Sound
 		ReStrat:createPop("Blind!")
 		ReStrat:Sound("Sound\\spew.wav")
 		ReStrat:createAlert("Blinding Light", 8.5, nil, ReStrat.color.red, blindCD)
