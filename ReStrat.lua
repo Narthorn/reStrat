@@ -526,6 +526,21 @@ function ReStrat:OnDelayLoad()
 			},
 		}
 	end
+	if ReStrat.tEncounters["Prime Phage Distributor"] == nil then
+		ReStrat.tEncounters["Prime Phage Distributor"] = {
+			strCategory  = "Augmentors",
+			trackHealth = ReStrat.color.purple,
+			tModules = {}
+		}
+	end
+
+	if ReStrat.tEncounters["Prime Evolutionary Operant"] == nil then
+		ReStrat.tEncounters["Prime Evolutionary Operant"] = {
+			strCategory  = "Augmentors",
+			trackHealth = ReStrat.color.orange,
+			tModules = {}
+		}
+	end
 	
 	if ReStrat.tEncounters["Binary System Daemon"] == nil then
 		ReStrat.tEncounters["Binary System Daemon"] = {
@@ -1153,6 +1168,12 @@ function ReStrat:OnEnteredCombat(unit, combat)
 				    -- Minis
 				elseif uName == "Fully-Optimized Canimid" then
 					ReStrat:canimidInit(unit)
+					-- Augmentors
+				elseif uName == "Prime Evolutionary Operant" then
+					ReStrat:augmentorsInit(unit)
+				elseif uName == "Prime Phage Distributor" then
+					ReStrat:augmentorsInit(unit)
+
 	
 					--elementals
 				elseif uName == "Megalith" then
@@ -1213,7 +1234,7 @@ end
 function ReStrat:Stop()
 	self.wndHealthBars:DestroyChildren()
 	self.wndAlerts:DestroyChildren()
-	for k,v in pairs(self.tPins) do	v:Destroy()	end
+	--for k,v in pairs(self.tPins) do	v:Destroy()	end
 	
 	self.tAlerts = {}
 	self.tHealth = {}
@@ -1224,9 +1245,9 @@ function ReStrat:Stop()
 	self.tHealTriggers = {}
 	self.tDatachron = {}
 	self.tPinAuras = {}
-	self.tPins = {}
 	self.tShortcutBars = {}
 	ReStrat:destroyAllLandmarks()
+	ReStrat:destroyAllPins()
 	
 	self.healthTimer:Stop()
 	self.gameTimer:Stop()
