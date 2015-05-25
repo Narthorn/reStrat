@@ -27,22 +27,22 @@ local tSafeZones = {
 local function Corrupted(unit)
 	local tUnit = tUnits[type(unit) == "string" and tUnitIds[unit] or unit:GetId()] 
 	tUnit.bar:SetBarColor(ReStrat.color.purple)
-	for _,path in pairs(tUnit.paths) do
-		DrawLib:Destroy(path)
-	end
-	tUnit.paths = {}
-	for _,path in pairs(tSafeZones[tUnit.name]) do
-		tUnit.paths[#tUnit.paths+1] = DrawLib:Path(path)
-	end
+	--for _,path in pairs(tUnit.paths) do
+	--	DrawLib:Destroy(path)
+	--end
+	--tUnit.paths = {}
+	--for _,path in pairs(tSafeZones[tUnit.name]) do
+	--	tUnit.paths[#tUnit.paths+1] = DrawLib:Path(path)
+	--end
 end
 
 local function Uncorrupted(unit)
 	local tUnit = tUnits[type(unit) == "string" and tUnitIds[unit] or unit:GetId()] 
 	tUnit.bar:SetBarColor(ReStrat.color.orange)
-	for _,path in pairs(tUnit.paths) do
-		DrawLib:Destroy(path)
-	end
-	tUnit.paths = {}
+	--for _,path in pairs(tUnit.paths) do
+	--	DrawLib:Destroy(path)
+	--end
+	--tUnit.paths = {}
 end
 
 local function Transmission(unit)
@@ -55,13 +55,7 @@ local function Transmission(unit)
 end
 
 local function encounterInit()
-	
-	for _,tUnit in pairs(tUnits) do
-		for _,path in pairs(tUnit.paths) do
-			DrawLib:Destroy(path)
-		end
-	end
-	
+
 	ReStrat:createPinFromAura("Strain Incubation")
 	
 	ReStrat:OnDatachron("ENGAGING TECHNOPHAGE TRASMISSION", function() -- sic
@@ -70,11 +64,11 @@ local function encounterInit()
 	
 	--ReStrat:repeatAlert({strLabel = "Radiation Bath", fDelay = 15, fRepeat = 30, strColor = ReStrat.color.green})
 
-	ReStrat:createAuraTrigger(nil, "Compromised Circuitry", Corrupted)
+	ReStrat:createAuraTrigger(nil, "Compromised Circuitry", Corrupted, Uncorrupted)
 	ReStrat:createCastTrigger(nil, "Transmission", Transmission)
 						
 	-- Interrupt timer for hardmode laser
-	ReStrat:repeatAlert({strLabel = "Laser Interrupt", fDelay = 8, fRepeat = 13.2, strColor = ReStrat.color.yellow, fCallback = function()
+	ReStrat:repeatAlert({strLabel = "Laser Interrupt", fDelay = 8, fRepeat = 13.25, strColor = ReStrat.color.yellow, fCallback = function()
 		ReStrat:createPop("Interrupt !", nil, Sound.PlayUIQueuePopsPvP)
 	end})
 end
@@ -86,8 +80,19 @@ local function augmentorInit(unit)
 	local name = pos.z < 875 and "North" or (pos.x < 1268 and "West" or "East")
 	ReStrat:trackHealth(unit, ReStrat.color.orange, name)
 	
+	if tUnits[id] then
+		for _,path in pairs(tUnits[id].paths) do
+			DrawLib:Destroy(path)
+		end
+	end
+		
 	-- Cache name and health bars
-	tUnits[id] = { name = name, bar = ReStrat.tHealth[unit:GetId()].bar:FindChild("progressBar"), paths = {}}
+	local tUnit = { name = name, bar = ReStrat.tHealth[unit:GetId()].bar:FindChild("progressBar"), paths = {}}
+	for _,path in pairs(tSafeZones[name]) do
+		tUnit.paths[#tUnit.paths+1] = DrawLib:Path(path)
+	end
+	
+	tUnits[id] = tUnit
 	tUnitIds[name] = id
 	
 	if not ReStrat.tEncounterVariables.bStarted then
@@ -101,8 +106,7 @@ local function augmentorInit(unit)
 	local function push() ReStrat:createPop("PUSH SOON !", nil, "Sound\\quack.wav") end
 	ReStrat:onHealth(unit, 63, push)
 	ReStrat:onHealth(unit, 23, push)
-	ReStrat:onHealth(unit, 20, Uncorrupted)
-	
+	--ReStrat:onHealth(unit, 20, Uncorrupted)
 end
 
 ReStrat.tEncounters["Prime Phage Distributor"]    = { fInitFunction = augmentorInit }
