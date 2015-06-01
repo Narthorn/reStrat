@@ -73,6 +73,12 @@ local function LifeLogicInit()
 
 	ReStrat:createCastAlert("Visceralus", "Blinding Light", nil, nil, ReStrat.color.blue, LifeOrbs, nil, true)
 	ReStrat:createCastAlert("Visceralus", "Life Orbs", nil, nil, ReStrat.color.blue, BlindingLight, nil, true)
+	ReStrat:createAlert("Thorns", 25, nil, ReStrat.color.red, nil)
+
+	local function leashes()
+		ReStrat:createPop("Logic Leash soon!")
+	end
+	ReStrat:createHpTrigger("Mnemesis", 12600000, leashes)
 
 	ReStrat:createPinFromAura("Thorns", "CM_SpellslingerSprites:sprSlinger_NodeBar_InCombatRed", false, "CRB_Interface12_BO")
 	ReStrat:createPinFromAura("Life Force Shackle", "CRB_Basekit:kitAccent_Frame_OrangeStroke", false, "CRB_Interface12_BO")
