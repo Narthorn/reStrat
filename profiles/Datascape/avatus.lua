@@ -26,15 +26,18 @@ function ReStrat:avatusInit(unit) -- also lattice for some reason
 		end)
 		
 		local function handspawn(unit)
-			if not ReStrat.tEncounterVariables.firstHand then
+			if not ReStrat.tEncounterVariables.nHands then -- first hand
 				ReStrat:createPin("1", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
 				ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand 1")
-				ReStrat.tEncounterVariables.firstHand = true
+				ReStrat.tEncounterVariables.nHands = 1
 				hand1unit = unit
-			else
+			elseif ReStrat.tEncounterVariables.nHands == 1 then -- second hand
 				ReStrat:createPin("2", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
 				ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand 2")
+				ReStrat.tEncounterVariables.nHands = ReStrat.tEncounterVariables.nHands + 1
 				hand2unit = unit
+			else
+				avdsc = "sdf"
 			end
 
 
@@ -45,6 +48,7 @@ function ReStrat:avatusInit(unit) -- also lattice for some reason
 			--2 627, -198, -191
 		end
 		ReStrat:createUnitTrigger("Holo Hand", handspawn)
+
 
 		local function crushblow(unit)
 			local dist = ReStrat:dist2unit(GameLib.GetPlayerUnit(), unit)
