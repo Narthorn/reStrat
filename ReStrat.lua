@@ -9,8 +9,8 @@ require "Sound"
  
 ReStrat = {
 	name = "ReStrat",
-	version = "1.9.6",
-	fileversion = 196,
+	version = "1.9.7",
+	fileversion = 197,
 	tVersions = {},
 	barSpacing = 6,
 	color = {
@@ -27,6 +27,7 @@ ReStrat = {
 	tAlerts = {},
 	tHealth = {},
 	tUnits = {},
+	tHpTriggers = {},
 	tWatchedCasts = {},
 	tWatchedAuras = {},
 	tZones = {},
@@ -174,6 +175,7 @@ function ReStrat:OnHealthTick() -- also events
 		
 		if tHealth.isevent == false or tHealth.isevent == nil then -- health
 			local unit = tHealth.unit
+			local unitName = unit:GetName()
 			local cur = unit:GetHealth() or 0
 			local max = unit:GetMaxHealth() or 0
 		
@@ -182,6 +184,18 @@ function ReStrat:OnHealthTick() -- also events
 			tHealth.current = cur/max*100
 			wndBar:FindChild("healthAmount"):SetText(string.format("%.1fk/%.1fk", cur/1000, max/1000))
 			wndBar:FindChild("healthPercent"):SetText(string.format("%.1f%%", cur/max*100))
+
+			if self.tHpTriggers[unitName] ~= nil then
+				if cur < self.tHpTriggers[unitName].nTriggerHP then
+					if self.tHpTriggers[unitName].fInitFunction then
+						self.tHpTriggers[unitName].fInitFunction(unit)
+						self.tHpTriggers[unitName].nTriggerHP = 0
+					end
+				end
+			end
+
+
+
 		else -- event
 			local tEventObj = tHealth.tEventObj
 			if tEventObj ~= nil then
@@ -1234,8 +1248,7 @@ end
 function ReStrat:Stop()
 	self.wndHealthBars:DestroyChildren()
 	self.wndAlerts:DestroyChildren()
-	--for k,v in pairs(self.tPins) do	v:Destroy()	end
-	
+
 	self.tAlerts = {}
 	self.tHealth = {}
 	self.tWatchedAuras = {}
@@ -1245,6 +1258,7 @@ function ReStrat:Stop()
 	self.tHealTriggers = {}
 	self.tDatachron = {}
 	self.tPinAuras = {}
+	self.tHpTriggers = {}
 	self.tShortcutBars = {}
 	ReStrat:destroyAllLandmarks()
 	ReStrat:destroyAllPins()

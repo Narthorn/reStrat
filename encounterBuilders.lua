@@ -272,12 +272,17 @@ function ReStrat:createPin(strLabel, unit, graphic, strFont)
 		label:SetText(strLabel) --set label
 		
 		pin:SetUnit(unit, 0) --attach to unit
-		
-		if unit:GetName() ~= "Detonation Bomb" and unit:GetName() ~= "Holo Hand" then -- special case for bombs at phagemaw
+		local unitName = unit:GetName()
+		if unitName ~= "Detonation Bomb" and unitName ~= "Holo Hand" then -- special case for bombs at phagemaw
 			if self.tPins[unit:GetName()] then self.tPins[unit:GetName()]:Destroy() end --Overwrite existing pin
 		end
 		
-		self.tPins[unit:GetName()] = pin --Create the new pin
+		if unitName ~= "Detonation Bomb" and unitName ~= "Holo Hand" then
+			self.tPins[unit:GetName()] = pin --Create the new pin
+		else
+			self.tPins[strLabel] = pin --Create the new pin using the label for this special case
+		end
+
 		
 	end
 end
@@ -362,6 +367,10 @@ end
 
 function ReStrat:createUnitTrigger(strUnit, fCallback)
 	self.tUnits[strUnit] = { fInitFunction = fCallback }
+end
+
+function ReStrat:createHpTrigger(strUnit, nHealth, fCallback)
+	self.tHpTriggers[strUnit] = { fInitFunction = fCallback, nTriggerHP = nHealth }
 end
 
 --Adds the requested spell into the checklist
