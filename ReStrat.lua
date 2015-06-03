@@ -8,7 +8,7 @@ require "Sound"
  
 ReStrat = {
 	name = "ReStrat",
-	version = "1.4.16",
+	version = {1,4,17},
 	barSpacing = 9,
 	color = {
 		red = "ffb8413d",
@@ -49,7 +49,9 @@ function ReStrat:OnLoad()
 	self.xmlDoc = XmlDoc.CreateFromFile("ReStrat.xml")
 
 	Apollo.LoadSprites("respr.xml", "SassyMedicSimSprites") 
-
+	
+	Event_FireGenericEvent("OneVersion_ReportAddonInfo", self.name, unpack(self.version))
+	
 	self.wndMain          = Apollo.LoadForm(self.xmlDoc, "mainForm", nil, self)
 	self.wndHealthBars    = Apollo.LoadForm(self.xmlDoc, "healthForm", nil, self)
     self.wndAlerts        = Apollo.LoadForm(self.xmlDoc, "alertForm", nil, self)
