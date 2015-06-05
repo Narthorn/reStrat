@@ -349,4 +349,4 @@ function ReStrat:OnReStrat(strCmd, strParam)
 	end
 end
 
-Apollo.RegisterAddon(ReStrat, false, "", {"DrawLib"})
+Apollo.RegisterAddon(ReStrat, false, "", {})
