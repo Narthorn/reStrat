@@ -189,7 +189,7 @@ function ReStrat:isCasting(strUnit, strCast)
 end
 
 function ReStrat:createUnitTrigger(strUnit, fCallback)
-	self.tUnits[strUnit] = { fInitFunction = fCallback }
+	self.tUnitTriggers[strUnit] = { fInitFunction = fCallback }
 end
 
 --Adds the requested spell into the checklist

@@ -30,6 +30,7 @@ ReStrat = {
 	combatTimer = nil,
 	combatStarted = nil,
 	combatLog = {},
+	tUnitTriggers = {},
 	tSpellTriggers = {},
 	tAuraTriggers = {},
 	tShortcutBars = {},
@@ -177,12 +178,12 @@ end
 function ReStrat:OnUnitCreated(unit)
 	local id = unit:GetId()
 	if self.tUnits[id] then 
-		self.tUnits[id].unit = newUnit
+		self.tUnits[id].unit = unit
 	end
-	if self.tUnits[unit:GetName()] then
-		local tUnit = self.tUnits[unit:GetName()]
-		if tUnit.fInitFunction then
-			tUnit.fInitFunction(unit)
+	if self.tUnitTriggers[unit:GetName()] then
+		local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
+		if tUnitTrigger.fInitFunction then
+			tUnitTrigger.fInitFunction(unit)
 		end
 	end
 end
@@ -261,6 +262,7 @@ function ReStrat:Stop()
 	self.tWatchedAuras = {}
 	self.tWatchedCasts = {}
 	self.tEncounterVariables = {}
+	self.tUnitTriggers = {}
 	self.tSpellTriggers = {}
 	self.tAuraTriggers = {}
 	self.tShortcutBars = {}
