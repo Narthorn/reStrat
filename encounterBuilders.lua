@@ -188,10 +188,6 @@ function ReStrat:isCasting(strUnit, strCast)
 	return false
 end
 
-function ReStrat:createUnitTrigger(strUnit, fCallback)
-	self.tUnitTriggers[strUnit] = { fInitFunction = fCallback }
-end
-
 --Adds the requested spell into the checklist
 --This is managed in the combat log hooks in combatlog.lua
 function ReStrat:onPlayerHit(strSpell, strUnitSource, nCooldown, fCallback)
@@ -199,12 +195,22 @@ function ReStrat:onPlayerHit(strSpell, strUnitSource, nCooldown, fCallback)
 	self.tSpellTriggers[#self.tSpellTriggers] = {source = strUnitSource, spell = strSpell, cooldown = nCooldown, callback = fCallback}
 end
 
+--deprecate for createUnitTrigger
 function ReStrat:onUnitDeath(strUnit, fCallback)
-	for id,tUnit in pairs(self.tUnits) do
-		if tUnit.name == strUnit then
-			tUnit.fOnDeathCallback = fCallback
-		end
+	if not self.tUnitTriggers[strUnit] then
+		self.tUnitTriggers[strUnit] = {}
 	end
+
+	self.tUnitTriggers[strUnit].fDeathFunction = fCallback
+end
+
+function ReStrat:createUnitTrigger(strUnit, fInitCallback, fDeathCallback, fDespwanCallback, fRespawnCallback)
+	self.tUnitTriggers[strUnit] = {
+		fInitFunction = fInitCallback,
+		fDeathFunction = fDeathCallback,
+		fDespawnFunction = fDespwanCallback,
+		fRespawnFunction = fRespawnCallback
+	}
 end
 
 --Add callback on health %
