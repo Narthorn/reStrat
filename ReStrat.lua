@@ -5,7 +5,7 @@
 -----------------------------------------------------------------------------------------------
 
 require "Sound"
- 
+
 ReStrat = {
 	name = "ReStrat",
 	version = {1,4,17},
@@ -30,6 +30,7 @@ ReStrat = {
 	combatTimer = nil,
 	combatStarted = nil,
 	combatLog = {},
+	tUnitTriggers = {},
 	tSpellTriggers = {},
 	tAuraTriggers = {},
 	tShortcutBars = {},
@@ -41,7 +42,7 @@ ReStrat = {
 	tLandmarks = {},
 	tEncounters = {},
 } 
- 
+
 -----------------------------------------------------------------------------------------------
 -- ReStrat OnLoad
 -----------------------------------------------------------------------------------------------
@@ -64,31 +65,25 @@ function ReStrat:OnLoad()
 	-- Register handlers for events, slash commands and timer, etc.
 	Apollo.RegisterSlashCommand("restrat", "OnReStrat", self)
 	Apollo.RegisterEventHandler("WindowManagementReady", "OnWindowManagementReady", self)
-	
-	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
-	Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self)
+
 	Apollo.RegisterEventHandler("UnitEnteredCombat",     "OnEnteredCombat",     self)
 	Apollo.RegisterEventHandler("PlayerResurrected",     "OnPlayerResurrected", self)
-	
 	Apollo.RegisterEventHandler("ShowResurrectDialog", 	 "OnShowResurrectDialog",   self)
 	Apollo.RegisterEventHandler("UpdateResurrectDialog", "OnUpdateResurrectDialog", self)
-
-	Apollo.RegisterEventHandler("ChatMessage",           "OnChatMessage",       self)
 	Apollo.RegisterEventHandler("ShowActionBarShortcut", "OnShowActionBarShortcut", self)
-	
+
+	-- Combat log and LCLF only trigger in combat, no need to always unregister/register them
 	Apollo.RegisterEventHandler("CombatLogDamage" ,              "OnCombatLogDamage",               self)
-	Apollo.RegisterEventHandler("CombatLogDeflect",              "OnCombatLogDeflect",              self)
-	Apollo.RegisterEventHandler("CombatLogHeal",                 "OnCombatLogHeal",                 self)
-	Apollo.RegisterEventHandler("CombatLogModifyInterruptArmor", "OnCombatLogModifyInterruptArmor", self)
-	Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self)
-	Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self)
-	
+	--Apollo.RegisterEventHandler("CombatLogDeflect",              "OnCombatLogDeflect",              self)
+	--Apollo.RegisterEventHandler("CombatLogHeal",                 "OnCombatLogHeal",                 self)
+	--Apollo.RegisterEventHandler("CombatLogModifyInterruptArmor", "OnCombatLogModifyInterruptArmor", self)
+	--Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self)
+	--Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self)
+
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraApplied",     "OnAuraApplied", self)
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraRemoved",     "OnAuraRemoved", self)
-	
-	Apollo.RegisterEventHandler("_LCLF_UnitDied",       "OnUnitDied",  self)
 	Apollo.RegisterEventHandler("_LCLF_SpellCastStart", "OnCastStart", self)
-	
+
 	--This timer drives alerts and combat time
 	self.gameTimer = ApolloTimer.Create(0.1, true, "OnGameTick", self)
 	self.gameTimer:Stop()
@@ -176,28 +171,43 @@ end
  
 function ReStrat:OnUnitCreated(unit)
 	local id = unit:GetId()
-	if self.tUnits[id] then 
-		self.tUnits[id].unit = newUnit
-	end
-	if self.tUnits[unit:GetName()] then
-		local tUnit = self.tUnits[unit:GetName()]
-		if tUnit.fInitFunction then
-			tUnit.fInitFunction(unit)
+
+	if self.tUnits[id] then
+
+		-- Mark as active
+		self.tUnits[id].bActive = true
+		self.tUnits[id].unit = unit
+
+		-- Unit respawn trigger
+		local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
+		if tUnitTrigger and tUnitTrigger.fOnRespawnCallback then
+			tUnitTrigger.fOnRespawnCallback()
 		end
+
 	end
+	
 end
 
 function ReStrat:OnUnitDestroyed(unit)
 	local id = unit:GetId()
+
 	if self.tUnits[id] then
-		if self.tUnits[id].fOnDeathCallback then
-			self.tUnits[id].fOnDeathCallback()
+
+		-- Unit despawn trigger
+		local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
+		if tUnitTrigger and tUnitTrigger.fOnDespawnCallback then
+			tUnitTrigger.fOnDespawnCallback()
 		end
+
+		-- Mark as inactive
 		self.tUnits[id].bActive = false
 		self.tUnits[id].unit = nil
+
+		ReStrat:untrackHealth(unit)
+		ReStrat:destroyPin(unit)
+
 	end
-	ReStrat:untrackHealth(unit)
-	ReStrat:destroyPin(unit)
+
 end
 
 function ReStrat:OnEnteredCombat(unit, combat)
@@ -214,6 +224,8 @@ function ReStrat:OnEnteredCombat(unit, combat)
 			self.outofcombatTimer:Start()
 		end
 	else
+		local id = unit:GetId()
+
 		--If combat starts, init unit profile
 		if combat then
 			local tProfile = self.tEncounters[unit:GetName()] 
@@ -226,7 +238,7 @@ function ReStrat:OnEnteredCombat(unit, combat)
 			end
 			
 			--Add unit in our library if it's not there already
-			local id = unit:GetId()
+			
 			if not self.tUnits[id] then
 				self.tUnits[id] = {
 					unit = unit,
@@ -239,11 +251,45 @@ function ReStrat:OnEnteredCombat(unit, combat)
 					bActive = true
 				}
 			end
+
+			-- Unit init trigger
+			local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
+			if tUnitTrigger and tUnitTrigger.fInitFunction then
+				tUnitTrigger.fInitFunction(unit)
+			end
+
+		-- If combat ends, remove unit
+		elseif not combat and self.tUnits[id] then
+
+			-- Unit death trigger
+			local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
+			if (unit:GetHealth() == 0 or unit:IsDead()) and tUnitTrigger and tUnitTrigger.fDeathFunction then
+				tUnitTrigger.fDeathFunction(unit)
+			end
+
+			ReStrat:destroyPin(unit)
+
+			self.tUnits[id] = nil
+
 		end
 	end
 end
 
+function ReStrat:RegisterCombatEvents()
+	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
+	Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self)
+	Apollo.RegisterEventHandler("ChatMessage",           "OnChatMessage",       self)
+	
+end
+
+function ReStrat:UnregisterCombatEvents()
+	Apollo.RemoveEventHandler("UnitCreated",    self)
+	Apollo.RemoveEventHandler("UnitDestroyed",  self)
+	Apollo.RemoveEventHandler("ChatMessage",    self)
+end
+
 function ReStrat:Start()
+	self.RegisterCombatEvents()
 	self.combatStarted = GameLib.GetGameTime()
 	self.gameTimer:Start()
 	self.healthTimer:Start()
@@ -255,12 +301,15 @@ function ReStrat:Stop()
 	self.wndAlerts:DestroyChildren()
 	for k,v in pairs(self.tLandmarks) do v.form:Destroy() end
 	for k,v in pairs(self.tPins) do	v:Destroy()	end
-	
+
+	self.UnregisterCombatEvents()
 	self.tAlerts = {}
 	self.tHealth = {}
 	self.tWatchedAuras = {}
 	self.tWatchedCasts = {}
 	self.tEncounterVariables = {}
+	self.tUnits = {}
+	self.tUnitTriggers = {}
 	self.tSpellTriggers = {}
 	self.tAuraTriggers = {}
 	self.tShortcutBars = {}
@@ -349,4 +398,4 @@ function ReStrat:OnReStrat(strCmd, strParam)
 	end
 end
 
-Apollo.RegisterAddon(ReStrat, false, "", {"DrawLib"})
+Apollo.RegisterAddon(ReStrat, false, "", {})

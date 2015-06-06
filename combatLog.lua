@@ -180,7 +180,3 @@ function ReStrat:OnCombatLogModifyInterruptArmor(tEventArgs) end
 function ReStrat:OnCombatLogAbsorption(tEventArgs) end
 
 function ReStrat:OnCombatLogInterrupted(tEventArgs)	end
-
-function ReStrat:OnUnitDied(tUnitKilled)		
-	ReStrat:destroyPin(tUnitKilled)
-end
