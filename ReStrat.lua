@@ -74,11 +74,11 @@ function ReStrat:OnLoad()
 
 	-- Combat log and LCLF only trigger in combat, no need to always unregister/register them
 	Apollo.RegisterEventHandler("CombatLogDamage" ,              "OnCombatLogDamage",               self)
-	Apollo.RegisterEventHandler("CombatLogDeflect",              "OnCombatLogDeflect",              self)
-	Apollo.RegisterEventHandler("CombatLogHeal",                 "OnCombatLogHeal",                 self)
-	Apollo.RegisterEventHandler("CombatLogModifyInterruptArmor", "OnCombatLogModifyInterruptArmor", self)
-	Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self)
-	Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self)
+	--Apollo.RegisterEventHandler("CombatLogDeflect",              "OnCombatLogDeflect",              self)
+	--Apollo.RegisterEventHandler("CombatLogHeal",                 "OnCombatLogHeal",                 self)
+	--Apollo.RegisterEventHandler("CombatLogModifyInterruptArmor", "OnCombatLogModifyInterruptArmor", self)
+	--Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self)
+	--Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self)
 
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraApplied",     "OnAuraApplied", self)
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraRemoved",     "OnAuraRemoved", self)
