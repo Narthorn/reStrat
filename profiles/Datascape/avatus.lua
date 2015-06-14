@@ -4,7 +4,8 @@
 -----------------------------------------------------------------------------
 function ReStrat:avatusInit(unit) -- also lattice for some reason
 	if not ReStrat.tEncounterVariables.firstPhase then
-		local disthand1, disthand2
+		local disthand1, disthand2, hand1id, hand2id, currenthandid
+		local nHands = 0
 		ReStrat:trackHealth(unit, ReStrat.color.red)
 		ReStrat.tEncounterVariables.firstPhase = true
 
@@ -26,16 +27,27 @@ function ReStrat:avatusInit(unit) -- also lattice for some reason
 		end)
 		
 		local function handspawn(unit)
-			if not ReStrat.tEncounterVariables.nHands then -- first hand
+			local currenthandid = unit:GetId()
+			--Print("current: " .. currenthandid)
+			--if hand1id then
+			--	Print("hand1id: " .. hand1id)
+			--end
+			--if hand2id then
+			--	Print("hand2id: " .. hand2id)
+			--end
+			--Print("nHands: " .. nHands)
+			if nHands == 0 and currenthandid ~= hand1id and currenthandid ~= hand2id then -- first hand
 				ReStrat:createPin("1", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
 				ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand 1")
-				ReStrat.tEncounterVariables.nHands = 1
-				hand1unit = unit
-			elseif ReStrat.tEncounterVariables.nHands == 1 then -- second hand
+				nHands = nHands + 1
+				local hand1unit = unit
+				hand1id = unit:GetId()
+			elseif nHands == 1 and currenthandid ~= hand1id and currenthandid ~= hand2id then -- second hand
 				ReStrat:createPin("2", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
 				ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand 2")
-				ReStrat.tEncounterVariables.nHands = ReStrat.tEncounterVariables.nHands + 1
-				hand2unit = unit
+				nHands = nHands + 1
+				hand2id = unit:GetId()
+				local hand2unit = unit
 			else
 				avdsc = "sdf"
 			end
@@ -54,6 +66,7 @@ function ReStrat:avatusInit(unit) -- also lattice for some reason
 			local dist = ReStrat:dist2unit(GameLib.GetPlayerUnit(), unit)
 			if dist < 28 then
 				ReStrat:createPop("Crushing Blow!")
+				ReStrat:Sound("Sound\\crush.wav")
 				ReStrat:createAlert("Crushing Blow", 3, nil, ReStrat.color.red, nil)
 			end
 		end
@@ -96,7 +109,7 @@ function ReStrat:blueInit(unit)
 	end
 end
 
-function ReStrat:latticeInit()
+function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
 	oblit = 0
 	firstbeam = false
 
