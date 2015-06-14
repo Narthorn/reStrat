@@ -90,9 +90,9 @@ function ReStrat:daemonInit(unit)
 			local distS = ReStrat:dist2coords(unit, 140.53, -225.94, -156.73) -- south
 			--Print("N: " .. distN .. " S: " .. distS)
 			if distN < distS then -- it's a north pillar
-				ReStrat:trackHealth(unit, ReStrat.color.green, "North pillar")
+				ReStrat:trackHealth(unit, ReStrat.color.purple, "North pillar")
 			else -- it's a south pillar
-				ReStrat:trackHealth(unit, ReStrat.color.blue, "South pillar")
+				ReStrat:trackHealth(unit, ReStrat.color.purple, "South pillar")
 			end
 		end
 		ReStrat:createUnitTrigger("Enhancement Module", pillarspawn)
