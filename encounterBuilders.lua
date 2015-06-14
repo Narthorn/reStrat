@@ -138,7 +138,7 @@ function ReStrat:destroyAllAlerts()
 end
 
 function ReStrat:trackHealth(unit, strColor, displayname)
-	if ReStrat.tEncounters["General Settings"].tModules["GenBossLife"].bEnabled then
+	if ReStrat.tEncounters["General Settings"].tModules["GenBossLife"].bEnabled and self.tHealth[unit:GetId()] == nil then
 		local wndBar = Apollo.LoadForm("ReStrat.xml", "healthInstance", self.wndHealthBars, self)
 		local wndBarContainer = wndBar:FindChild("ProgressBarContainer")
 		local progressBar = wndBarContainer:FindChild("progressBar")
