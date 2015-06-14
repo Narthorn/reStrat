@@ -36,8 +36,8 @@ function ReStrat:gloomInit(unit)
 		end) 
 	end
 	local rupturePop = function()
-		ReStrat:createPop("Rupture!", 4) --TODO: add rupture sound
-		ReStrat:Sound("Sound\\spew.wav") --Sound\quack.wav
+		ReStrat:createPop("Rupture!", 4)
+		ReStrat:Sound("Sound\\rupture.wav")
 	end
 		
 	--ReStrat:createCastAlert("Gloomclaw", "Rupture", nil, "Icon_SkillStalker_Razor_Disk", ReStrat.color.red, ruptureCD)				
