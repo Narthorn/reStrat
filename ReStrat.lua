@@ -9,8 +9,8 @@ require "Sound"
  
 ReStrat = {
 	name = "ReStrat",
-	version = "1.9.7",
-	fileversion = 197,
+	version = "1.9.9",
+	fileversion = 199,
 	tVersions = {},
 	barSpacing = 6,
 	color = {
@@ -74,11 +74,11 @@ function ReStrat:OnLoad()
 	Apollo.RegisterSlashCommand("restrat", "OnReStrat", self)
 	Apollo.RegisterEventHandler("WindowManagementReady", "OnWindowManagementReady", self)
 	
-	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
-	Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self)
+	--Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self) -- now registered in Start function
+	--Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self) -- now registered in Start function
 	Apollo.RegisterEventHandler("UnitEnteredCombat",     "OnEnteredCombat",     self)
-	
 	Apollo.RegisterEventHandler("ChatMessage",           "OnChatMessage",       self)
+
 	Apollo.RegisterEventHandler("ShowActionBarShortcut", "OnShowActionBarShortcut", self)
 	
 	Apollo.RegisterEventHandler("PlayerResurrected",     "OnPlayerResurrected", self)
@@ -89,12 +89,12 @@ function ReStrat:OnLoad()
 	
 	
 	
-	Apollo.RegisterEventHandler("CombatLogDamage" ,              "OnCombatLogDamage",               self)
-	Apollo.RegisterEventHandler("CombatLogDeflect",              "OnCombatLogDeflect",              self)
-	Apollo.RegisterEventHandler("CombatLogHeal",                 "OnCombatLogHeal",                 self)
-	Apollo.RegisterEventHandler("CombatLogModifyInterruptArmor", "OnCombatLogModifyInterruptArmor", self)
-	Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self)
-	Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self)
+	--Apollo.RegisterEventHandler("CombatLogDamage" ,              "OnCombatLogDamage",               self) -- now registered in Start function
+	--Apollo.RegisterEventHandler("CombatLogDeflect",              "OnCombatLogDeflect",              self) -- not needed atm
+	--Apollo.RegisterEventHandler("CombatLogHeal",                 "OnCombatLogHeal",                 self) -- now registered in Start function
+	--Apollo.RegisterEventHandler("CombatLogModifyInterruptArmor", "OnCombatLogModifyInterruptArmor", self) -- not needed atm
+	--Apollo.RegisterEventHandler("CombatLogAbsorption",           "OnCombatLogAbsorption",           self) -- not needed atm
+	--Apollo.RegisterEventHandler("CombatLogInterrupted",          "OnCombatLogInterrupted",          self) -- not needed atm
 	
 	Apollo.RegisterEventHandler("_LCLF_UnitDied",             "OnUnitDied",         self)
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraApplied",     "OnAuraApplied",      self)
@@ -294,6 +294,24 @@ function ReStrat:OnPublicEvent(tEventObj) --PublicEventObjectiveUpdate
 	
 end
 
+function ReStrat:RegisterCombatEvents()
+	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
+	Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self)
+	--Apollo.RegisterEventHandler("ChatMessage",           "OnChatMessage",       self)
+	Apollo.RegisterEventHandler("CombatLogDamage" ,              "OnCombatLogDamage",               self) 
+	Apollo.RegisterEventHandler("CombatLogHeal",                 "OnCombatLogHeal",                 self) 
+	
+end
+
+function ReStrat:UnregisterCombatEvents()
+	Apollo.RemoveEventHandler("UnitCreated",    self)
+	Apollo.RemoveEventHandler("UnitDestroyed",  self)
+	Apollo.RemoveEventHandler("CombatLogDamage",    self)
+	--Apollo.RemoveEventHandler("ChatMessage",    self)
+	Apollo.RemoveEventHandler("CombatLogHeal",    self)
+end
+
+
 function ReStrat:OnRestore(loadlevel, tload)
 
 	if tload and loadlevel == GameLib.CodeEnumAddonSaveLevel.General then
@@ -318,6 +336,14 @@ function ReStrat:OnRestore(loadlevel, tload)
             bEnabled = true,
 		}
 	end
+
+	if ReStrat.tEncounters["Mnemesis"].tModules["Logic Leash"] == nil then
+		ReStrat.tEncounters["Mnemesis"].tModules["Logic Leash"] = {
+			strLabel = "Logic Leash",
+			bEnabled = true,
+		}
+	end
+
 	if ReStrat.tEncounters["Maelstrom Authority"].tModules["Lines to Stations"] == nil then
 		ReStrat.tEncounters["Maelstrom Authority"].tModules["Lines to Stations"] = {
 			strLabel = "Lines to Stations",
@@ -1024,7 +1050,27 @@ function ReStrat:OnDelayLoad()
 			},
 		}
 	end
-	
+	if ReStrat.tEncounters["Mnemesis"] == nil then
+		ReStrat.tEncounters["Mnemesis"] = {
+			strCategory = "Datascape",
+			trackHealth = ReStrat.color.green,
+			tModules = {
+				["Defragment"] = {
+					strLabel = "Defragment",
+					bEnabled = true,
+				},
+				["Circuit Breaker"] = {
+					strLabel = "Circuit Breaker",
+					bEnabled = true,
+				},
+				["Logic Leash"] = {
+					strLabel = "Logic Leash",
+					bEnabled = true,
+				},
+			},
+		}
+	end
+
 end
 
 function ReStrat:OnSave(savelevel)
@@ -1239,6 +1285,7 @@ function ReStrat:OnEnteredCombat(unit, combat)
 end
 
 function ReStrat:Start()
+	self:RegisterCombatEvents()
 	self.combatStarted = GameLib.GetGameTime()
 	self.gameTimer:Start()
 	self.healthTimer:Start()
@@ -1249,6 +1296,7 @@ function ReStrat:Stop()
 	self.wndHealthBars:DestroyChildren()
 	self.wndAlerts:DestroyChildren()
 
+	self:UnregisterCombatEvents()
 	self.tAlerts = {}
 	self.tHealth = {}
 	self.tWatchedAuras = {}
