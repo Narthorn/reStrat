@@ -73,7 +73,7 @@ local function LifeLogicInit()
 
 	ReStrat:createCastAlert("Visceralus", "Blinding Light", nil, nil, ReStrat.color.blue, LifeOrbs, nil, true)
 	ReStrat:createCastAlert("Visceralus", "Life Orbs", nil, nil, ReStrat.color.blue, BlindingLight, nil, true)
-	ReStrat:createAlert("Thorns", 25, nil, ReStrat.color.red, nil)
+	ReStrat:createAlert("Thorns", 25, "Icon_SkillMind_UI_espr_rpls", ReStrat.color.red, nil)
 
 	local function leashes()
 		ReStrat:createPop("Logic Leash soon!")
@@ -84,12 +84,16 @@ local function LifeLogicInit()
 	ReStrat:createPinFromAura("Life Force Shackle", "CRB_Basekit:kitAccent_Frame_OrangeStroke", false, "CRB_Interface12_BO")
 	ReStrat:createPinFromAura("Snake Snack")
 	ReStrat:createAuraAlert(nil, "Snake Snack", nil, "Icon_SkillWarrior_Plasma_Pulse_Alt", nil)
-	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Logic Leash")
+	
+	if ReStrat:IsActivated("Mnemesis", "Logic Leash") then
+		ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Logic Leash")
+	end
+
 
 	ReStrat:createUnitTrigger("Wild Brambles", function()
 		if not ReStrat.tEncounterVariables.WildBrambles then 
 			ReStrat.tEncounterVariables.WildBrambles = true
-			ReStrat:repeatAlert({strLabel = "Thorns", fRepeat = 30, strColor = ReStrat.color.red})
+			ReStrat:repeatAlert({strLabel = "Thorns", fRepeat = 30, strColor = ReStrat.color.red, strIcon = "Icon_SkillMind_UI_espr_rpls"})
 		end
 	end)
 	
@@ -183,9 +187,9 @@ local function LifeFireInit()
 	local function blindCD()
 		ReStrat:createAlert("Blind Cooldown", 22, nil, ReStrat.color.purple, nil)
 	end
-	local function blindPop()--TODO Blinding Light Sound
+	local function blindPop()
 		ReStrat:createPop("Blind!")
-		ReStrat:Sound("Sound\\spew.wav")
+		ReStrat:Sound("Sound\\blind.wav")
 		ReStrat:createAlert("Blinding Light", 8.5, nil, ReStrat.color.red, blindCD)
 	end
 	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Life Force Shackle")
@@ -215,15 +219,17 @@ local function WaterLogicInit()
 	--ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
 end
 
-local function WaterAirInit() --TODO:twirl / tomb timer + bulls eye
+local function WaterAirInit()
 	ReStrat:createCastAlert("Hydroflux", "Glacial Icestorm", nil, "Icon_SkillStalker_Maelstrom", ReStrat.color.green, function()
 		ReStrat:createAlert("Midphase", 65, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, function()
 			ReStrat:createPop("Midphase!")
+			ReStrat:Sound("Sound\\midphase.wav")
 		end)
 	end)
 	ReStrat:createAuraAlert(nil, "Twirl")
 	ReStrat:createAlert("Midphase", 60, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, function()
 		ReStrat:createPop("Midphase!")
+		ReStrat:Sound("Sound\\midphase.wav")
 	end)
 	ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
 end
