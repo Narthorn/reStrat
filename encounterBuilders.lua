@@ -280,7 +280,7 @@ function ReStrat:createPin(strLabel, unit, graphic, strFont)
 		if unitName ~= "Detonation Bomb" and unitName ~= "Holo Hand" then
 			self.tPins[unit:GetName()] = pin --Create the new pin
 		else
-			self.tPins[strLabel] = pin --Create the new pin using the label for this special case
+			self.tPins[unit:GetId()] = pin --Create the new pin using the id for this special case
 		end
 
 		
@@ -289,6 +289,10 @@ end
 
 --Destroy pin
 function ReStrat:destroyPin(unit)
+	if unit:GetName() == "Holo Hand" or unit:GetName() == "Detonation Bomb" then --special case, use id
+		if self.tPins[unit:GetId()] then self.tPins[unit:GetId()]:Destroy(); self.tPins[unit:GetId()] = nil end
+	end
+
 	if self.tPins[unit:GetName()] then self.tPins[unit:GetName()]:Destroy(); self.tPins[unit:GetName()] = nil end
 end
 
