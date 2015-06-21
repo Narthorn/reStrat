@@ -236,25 +236,36 @@ end
 
 local function WaterFireInit() 
 	local tDebuffTimeout = true
+	local bTombTimeout = true
 	local function WaterFireDebuff()
 		if tDebuffTimeout then
 			tDebuffTimeout = false
-			ReStrat:createPop("GTFO GTFO GTFO GTFO GTFO GTFO\nGTFO GTFO GTFO GTFO GTFO GTFO", nil)
+			ReStrat:createPop("Get Out!", nil)
 			--Sound.PlayFile("Sound\\quack.wav")
 			ReStrat:createAlert("Heat Stroke / Hypothermia", 10, nil, ReStrat.color.green, function()
 				tDebuffTimeout = true
 			end)
-			ReStrat:createAlert("Next swap (approx)", 30, nil, ReStrat.color.blue, nil)
+			ReStrat:createAlert("Swap", 30, nil, ReStrat.color.blue, nil)
 		end
 	end
 	
 	ReStrat:createPinFromAura("Heat Stroke", "Crafting_RunecraftingSprites:sprRunecrafting_Fire_Colored")
 	ReStrat:createPinFromAura("Hypothermia", "Crafting_RunecraftingSprites:sprRunecrafting_Water_Colored")
-	
-	ReStrat:createAuraAlert(nil, "Heat Stroke", 0, nil, WaterFireDebuff) 
-	ReStrat:createAuraAlert(nil, "Hypothermia", 0, nil, WaterFireDebuff) 
 
-	ReStrat:createAlert("Swap (approx)", 30, nil, ReStrat.color.blue, nil)
+	local function icetomb()
+		if bTombTimeout then
+			ReStrat:createPop("Ice Tomb!")
+			bTombTimeout = false
+			ReStrat:createAlert("Next Ice Tomb", 14, nil, ReStrat.color.purple, function()
+				bTombTimeout = true
+			end)
+		end
+	end
+	ReStrat:createAuraAlert(nil, "Entombed in Ice", 0, nil, icetomb)
+	ReStrat:createAuraAlert(nil, "Heat Stroke", 0, nil, WaterFireDebuff) 
+	ReStrat:createAuraAlert(nil, "Hypothermia", 0, nil, WaterFireDebuff)
+
+	ReStrat:createAlert("Swap", 30, nil, ReStrat.color.blue, nil)
 	ReStrat:createAlert("Enrage", 480, nil, ReStrat.color.red, nil)
 end
 
