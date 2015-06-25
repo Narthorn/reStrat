@@ -128,6 +128,18 @@ function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
 		ReStrat:createAlert("Data Devourers", 10, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
 	end
 
+	local function devourerspawn2()
+			tdev2 = {}
+			tdev2.strLabel = "Next Devourers"
+			tdev2.fDelay = 15
+			tdev2.fDuration = 5
+			tdev2.strColor = ReStrat.color.orange
+			tdev2.strIcon = "Icon_SkillEngineer_Anomaly_Launcher"
+		
+			ReStrat:repeatAlert(tdev2, 999)
+		end
+
+
 
 	-- jumppphase
 	local function jumpphase()
@@ -136,13 +148,14 @@ function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
 			ReStrat:createAlert("Jump!", 7.2, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
 				ReStrat:createAlert("Jump!", 6, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
 
+					ReStrat:createAlert("Obliterate Start", 15, nil, ReStrat.color.red, nil)
 					ReStrat:createAlert("Next Laser", 26, "Icon_SkillEngineer_Code_Red", ReStrat.color.red, nil)
 
 					if ReStrat:IsActivated("Avatus", "Devourers Spawn") then
-						ReStrat:createAlert("Data Devourers", 41, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
+						ReStrat:createAlert("Data Devourers", 36, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn2)
 					end
 
-					ReStrat:createAlert("Next Add Wave", 46, nil, ReStrat.color.purple, deletealldata)
+					ReStrat:createAlert("Next Add Wave", 41, nil, ReStrat.color.purple, deletealldata)
 				end)
 			end)
 		end)
@@ -162,6 +175,7 @@ function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
 	end
 	ReStrat:createAlert("Next Add Wave", 45, nil, ReStrat.color.purple, deletealldata)
 	ReStrat:OnDatachron("Avatus sets his focus on", beam)
+	ReStrat:OnDatachron("Avatus prepares to delete all data!", deletealldata)
 
 
 	
@@ -171,13 +185,14 @@ function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
 		ReStrat:destroyAllAlerts()
 		ReStrat:createAlert("Get Buff and Spread!", 19, "Icon_SkillMedic_sheildsurge", ReStrat.color.green, function()
 
-			ReStrat:createAlert("Next Laser", 25, "Icon_SkillEngineer_Code_Red", ReStrat.color.red, nil)
+			ReStrat:createAlert("Obliterate Start", 13, nil, ReStrat.color.red, nil)
+			ReStrat:createAlert("Next Laser", 24, "Icon_SkillEngineer_Code_Red", ReStrat.color.red, nil)
 
 			if ReStrat:IsActivated("Avatus", "Devourers Spawn") then
-				ReStrat:createAlert("Data Devourers", 40, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn)
+				ReStrat:createAlert("Data Devourers", 34, "Icon_SkillEngineer_Anomaly_Launcher", ReStrat.color.orange, devourerspawn2)
 			end
 
-			ReStrat:createAlert("Next Add Wave", 45, nil, ReStrat.color.purple, deletealldata)
+			ReStrat:createAlert("Next Add Wave", 39, nil, ReStrat.color.purple, deletealldata)
 		end)
 	end)
 	
