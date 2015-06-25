@@ -9,8 +9,8 @@ require "Sound"
  
 ReStrat = {
 	name = "ReStrat",
-	version = "2.0.0",
-	fileversion = 200,
+	version = "2.0.1",
+	fileversion = 201,
 	tVersions = {},
 	barSpacing = 6,
 	color = {

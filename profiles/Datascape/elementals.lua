@@ -212,6 +212,13 @@ local function WaterLogicInit()
 	end
 	
 	ReStrat:createPinFromAura("Data Disruptor")
+
+	local function impPop()
+		ReStrat:createPop("Imprison!!")
+	end 
+	--ReStrat:createCastTrigger("Mnemesis", "Imprison", impPop)
+	ReStrat:createCastAlert("Mnemesis", "Imprison", nil, nil, ReStrat.color.yellow, nil, impPop, true)
+	ReStrat:createAlert("Next Imprison", 31, nil, ReStrat.color.purple, nil)
 	
 	MidPhase(75)
 	ReStrat:createCastAlert("Mnemesis", "Circuit Breaker", nil, nil, ReStrat.color.green, function() MidPhase(83) end)
@@ -242,10 +249,10 @@ local function WaterFireInit()
 			tDebuffTimeout = false
 			ReStrat:createPop("Get Out!", nil)
 			--Sound.PlayFile("Sound\\quack.wav")
-			ReStrat:createAlert("Heat Stroke / Hypothermia", 10, nil, ReStrat.color.green, function()
+			ReStrat:createAlert("Heat Stroke / Hypothermia", 10, "Icon_SkillWarrior_Shield_Burst", ReStrat.color.green, function()
 				tDebuffTimeout = true
 			end)
-			ReStrat:createAlert("Swap", 30, nil, ReStrat.color.blue, nil)
+			ReStrat:createAlert("Swap", 30, "Icon_SkillPetCommand_Combat_Pet_Go_To_Location", ReStrat.color.blue, nil)
 		end
 	end
 	
@@ -256,7 +263,7 @@ local function WaterFireInit()
 		if bTombTimeout then
 			ReStrat:createPop("Ice Tomb!")
 			bTombTimeout = false
-			ReStrat:createAlert("Next Ice Tomb", 14, nil, ReStrat.color.purple, function()
+			ReStrat:createAlert("Next Ice Tomb", 14, "Icon_SkillSpellslinger_frozen_bolt", ReStrat.color.purple, function()
 				bTombTimeout = true
 			end)
 		end
@@ -265,7 +272,7 @@ local function WaterFireInit()
 	ReStrat:createAuraAlert(nil, "Heat Stroke", 0, nil, WaterFireDebuff) 
 	ReStrat:createAuraAlert(nil, "Hypothermia", 0, nil, WaterFireDebuff)
 
-	ReStrat:createAlert("Swap", 30, nil, ReStrat.color.blue, nil)
+	ReStrat:createAlert("Swap", 30, "Icon_SkillPetCommand_Combat_Pet_Go_To_Location", ReStrat.color.blue, nil)
 	ReStrat:createAlert("Enrage", 480, nil, ReStrat.color.red, nil)
 end
 
