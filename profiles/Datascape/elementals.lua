@@ -307,7 +307,7 @@ ReStrat.tEncounters["Aileron"] = {
 			ReStrat:createAlert("[Aileron] Wind Shield", 22, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.blue, nil)
 		end)
 		
-		ReStrat:createPinFromAura("Twirl")
+		ReStrat:createPinFromAura("Twirl", nil, "BK3:UI_BK3_StoryPanelAlert_Icon")
 		
 		ReStrat.tEncounterVariables.Aileron = true
 		if ReStrat.tEncounterVariables.Megalith   then EarthAirInit() end
