@@ -57,7 +57,8 @@ function ReStrat:OnAuraApplied(nBuffId, intStackCount, tTargetUnit)
 		
 		--Create pin if needed
 		if self.tPinAuras[spellName] then
-			ReStrat:createPin(spellName .. " - " .. targetName, tTargetUnit, self.tPinAuras[spellName].sprite)
+			local strSprite = tTargetUnit:IsThePlayer() and self.tPinAuras[spellName].spritePlayer or self.tPinAuras[spellName].sprite
+			ReStrat:createPin(spellName .. " - " .. targetName, tTargetUnit, strSprite)
 		end
 		
 		--Create alert

@@ -267,12 +267,8 @@ function ReStrat:findAuraDuration(strBuffName, unit)
 end
 
 --Just add into library, look in combatLog.lua for the real functionality
-function ReStrat:createPinFromAura(auraName, strSprite)
-	if strSprite then
-		self.tPinAuras[auraName] = {sprite = strSprite}
-	else
-		self.tPinAuras[auraName] = {}
-	end
+function ReStrat:createPinFromAura(auraName, strSprite, spritePlayer)
+	self.tPinAuras[auraName] = {sprite = strSprite, spritePlayer = spritePlayer}
 end
 
 --This is used in some fights as a phase trigger, quite useful
