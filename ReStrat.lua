@@ -289,6 +289,7 @@ function ReStrat:UnregisterCombatEvents()
 end
 
 function ReStrat:Start()
+	ReStrat:Stop() -- need to check why Start() fires multiple times without matching Stop()
 	self:RegisterCombatEvents()
 	self.combatStarted = GameLib.GetGameTime()
 	self.gameTimer:Start()
