@@ -153,8 +153,7 @@ local function WaterFireInit()
 	local function WaterFireDebuff()
 		if tDebuffTimeout then
 			tDebuffTimeout = false
-			ReStrat:createPop("GTFO GTFO GTFO GTFO GTFO GTFO\nGTFO GTFO GTFO GTFO GTFO GTFO", nil)
-			Sound.PlayFile("Sound\\quack.wav")
+			ReStrat:createPop("GTFO GTFO GTFO GTFO GTFO GTFO\nGTFO GTFO GTFO GTFO GTFO GTFO", nil, "Sound\\quack.wav")
 			ReStrat:createAlert("Heat Stroke / Hypothermia", 10, nil, ReStrat.color.green, function()
 				tDebuffTimeout = true
 			end)
@@ -205,8 +204,7 @@ end
 ReStrat.tEncounters["Megalith"] = {
 	fInitFunction = function()
 		ReStrat:OnDatachron("The ground shudders beneath Megalith!", function() 
-			ReStrat:createPop("JUMP JUMP JUMP JUMP JUMP JUMP\nJUMP JUMP JUMP JUMP JUMP JUMP", nil)
-			Sound.PlayFile("Sound\\quack.wav")
+			ReStrat:createPop("JUMP JUMP JUMP JUMP JUMP JUMP\nJUMP JUMP JUMP JUMP JUMP JUMP", nil, "Sound\\quack.wav")
 		end)
 		ReStrat:createCastAlert("Megalith", "Rockfall", nil, "Icon_SkillPhysical_UI_wr_smsh", ReStrat.color.red, nil)
 		
