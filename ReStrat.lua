@@ -289,7 +289,7 @@ function ReStrat:UnregisterCombatEvents()
 end
 
 function ReStrat:Start()
-	self.RegisterCombatEvents()
+	self:RegisterCombatEvents()
 	self.combatStarted = GameLib.GetGameTime()
 	self.gameTimer:Start()
 	self.healthTimer:Start()
@@ -302,7 +302,7 @@ function ReStrat:Stop()
 	for k,v in pairs(self.tLandmarks) do v.form:Destroy() end
 	for k,v in pairs(self.tPins) do	v:Destroy()	end
 
-	self.UnregisterCombatEvents()
+	self:UnregisterCombatEvents()
 	self.tAlerts = {}
 	self.tHealth = {}
 	self.tWatchedAuras = {}
