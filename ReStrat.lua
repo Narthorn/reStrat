@@ -23,7 +23,6 @@ ReStrat = {
 	
 	tAlerts = {},
 	tHealth = {},
-	tUnits = {},
 	tWatchedCasts = {},
 	tWatchedAuras = {},
 	tZones = {},
@@ -170,44 +169,22 @@ function ReStrat:OnHealthTick()
 end
  
 function ReStrat:OnUnitCreated(unit)
-	local id = unit:GetId()
-
-	if self.tUnits[id] then
-
-		-- Mark as active
-		self.tUnits[id].bActive = true
-		self.tUnits[id].unit = unit
-
-		-- Unit respawn trigger
-		local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
-		if tUnitTrigger and tUnitTrigger.fOnRespawnCallback then
-			tUnitTrigger.fOnRespawnCallback()
-		end
-
+	-- Unit respawn trigger
+	local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
+	if tUnitTrigger and tUnitTrigger.fOnRespawnCallback then
+		tUnitTrigger.fOnRespawnCallback()
 	end
-	
 end
 
 function ReStrat:OnUnitDestroyed(unit)
-	local id = unit:GetId()
-
-	if self.tUnits[id] then
-
-		-- Unit despawn trigger
-		local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
-		if tUnitTrigger and tUnitTrigger.fOnDespawnCallback then
-			tUnitTrigger.fOnDespawnCallback()
-		end
-
-		-- Mark as inactive
-		self.tUnits[id].bActive = false
-		self.tUnits[id].unit = nil
-
-		ReStrat:untrackHealth(unit)
-		ReStrat:destroyPin(unit)
-
+	-- Unit despawn trigger
+	local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
+	if tUnitTrigger and tUnitTrigger.fOnDespawnCallback then
+		tUnitTrigger.fOnDespawnCallback()
 	end
 
+	ReStrat:untrackHealth(unit)
+	ReStrat:destroyPin(unit)
 end
 
 function ReStrat:OnEnteredCombat(unit, combat)
@@ -236,21 +213,6 @@ function ReStrat:OnEnteredCombat(unit, combat)
 				end
 				if tProfile.fInitFunction then tProfile.fInitFunction(unit) end
 			end
-			
-			--Add unit in our library if it's not there already
-			
-			if not self.tUnits[id] then
-				self.tUnits[id] = {
-					unit = unit,
-					name = unit:GetName(),
-					health = unit:GetMaxHealth(),
-					shield = unit:GetShieldCapacityMax(),
-					absorb = unit:GetAbsorptionMax(),
-					baseIA = unit:GetInterruptArmorMax(),
-					assault = unit:GetAssaultPower(),
-					bActive = true
-				}
-			end
 
 			-- Unit init trigger
 			local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
@@ -259,8 +221,7 @@ function ReStrat:OnEnteredCombat(unit, combat)
 			end
 
 		-- If combat ends, remove unit
-		elseif not combat and self.tUnits[id] then
-
+		else
 			-- Unit death trigger
 			local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
 			if (unit:GetHealth() == 0 or unit:IsDead()) and tUnitTrigger and tUnitTrigger.fDeathFunction then
@@ -268,9 +229,6 @@ function ReStrat:OnEnteredCombat(unit, combat)
 			end
 
 			ReStrat:destroyPin(unit)
-
-			self.tUnits[id] = nil
-
 		end
 	end
 end
@@ -309,7 +267,6 @@ function ReStrat:Stop()
 	self.tWatchedAuras = {}
 	self.tWatchedCasts = {}
 	self.tEncounterVariables = {}
-	self.tUnits = {}
 	self.tUnitTriggers = {}
 	self.tSpellTriggers = {}
 	self.tAuraTriggers = {}
