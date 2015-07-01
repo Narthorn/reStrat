@@ -120,15 +120,40 @@ local function augmentorInit(unit)
 	--ReStrat:onHealth(unit, 20, Uncorrupted)
 end
 
+--TODO: this whole incinerator part is a hack because we don't yet have the ability to detect casts from
+--      units that are not yet in combat, which is the proper way to detect the true incinerator unit, as
+--      it casts Incinerate on activation.
+
+local FakeIncinerator -- This one is invisible and stays around all the time so we have to ignore it
+local function incineratorInit(unit)
+	if unit:GetDispositionTo(GameLib.GetPlayerUnit()) == Unit.CodeEnumDisposition.Hostile then
+		if not FakeIncinerator then FakeIncinerator = unit:GetId()
+		elseif FakeIncinerator ~= unit:GetId() then
+			if ReStrat.tConfig["Augmentors"].tModules.LaserLine.bEnabled then
+				local tPath = ReStrat.DrawLib:Path({{vPos = Vector3.New(3,0,5)}, {vPos = Vector3.New(90,0,5)}},
+				                                   {nLineWidth = 8, crLineColor = ReStrat.color.yellow, bOutline = true})
+				tPath.unit = unit
+			end
+		end
+	end
+end
+
+-- The incinerator never gets in combat and is created before any augmentor gets in combat
+ReStrat.tUnitTriggers["Organic Incinerator"] = { fOnSpawn = incineratorInit }
+
 ReStrat.tEncounters["Prime Phage Distributor"]    = { fInitFunction = augmentorInit }
 ReStrat.tEncounters["Prime Evolutionary Operant"] = { fInitFunction = augmentorInit }
 
 ReStrat.tConfig["Augmentors"] = {
-	version = 2,
+	version = 3,
 	strCategory = "Initialization Core Y-83",
 	tModules = {
 		LaserAlert = {
 			strLabel = "Interrupt Timer",
+			bEnabled = true,
+		},
+		LaserLine = {
+			strLabel = "Incinerator Line",
 			bEnabled = true,
 		},
 		StaticLines = {
