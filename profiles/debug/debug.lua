@@ -3,7 +3,7 @@
 -----------------------------------------------------------------------------
 
 --Example fight initiate function
-local function profileDebug()
+local function profileDebug(unit)
 	ReStrat:createAlert("Entered Combat", 2.5, nil, nil, nil)
 	ReStrat:createCastAlert("Holographic Moodie", "Firestorm", nil, nil, ReStrat.color.white, nil)
 	ReStrat:createCastAlert("Holographic Moodie", "Erupting Fissure", nil, nil, ReStrat.color.green, nil)
@@ -25,6 +25,8 @@ local function profileDebug()
 	
 	ReStrat:createPinFromAura("Melt Armor")
 	ReStrat:createPinFromAura("Bleed")
+	
+	ReStrat.DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit)
 end
 
 --Profile Settings

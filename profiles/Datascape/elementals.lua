@@ -85,7 +85,7 @@ local function LifeAirInit()
 	
 	-- Tree lines
 	
-	ReStrat:createUnitTrigger("Lifekeeper", function(unit) DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit) end)
+	ReStrat:createUnitTrigger("Lifekeeper", function(unit) ReStrat.DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit) end)
 	
 	ReStrat:createPinFromAura("Lightning Strike", "abilities:sprAbility_CapEnd3")
 	

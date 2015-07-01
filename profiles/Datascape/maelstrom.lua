@@ -14,7 +14,7 @@ local function maelstromInit()
 end
 
 local function stationInit(unit)
-	DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit)
+	ReStrat.DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit)
 end
 
 ReStrat.tEncounters["Maelstrom Authority"] = {

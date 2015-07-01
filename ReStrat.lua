@@ -48,7 +48,8 @@ ReStrat = {
 function ReStrat:OnLoad()
 	self.xmlDoc = XmlDoc.CreateFromFile("ReStrat.xml")
 
-	Apollo.LoadSprites("respr.xml", "SassyMedicSimSprites") 
+	Apollo.LoadSprites("respr.xml", "SassyMedicSimSprites")
+	self.DrawLib = setmetatable({}, {__index = DrawLib or function() return function() end end }) -- fail silently
 	
 	Event_FireGenericEvent("OneVersion_ReportAddonInfo", self.name, unpack(self.version))
 	
