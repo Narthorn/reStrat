@@ -21,7 +21,10 @@ local tSafeZones = {
 		{{vPos = Vector3.New(1327.09,-800.50,919.15)},{vPos = Vector3.New(1320.18,-800.50,907.40)}, {vPos = Vector3.New(1333.88,-800.50,907.40)}},
 		{{vPos = Vector3.New(1333.91,-800.50,893.93)},{vPos = Vector3.New(1320.12,-800.50,893.86)}, {vPos = Vector3.New(1327.08,-800.50,882.00)}},
 		{{vPos = Vector3.New(1315.47,-800.50,875.31)},{vPos = Vector3.New(1290.16,-800.50,919.29)}},
-	}
+	},
+	Laser = {
+		{{vPos = Vector3.New(3,0,5)}, {vPos = Vector3.New(20,0,5)}, {vPos = Vector3.New(40,0,5)}, {vPos = Vector3.New(60,0,5)}},
+	},
 }
 
 local function Corrupted(unit)
@@ -102,6 +105,7 @@ local function augmentorInit(unit)
 	-- Cache name and health bars
 	local tUnit = { name = name, bar = ReStrat.tHealth[id].bar:FindChild("progressBar"), paths = {}}
 		
+
 	if ReStrat.tConfig["Augmentors"].tModules.StaticLines.bEnabled then
 		for _,path in pairs(tSafeZones[name]) do
 			tUnit.paths[#tUnit.paths+1] = ReStrat.DrawLib:Path(path)
@@ -125,21 +129,31 @@ end
 --      it casts Incinerate on activation.
 
 local FakeIncinerator -- This one is invisible and stays around all the time so we have to ignore it
-local function incineratorInit(unit)
+
+-- The incinerators never get in combat and the true incinerator is created before any augmentor gets in combat
+ReStrat.tUnitTriggers["Organic Incinerator"] = { fOnSpawn = function(unit)
 	if unit:GetDispositionTo(GameLib.GetPlayerUnit()) == Unit.CodeEnumDisposition.Hostile then
 		if not FakeIncinerator then FakeIncinerator = unit:GetId()
-		elseif FakeIncinerator ~= unit:GetId() then
-			if ReStrat.tConfig["Augmentors"].tModules.LaserLine.bEnabled then
-				local tPath = ReStrat.DrawLib:Path({{vPos = Vector3.New(3,0,5)}, {vPos = Vector3.New(90,0,5)}},
-				                                   {nLineWidth = 8, crLineColor = ReStrat.color.yellow, bOutline = true})
-				tPath.unit = unit
+		elseif FakeIncinerator ~= unit:GetId() then incineratorInit(unit) end
+	end
+end }
+
+function incineratorInit(unit)
+	if ReStrat.tConfig["Augmentors"].tModules.LaserLine.bEnabled then
+		local tPath = ReStrat.DrawLib:Path(tSafeZones.Laser[1],	{nLineWidth = 8, crLineColor = ReStrat.color.yellow, bOutline = true})
+		tPath.unit = unit
+		ReStrat:createAuraTrigger(nil, "Degeneration", function() 
+			if not ReStrat.tEncounterVariables.tmrRevert then
+				local crOld = tPath.tStyle.crLineColor 
+				tPath.tStyle.crLineColor = ReStrat.color.green
+				ReStrat.tEncounterVariables.tmrRevert = ApolloTimer.Create(5, false, "OnRevert", { OnRevert = function() 
+					tPath.tStyle.crLineColor = crOld
+					ReStrat.tEncounterVariables.tmrRevert = nil
+				end})
 			end
-		end
+		end)
 	end
 end
-
--- The incinerator never gets in combat and is created before any augmentor gets in combat
-ReStrat.tUnitTriggers["Organic Incinerator"] = { fOnSpawn = incineratorInit }
 
 ReStrat.tEncounters["Prime Phage Distributor"]    = { fInitFunction = augmentorInit }
 ReStrat.tEncounters["Prime Evolutionary Operant"] = { fInitFunction = augmentorInit }
