@@ -56,7 +56,9 @@ end
 
 local function encounterInit()
 
-	ReStrat:createPinFromAura("Strain Incubation")
+	if ReStrat.tConfig["Augmentors"].tModules.Dot.bEnabled then
+		ReStrat:createPinFromAura("Strain Incubation")
+	end
 	
 	ReStrat:OnDatachron("ENGAGING TECHNOPHAGE TRASMISSION", function() -- sic
 		ReStrat:createAlert("Transmission", 12, nil, ReStrat.color.red)
@@ -68,9 +70,11 @@ local function encounterInit()
 	ReStrat:createCastTrigger(nil, "Transmission", Transmission)
 						
 	-- Interrupt timer for hardmode laser
-	ReStrat:repeatAlert({strLabel = "Laser Interrupt", fDelay = 8, fRepeat = 13.25, strColor = ReStrat.color.yellow, fCallback = function()
-		ReStrat:createPop("Interrupt !", nil, Sound.PlayUIQueuePopsPvP)
-	end})
+	if ReStrat.tConfig["Augmentors"].tModules.Disintegration.bEnabled then
+		ReStrat:repeatAlert({strLabel = "Laser Interrupt", fDelay = 8, fRepeat = 13.25, strColor = ReStrat.color.yellow, fCallback = function()
+			ReStrat:createPop("Interrupt !", nil, Sound.PlayUIQueuePopsPvP)
+		end})
+	end
 end
 
 local function augmentorInit(unit)
@@ -88,8 +92,11 @@ local function augmentorInit(unit)
 		
 	-- Cache name and health bars
 	local tUnit = { name = name, bar = ReStrat.tHealth[unit:GetId()].bar:FindChild("progressBar"), paths = {}}
-	for _,path in pairs(tSafeZones[name]) do
-		tUnit.paths[#tUnit.paths+1] = DrawLib:Path(path)
+	
+	if ReStrat.tConfig["Augmentors"].tModules.Lines.bEnabled then
+		for _,path in pairs(tSafeZones[name]) do
+			tUnit.paths[#tUnit.paths+1] = DrawLib:Path(path)
+		end
 	end
 	
 	tUnits[id] = tUnit
@@ -111,3 +118,22 @@ end
 
 ReStrat.tEncounters["Prime Phage Distributor"]    = { fInitFunction = augmentorInit }
 ReStrat.tEncounters["Prime Evolutionary Operant"] = { fInitFunction = augmentorInit }
+
+ReStrat.tConfig["Augmentors"] = {
+	version = 1,
+	strCategory = "Initialization Core Y-83",
+	tModules = {
+		Disintegration = {
+			strLabel = "Hard Mode Laser",
+			bEnabled = true,
+		},
+		Lines = {
+			strLabel = "Lines",
+			bEnabled = true,
+		},
+		Dot = {
+			strLabel = "Strain Incubation (Dot)",
+			bEnabled = true,
+		},
+	},
+}
