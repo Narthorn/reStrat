@@ -243,7 +243,7 @@ end
 
 function ReStrat:Stop()
 	self.wndHealthBars:DestroyChildren()
-	self:destroyAllAlerts()
+	self.wndAlerts:DestroyChildren()
 	for k,v in pairs(self.tLandmarks) do v.form:Destroy() end
 	for k,v in pairs(self.tPins) do	v:Destroy()	end
 
