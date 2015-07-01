@@ -8,7 +8,7 @@ require "Sound"
 
 ReStrat = {
 	name = "ReStrat",
-	version = {1,4,17},
+	version = {1,5,0},
 
 	color = {
 		red = "ffb8413d",
