@@ -56,6 +56,14 @@ end
 
 local function encounterInit()
 
+	for id,tUnit in pairs(tUnits) do
+		for _,path in pairs(tUnit.paths) do
+			ReStrat.DrawLib:Destroy(path)
+		end
+	end
+	
+	tUnits = {}
+
 	if ReStrat.tConfig["Augmentors"].tModules.Dot.bEnabled then
 		ReStrat:createPinFromAura("Strain Incubation")
 	end
@@ -70,11 +78,13 @@ local function encounterInit()
 	ReStrat:createCastTrigger(nil, "Transmission", Transmission)
 						
 	-- Interrupt timer for hardmode laser
-	if ReStrat.tConfig["Augmentors"].tModules.Disintegration.bEnabled then
+	if ReStrat.tConfig["Augmentors"].tModules.LaserAlert.bEnabled then
 		ReStrat:repeatAlert({strLabel = "Laser Interrupt", fDelay = 8, fRepeat = 13.25, strColor = ReStrat.color.yellow, fCallback = function()
 			ReStrat:createPop("Interrupt !", nil, Sound.PlayUIQueuePopsPvP)
 		end})
 	end
+	
+
 end
 
 local function augmentorInit(unit)
@@ -84,28 +94,22 @@ local function augmentorInit(unit)
 	local name = pos.z < 875 and "North" or (pos.x < 1268 and "West" or "East")
 	ReStrat:trackHealth(unit, ReStrat.color.orange, name)
 	
-	if tUnits[id] then
-		for _,path in pairs(tUnits[id].paths) do
-			DrawLib:Destroy(path)
-		end
-	end
-		
-	-- Cache name and health bars
-	local tUnit = { name = name, bar = ReStrat.tHealth[unit:GetId()].bar:FindChild("progressBar"), paths = {}}
+	if not ReStrat.tEncounterVariables.bStarted then
+		encounterInit()
+		ReStrat.tEncounterVariables.bStarted = true
+	end	
 	
-	if ReStrat.tConfig["Augmentors"].tModules.Lines.bEnabled then
+	-- Cache name and health bars
+	local tUnit = { name = name, bar = ReStrat.tHealth[id].bar:FindChild("progressBar"), paths = {}}
+		
+	if ReStrat.tConfig["Augmentors"].tModules.StaticLines.bEnabled then
 		for _,path in pairs(tSafeZones[name]) do
-			tUnit.paths[#tUnit.paths+1] = DrawLib:Path(path)
+			tUnit.paths[#tUnit.paths+1] = ReStrat.DrawLib:Path(path)
 		end
 	end
 	
 	tUnits[id] = tUnit
 	tUnitIds[name] = id
-	
-	if not ReStrat.tEncounterVariables.bStarted then
-		encounterInit()
-		ReStrat.tEncounterVariables.bStarted = true
-	end
 	
 	if name == "North" then Corrupted(unit) end
 	
@@ -120,15 +124,15 @@ ReStrat.tEncounters["Prime Phage Distributor"]    = { fInitFunction = augmentorI
 ReStrat.tEncounters["Prime Evolutionary Operant"] = { fInitFunction = augmentorInit }
 
 ReStrat.tConfig["Augmentors"] = {
-	version = 1,
+	version = 2,
 	strCategory = "Initialization Core Y-83",
 	tModules = {
-		Disintegration = {
-			strLabel = "Hard Mode Laser",
+		LaserAlert = {
+			strLabel = "Interrupt Timer",
 			bEnabled = true,
 		},
-		Lines = {
-			strLabel = "Lines",
+		StaticLines = {
+			strLabel = "Safe Zone Lines",
 			bEnabled = true,
 		},
 		Dot = {
