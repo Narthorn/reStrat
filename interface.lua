@@ -21,7 +21,7 @@ function ReStrat:InitUI()
 		
 		--Create zone buttons
 		for k,v in pairs(self.tZones) do
-			local btnZone = Apollo.LoadForm(self.xmlDoc, "btnZone", zoneList, self)
+			local btnZone = Apollo.LoadForm(self.xmlDoc, "ItemZone", zoneList, self):FindChild("btnZone")
 			btnZone:SetText(k)
 			btnZone:SetData(k)
 		end
@@ -43,7 +43,7 @@ function ReStrat:onZoneSelected(wndHandler, wndControl)
 	encounterList:DestroyChildren()
 	
 	for i,v in ipairs(self.tZones[zoneName]) do
-		local encounterButton = Apollo.LoadForm(self.xmlDoc, "btnEncounter", encounterList, self)
+		local encounterButton = Apollo.LoadForm(self.xmlDoc, "ItemEncounter", encounterList, self):FindChild("btnEncounter")
 		
 		encounterButton:SetText(v)
 		encounterButton:SetData(v)
@@ -61,7 +61,7 @@ function ReStrat:onEncounterSelected(wndHandler, wndControl)
 	moduleList:DestroyChildren()
 	
 	--[[for k,v in pairs(self.tEncounters[encounterName].tModules) do
-		local moduleButton = Apollo.LoadForm(self.xmlDoc, "btnModule", moduleList, self)
+		local moduleButton = Apollo.LoadForm(self.xmlDoc, "ItemModule", moduleList, self):FindChild("btnModule")
 		
 		moduleButton:SetText(v.strLabel)
 		moduleButton:SetData({encounter = encounterName, module = k})
@@ -71,9 +71,9 @@ function ReStrat:onEncounterSelected(wndHandler, wndControl)
 			moduleButton:SetBGColor("vdarkgray")
 		end
 		
-	end--]]
+	end
 	
-	moduleList:ArrangeChildrenVert()
+	moduleList:ArrangeChildrenVert()--]]
 end
 
 --Handles module toggling
