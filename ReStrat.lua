@@ -25,7 +25,6 @@ ReStrat = {
 	tHealth = {},
 	tWatchedCasts = {},
 	tWatchedAuras = {},
-	tZones = {},
 	tConfig = {},
 	combatTimer = nil,
 	combatStarted = nil,
@@ -54,13 +53,9 @@ function ReStrat:OnLoad()
 	
 	Event_FireGenericEvent("OneVersion_ReportAddonInfo", self.name, unpack(self.version))
 	
-	self.wndMain          = Apollo.LoadForm(self.xmlDoc, "mainForm", nil, self)
 	self.wndHealthBars    = Apollo.LoadForm(self.xmlDoc, "healthForm", nil, self)
     self.wndAlerts        = Apollo.LoadForm(self.xmlDoc, "alertForm", nil, self)
 	self.wndPop           = Apollo.LoadForm(self.xmlDoc, "popForm", nil, self)
-	self.wndIcon          = Apollo.LoadForm(self.xmlDoc, "iconForm", nil, self)
-	self.wndLog           = Apollo.LoadForm(self.xmlDoc, "logForm", nil, self)
-	self.wndSettings      = Apollo.LoadForm(self.xmlDoc, "settingsForm", nil, self)
 	self.wndActionBarItem = Apollo.LoadForm(self.xmlDoc, "ActionBarShortcutItem", nil, self)
 	
 	-- Register handlers for events, slash commands and timer, etc.
@@ -313,8 +308,7 @@ function ReStrat:OnReStrat(strCmd, strParam)
 	if strParam == "stop" then
 		self:Stop()
 	else
-		self.wndMain:Invoke()
-		self:InitUI()
+		self:ToggleUI()
 	end
 end
 

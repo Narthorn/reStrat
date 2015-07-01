@@ -1,39 +1,38 @@
 -----------------------------------------------------------------------------------------------
--- Interface handlers
---- Created by Ryan Park, aka Reglitch of Codex
----- Maintained by Vim <Codex>
------------------------------------------------------------------------------------------------
+-- Interface 
 
---UI Init
-function ReStrat:InitUI()
-	if not self.bLoaded then
-		local zoneList = self.wndMain:FindChild("zoneList")
-		
-		--Go through our encounters and populate zone list
-		for k,v in pairs(self.tConfig) do
-			--Create the list
-			if not self.tZones[v.strCategory] then
-				self.tZones[v.strCategory] = {}
-			end
-			
-			table.insert(self.tZones[v.strCategory], k)
-		end
-		
-		--Create zone buttons
-		for k,v in pairs(self.tZones) do
-			local btnZone = Apollo.LoadForm(self.xmlDoc, "ItemZone", zoneList, self):FindChild("btnZone")
-			btnZone:SetText(k)
-		end
-		
-		zoneList:ArrangeChildrenVert()
-		
-		self.bLoaded = true
-	end	
+function ReStrat:ToggleUI()
+	if not self.wndMain then
+		self.wndMain = Apollo.LoadForm(self.xmlDoc, "mainForm", nil, self)
+		self:InitZoneList()
+	else
+		self.wndMain:Destroy() 
+		self.wndMain = nil
+	end
 end
 
 ---------------------------------------------------------------------------------------------------
--- btnEncounter Functions
----------------------------------------------------------------------------------------------------
+-- Profile config
+
+function ReStrat:InitZoneList()
+	self.tZones = {}
+	local zoneList = self.wndMain:FindChild("zoneList")
+	
+	--Go through our encounters and populate zone list
+	for strEncounter,tEncounter in pairs(self.tConfig) do
+		local strCategory = tEncounter.strCategory
+		if not self.tZones[strCategory] then self.tZones[strCategory] = {} end
+		table.insert(self.tZones[strCategory], strEncounter)
+	end
+	
+	for strZone,_ in pairs(self.tZones) do
+		local btnZone = Apollo.LoadForm(self.xmlDoc, "ItemZone", zoneList, self):FindChild("btnZone")
+		btnZone:SetText(strZone)
+	end
+	
+	zoneList:ArrangeChildrenVert()
+end
+
 --Handles zone selection for main menu
 function ReStrat:onZoneSelected(wndHandler, wndControl)
 	local zoneName = wndHandler:GetText()
@@ -41,9 +40,9 @@ function ReStrat:onZoneSelected(wndHandler, wndControl)
 	
 	encounterList:DestroyChildren()
 	
-	for i,v in ipairs(self.tZones[zoneName]) do
+	for _,strEncounter in pairs(self.tZones[zoneName]) do
 		local encounterButton = Apollo.LoadForm(self.xmlDoc, "ItemEncounter", encounterList, self):FindChild("btnEncounter")
-		encounterButton:SetText(v)
+		encounterButton:SetText(strEncounter)
 	end
 	
 	encounterList:ArrangeChildrenVert()
@@ -52,22 +51,16 @@ end
 
 --Handles encounter selection for main menu
 function ReStrat:onEncounterSelected(wndHandler, wndControl)
-	local encounterName = wndHandler:GetText()
+	local strEncounter = wndHandler:GetText()
 	local moduleList = self.wndMain:FindChild("moduleList")
 	
 	moduleList:DestroyChildren()
 	
-	for k,v in pairs(self.tConfig[encounterName].tModules) do
+	for strModule,tModule in pairs(self.tConfig[strEncounter].tModules) do
 		local moduleButton = Apollo.LoadForm(self.xmlDoc, "ItemModule", moduleList, self):FindChild("btnModule")
-		
-		moduleButton:SetText(v.strLabel)
-		moduleButton:SetData({encounter = encounterName, module = k})
-		
-		--Gray out if disabled
-		if not self.tConfig[encounterName].tModules[k].bEnabled then
-			moduleButton:SetBGColor("vdarkgray")
-		end
-		
+		moduleButton:SetText(tModule.strLabel)
+		moduleButton:SetData({strEncounter = strEncounter, strModule = strModule})
+		moduleButton:SetBGColor(tModule.bEnabled and self.color.green or "vdarkgray")
 	end
 	
 	moduleList:ArrangeChildrenVert()
@@ -75,89 +68,60 @@ end
 
 --Handles module toggling
 function ReStrat:onModuleToggled(wndHandler, wndControl)
-	local encounterName = wndHandler:GetData().encounter
-	local moduleName = wndHandler:GetData().module
-	local bIsEnabled = self.tConfig[encounterName].tModules[moduleName].bEnabled
+	local tData = wndHandler:GetData()
+	local tModule = self.tConfig[tData.strEncounter].tModules[tData.strModule]
 	
-	if bIsEnabled then
-		self.tConfig[encounterName].tModules[moduleName].bEnabled = false
-		wndHandler:SetBGColor("vdarkgray")
+	tModule.bEnabled = not tModule.bEnabled
+	wndHandler:SetBGColor(tModule.bEnabled and self.color.green or "vdarkgray")
+end
+
+---------------------------------------------------------------------------------------------------
+-- Icons
+
+function ReStrat:onIconsToggle()
+	if not self.wndIcon then
+		self.wndIcon = Apollo.LoadForm(self.xmlDoc, "iconForm", nil, self)
+		
+		local iconList = self.wndIcon:FindChild("iconList")
+		local icons = MacrosLib.GetMacroIconList()
+		
+		for i = 0, #icons do
+			if icons[i] then
+				local icon = Apollo.LoadForm(self.xmlDoc, "iconPreview", iconList, self)
+				local iconWindow = icon:FindChild("IconContainer"):FindChild("Icon")
+				local iconStringContainer = icon:FindChild("ProgressBarContainer"):FindChild("macroString")
+				local iconBtn = icon:FindChild("ProgressBarContainer"):FindChild("btn_copyIconString")
+				iconBtn:SetActionData(GameLib.CodeEnumConfirmButtonType.CopyToClipboard, icons[i])
+				iconBtn:SetSprite("respr:bartex1")
+				
+				iconWindow:SetSprite(icons[i])
+				iconStringContainer:SetText(icons[i])
+			end
+		end
+	
+		iconList:ArrangeChildrenVert()
 	else
-		self.tConfig[encounterName].tModules[moduleName].bEnabled = true
-		wndHandler:SetBGColor(self.color.green)
+		self.wndIcon:Destroy()
+		self.wndIcon = nil
 	end
-
-
 end
 
 ---------------------------------------------------------------------------------------------------
--- mainForm Functions
----------------------------------------------------------------------------------------------------
+-- Settings
 
-function ReStrat:onClose()
-	self.wndMain:Close()
-end
-
----------------------------------------------------------------------------------------------------
--- iconForm Functions
----------------------------------------------------------------------------------------------------
-
-function ReStrat:onShowIcons()
-	self.wndIcon:Invoke() -- open macro window
-	
-	local iconList = self.wndIcon:FindChild("iconList")
-	local icons = MacrosLib.GetMacroIconList()
-	
-	for i = 0, #icons do
-		if icons[i] then
-			local icon = Apollo.LoadForm(self.xmlDoc, "iconPreview", iconList, self)
-			local iconWindow = icon:FindChild("IconContainer"):FindChild("Icon")
-			local iconStringContainer = icon:FindChild("ProgressBarContainer"):FindChild("macroString")
-			local iconBtn = icon:FindChild("ProgressBarContainer"):FindChild("btn_copyIconString")
-			iconBtn:SetActionData(GameLib.CodeEnumConfirmButtonType.CopyToClipboard, icons[i])
-			iconBtn:SetSprite("respr:bartex1")
-			
-			iconWindow:SetSprite(icons[i])
-			iconStringContainer:SetText(icons[i])
-		end
+function ReStrat:onSettingsToggle(wndControl, eMouseButton)
+	if not self.wndSettings then
+		self.wndSettings = Apollo.LoadForm(self.xmlDoc, "settingsForm", nil, self)
+	else
+		self.wndSettings:Destroy() 
+		self.wndSettings = nil
 	end
-
-	iconList:ArrangeChildrenVert()
-end
-
-function ReStrat:onCloseIcons()
-	local iconList = self.wndIcon:FindChild("iconList")
-	local icons = iconList:GetChildren()
-	
-	for i = 0, #icons do
-		if icons[i] then
-			icons[i]:Destroy()
-		end
-	end
-	
-	self.wndIcon:Close()
-end
-
----------------------------------------------------------------------------------------------------
--- settingsForm Functions
----------------------------------------------------------------------------------------------------
-
-function ReStrat:onSettingsShow(wndControl, eMouseButton)
-	self.wndSettings:Show(true, true)
 end
 
 function ReStrat:onToggleSettings(wndHandler, wndControl)
-	if wndControl:GetText() == "Enabled" then
-		wndControl:SetText("Disabled")
-		wndControl:SetBGColor(self.color.red)
-	else
-		wndControl:SetText("Enabled")
-		wndControl:SetBGColor(self.color.green)
-	end
-end
-
-function ReStrat:onCloseSettings()
-	self.wndSettings:Close()
+	local bEnabled = not (wndControl:GetText() == "Enabled")
+	wndControl:SetText(bEnabled and "Enabled" or "Disabled")
+	wndControl:SetBGColor(bEnabled and self.color.green or self.color.red)
 end
 
 function ReStrat:onToggleMoving(wndHandler, wndControl) --[TODO]: ugh
