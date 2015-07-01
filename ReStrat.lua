@@ -9,7 +9,7 @@ require "Sound"
 ReStrat = {
 	name = "ReStrat",
 	version = {1,4,17},
-	barSpacing = 9,
+
 	color = {
 		red = "ffb8413d",
 		orange = "ffdd7649",
@@ -124,8 +124,7 @@ function ReStrat:OnGameTick()
 			table.remove(self.tAlerts, i)           --in case the callback destroys other alerts and fucks up table indices
 			if callback then callback()	end
 			
-			--Reshuffle windows
-			self:arrangeBars(self.tAlerts)	
+			self.wndAlerts:ArrangeChildrenVert()
 		end
 	end
 end
@@ -156,7 +155,7 @@ function ReStrat:OnHealthTick()
 		else
 			self.tHealth[id].bar:Destroy()
 			self.tHealth[id] = nil
-			self:arrangeBars(self.tHealth)
+			self.wndHealthBars:ArrangeChildrenVert()
 		end
 	end
 end
@@ -274,16 +273,6 @@ end
 function ReStrat:OnUpdateResurrectDialog(bEnableRezHere, bEnableRezHoloCrypt, bEnableRezExitInstance, bEnableCasterRez)
 	if bEnableRezHoloCrypt then
 		ReStrat:Stop()
-	end
-end
-
---[TODO] make this a lot more customizable
-function ReStrat:arrangeBars(tBars)
-	local vOffset = 0
-	for _,tBar in pairs(tBars) do
-		local wndHeight = tBar.bar:GetHeight()		
-		tBar.bar:SetAnchorOffsets(0,vOffset,0,vOffset+wndHeight)
-		vOffset = vOffset + (wndHeight + self.barSpacing)
 	end
 end
 

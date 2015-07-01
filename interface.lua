@@ -26,23 +26,10 @@ function ReStrat:InitUI()
 			btnZone:SetData(k)
 		end
 		
-		ReStrat:arrangeChildren(zoneList)--]]
+		zoneList:ArrangeChildrenVert()--]]
 		
 		self.bLoaded = true
 	end	
-end
-
---Test arrange function
-function ReStrat:arrangeChildren(frm)
-	local tChildren = frm:GetChildren()
-	
-	for i=1,#tChildren do
-		local wndHeight = tChildren[i]:GetHeight()
-		local wndWidth = tChildren[i]:GetWidth()
-		local vOffset = (wndHeight + self.barSpacing)*(i-1) +  self.barSpacing
-		
-		tChildren[i]:SetAnchorOffsets(-wndWidth/2,vOffset,wndWidth/2,vOffset+wndHeight)
-	end
 end
 
 ---------------------------------------------------------------------------------------------------
@@ -62,7 +49,7 @@ function ReStrat:onZoneSelected(wndHandler, wndControl)
 		encounterButton:SetData(v)
 	end
 	
-	self:arrangeChildren(encounterList)
+	encounterList:ArrangeChildrenVert()
 end
 
 
@@ -86,7 +73,7 @@ function ReStrat:onEncounterSelected(wndHandler, wndControl)
 		
 	end--]]
 	
-	self:arrangeChildren(moduleList)
+	moduleList:ArrangeChildrenVert()
 end
 
 --Handles module toggling

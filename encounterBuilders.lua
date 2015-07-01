@@ -23,7 +23,7 @@ function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	tAlert = {bar = alertBar, name = strLabel, callback = fCallback, currDuration = duration, maxDuration = duration}		
 	
 	self.tAlerts[#self.tAlerts+1] = tAlert
-	self:arrangeBars(self.tAlerts)
+	self.wndAlerts:ArrangeChildrenVert()
 	
 	return tAlert
 end
@@ -46,11 +46,10 @@ function ReStrat:destroyAlert(name, bExecCallback)
 		local tAlert = self.tAlerts[i]
 		if tAlert.name == name then
 			if bExecCallback then tAlert.callback()	end
-				
-			--Destroy and reshuffle bars
+			
 			tAlert.bar:Destroy()
 			table.remove(self.tAlerts, i)
-			self:arrangeBars(self.tAlerts)
+			self.wndAlerts:ArrangeChildrenVert()
 		end
 	end
 end
@@ -74,7 +73,7 @@ function ReStrat:trackHealth(unit, strColor, strName)
 	self.tHealth[unit:GetId()] = {bar = wndBar, unit = unit, tCallbacks = {}}
 	
 	self:OnHealthTick()
-	self:arrangeBars(self.tHealth)
+	self.wndHealthBars:ArrangeChildrenVert()
 end
 
 --Destroy health bar
@@ -83,7 +82,7 @@ function ReStrat:untrackHealth(unit)
 	if self.tHealth[id] then
 		self.tHealth[id].bar:Destroy()
 		self.tHealth[id] = nil
-		self:arrangeBars(self.tHealth)
+		self.wndHealthBars:ArrangeChildrenVert()
 	end
 end
 
