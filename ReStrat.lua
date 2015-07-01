@@ -62,6 +62,9 @@ function ReStrat:OnLoad()
 	Apollo.RegisterSlashCommand("restrat", "OnReStrat", self)
 	Apollo.RegisterEventHandler("WindowManagementReady", "OnWindowManagementReady", self)
 
+	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
+	Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self)
+	
 	Apollo.RegisterEventHandler("UnitEnteredCombat",     "OnEnteredCombat",     self)
 	Apollo.RegisterEventHandler("PlayerResurrected",     "OnPlayerResurrected", self)
 	Apollo.RegisterEventHandler("ShowResurrectDialog", 	 "OnShowResurrectDialog",   self)
@@ -78,7 +81,7 @@ function ReStrat:OnLoad()
 
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraApplied",     "OnAuraApplied", self)
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraRemoved",     "OnAuraRemoved", self)
-	Apollo.RegisterEventHandler("_LCLF_SpellCastStart", "OnCastStart", self)
+	Apollo.RegisterEventHandler("_LCLF_SpellCastStart",       "OnCastStart", self)
 
 	--This timer delays stopping the fight until 7 seconds after the player gets out of combat
     --to allow i.e. spellslingers to voidslip without timers ripping
@@ -179,8 +182,8 @@ end
  
 function ReStrat:OnUnitCreated(unit)
 	local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
-	if tUnitTrigger and tUnitTrigger.fOnRespawnCallback then
-		tUnitTrigger.fOnSpawn()
+	if tUnitTrigger and tUnitTrigger.fOnSpawn then
+		tUnitTrigger.fOnSpawn(unit)
 	end
 end
 
@@ -188,7 +191,7 @@ function ReStrat:OnUnitDestroyed(unit)
 	-- This should use ids since the unit already exists...
 	local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
 	if tUnitTrigger and tUnitTrigger.fOnDespawn then
-		tUnitTrigger.fOnDespawn()
+		tUnitTrigger.fOnDespawn(unit)
 	end
 
 	ReStrat:untrackHealth(unit)
@@ -221,16 +224,11 @@ function ReStrat:OnEnteredCombat(unit, combat)
 end
 
 function ReStrat:RegisterCombatEvents()
-	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
-	Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self)
-	Apollo.RegisterEventHandler("ChatMessage",           "OnChatMessage",       self)
-	
+	Apollo.RegisterEventHandler("ChatMessage", "OnChatMessage", self)
 end
 
 function ReStrat:UnregisterCombatEvents()
-	Apollo.RemoveEventHandler("UnitCreated",    self)
-	Apollo.RemoveEventHandler("UnitDestroyed",  self)
-	Apollo.RemoveEventHandler("ChatMessage",    self)
+	Apollo.RemoveEventHandler("ChatMessage", self)
 end
 
 function ReStrat:Start()
@@ -255,7 +253,6 @@ function ReStrat:Stop()
 	self.tWatchedAuras = {}
 	self.tWatchedCasts = {}
 	self.tEncounterVariables = {}
-	self.tUnitTriggers = {}
 	self.tSpellTriggers = {}
 	self.tAuraTriggers = {}
 	self.tShortcutBars = {}
