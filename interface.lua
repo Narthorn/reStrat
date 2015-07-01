@@ -7,10 +7,10 @@
 --UI Init
 function ReStrat:InitUI()
 	if not self.bLoaded then
-		--[[local zoneList = self.wndMain:FindChild("zoneList")
+		local zoneList = self.wndMain:FindChild("zoneList")
 		
 		--Go through our encounters and populate zone list
-		for k,v in pairs(self.tEncounters) do
+		for k,v in pairs(self.tConfig) do
 			--Create the list
 			if not self.tZones[v.strCategory] then
 				self.tZones[v.strCategory] = {}
@@ -23,10 +23,9 @@ function ReStrat:InitUI()
 		for k,v in pairs(self.tZones) do
 			local btnZone = Apollo.LoadForm(self.xmlDoc, "ItemZone", zoneList, self):FindChild("btnZone")
 			btnZone:SetText(k)
-			btnZone:SetData(k)
 		end
 		
-		zoneList:ArrangeChildrenVert()--]]
+		zoneList:ArrangeChildrenVert()
 		
 		self.bLoaded = true
 	end	
@@ -37,16 +36,14 @@ end
 ---------------------------------------------------------------------------------------------------
 --Handles zone selection for main menu
 function ReStrat:onZoneSelected(wndHandler, wndControl)
-	local zoneName = wndHandler:GetData()
+	local zoneName = wndHandler:GetText()
 	local encounterList = self.wndMain:FindChild("encounterList")
 	
 	encounterList:DestroyChildren()
 	
 	for i,v in ipairs(self.tZones[zoneName]) do
 		local encounterButton = Apollo.LoadForm(self.xmlDoc, "ItemEncounter", encounterList, self):FindChild("btnEncounter")
-		
 		encounterButton:SetText(v)
-		encounterButton:SetData(v)
 	end
 	
 	encounterList:ArrangeChildrenVert()
@@ -55,40 +52,41 @@ end
 
 --Handles encounter selection for main menu
 function ReStrat:onEncounterSelected(wndHandler, wndControl)
-	local encounterName = wndHandler:GetData()
+	local encounterName = wndHandler:GetText()
 	local moduleList = self.wndMain:FindChild("moduleList")
 	
 	moduleList:DestroyChildren()
 	
-	--[[for k,v in pairs(self.tEncounters[encounterName].tModules) do
+	for k,v in pairs(self.tConfig[encounterName].tModules) do
 		local moduleButton = Apollo.LoadForm(self.xmlDoc, "ItemModule", moduleList, self):FindChild("btnModule")
 		
 		moduleButton:SetText(v.strLabel)
 		moduleButton:SetData({encounter = encounterName, module = k})
 		
 		--Gray out if disabled
-		if not self.tEncounters[encounterName].tModules[k].bEnabled then
+		if not self.tConfig[encounterName].tModules[k].bEnabled then
 			moduleButton:SetBGColor("vdarkgray")
 		end
 		
 	end
 	
-	moduleList:ArrangeChildrenVert()--]]
+	moduleList:ArrangeChildrenVert()
 end
 
 --Handles module toggling
 function ReStrat:onModuleToggled(wndHandler, wndControl)
 	local encounterName = wndHandler:GetData().encounter
 	local moduleName = wndHandler:GetData().module
-	local bIsEnabled = self.tEncounters[encounterName].tModules[moduleName].bEnabled
+	local bIsEnabled = self.tConfig[encounterName].tModules[moduleName].bEnabled
 	
 	if bIsEnabled then
-		self.tEncounters[encounterName].tModules[moduleName].bEnabled = false
+		self.tConfig[encounterName].tModules[moduleName].bEnabled = false
 		wndHandler:SetBGColor("vdarkgray")
 	else
-		self.tEncounters[encounterName].tModules[moduleName].bEnabled = true
+		self.tConfig[encounterName].tModules[moduleName].bEnabled = true
 		wndHandler:SetBGColor(self.color.green)
 	end
+
 
 end
 

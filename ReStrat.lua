@@ -26,6 +26,7 @@ ReStrat = {
 	tWatchedCasts = {},
 	tWatchedAuras = {},
 	tZones = {},
+	tConfig = {},
 	combatTimer = nil,
 	combatStarted = nil,
 	combatLog = {},
