@@ -83,14 +83,6 @@ function ReStrat:OnLoad()
 	Apollo.RegisterEventHandler("_LCLF_SpellAuraRemoved",     "OnAuraRemoved", self)
 	Apollo.RegisterEventHandler("_LCLF_SpellCastStart", "OnCastStart", self)
 
-	--This timer drives alerts and combat time
-	self.gameTimer = ApolloTimer.Create(0.1, true, "OnGameTick", self)
-	self.gameTimer:Stop()
-	
-	--This timer drives health bar updates
-	self.healthTimer = ApolloTimer.Create(0.5, true, "OnHealthTick", self)
-	self.healthTimer:Stop()
-
 	--This timer delays stopping the fight until 7 seconds after the player gets out of combat
     --to allow i.e. spellslingers to voidslip without timers ripping
 	self.outofcombatTimer = ApolloTimer.Create(7, false, "OnCombatTimeout", self)
@@ -188,23 +180,14 @@ function ReStrat:OnUnitDestroyed(unit)
 end
 
 function ReStrat:OnEnteredCombat(unit, combat)
-	if unit:IsInYourGroup() then
-		if combat then 
-			self:Start()
-		elseif not self:IsGroupInCombat() then
-			self:Stop()
-		end
-	elseif unit:IsThePlayer() then
-		if combat then
-			self:Start()
-		else
-			self.outofcombatTimer:Start()
-		end
+	if     unit:IsInYourGroup() and not self:IsGroupInCombat() then self:Stop()
+	elseif unit:IsThePlayer()   and not combat then self.outofcombatTimer:Start() 
 	else
 		--If combat starts, init unit profile
 		if combat then
 			local tProfile = self.tEncounters[unit:GetName()] 
 			if tProfile then
+				self:Start()
 				-- FIXME?: need to track health before init 
 				if tProfile.trackHealth and not self.tHealth[unit:GetId()] then
 					self:trackHealth(unit, tProfile.trackHealth)
@@ -227,6 +210,8 @@ function ReStrat:OnEnteredCombat(unit, combat)
 			end
 			
 			ReStrat:destroyPin(unit)
+			ReStrat:untrackHealth(unit)
+			if not self:IsGroupInCombat() then self:Stop() end
 		end
 	end
 end
@@ -245,12 +230,13 @@ function ReStrat:UnregisterCombatEvents()
 end
 
 function ReStrat:Start()
-	ReStrat:Stop() -- need to check why Start() fires multiple times without matching Stop()
-	self:RegisterCombatEvents()
-	self.combatStarted = GameLib.GetGameTime()
-	self.gameTimer:Start()
-	self.healthTimer:Start()
-	self.outofcombatTimer:Stop()
+	if not self.gameTimer then
+		self:RegisterCombatEvents()
+		self.combatStarted = GameLib.GetGameTime()
+		self.gameTimer = ApolloTimer.Create(0.1, true, "OnGameTick", self)
+		self.healthTimer = ApolloTimer.Create(0.5, true, "OnHealthTick", self)
+		self.outofcombatTimer:Stop()
+	end
 end
 
 function ReStrat:Stop()
@@ -274,8 +260,8 @@ function ReStrat:Stop()
 	self.tPins = {}
 	self.tLandmarks = {}
 	
-	self.healthTimer:Stop()
-	self.gameTimer:Stop()
+	self.healthTimer = nil
+	self.gameTimer = nil
 end
 
 function ReStrat:IsGroupInCombat()
