@@ -201,8 +201,6 @@ function ReStrat:OnEnteredCombat(unit, combat)
 			self.outofcombatTimer:Start()
 		end
 	else
-		local id = unit:GetId()
-
 		--If combat starts, init unit profile
 		if combat then
 			local tProfile = self.tEncounters[unit:GetName()] 
@@ -224,10 +222,10 @@ function ReStrat:OnEnteredCombat(unit, combat)
 		else
 			-- Unit death trigger
 			local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
-			if (unit:GetHealth() == 0 or unit:IsDead()) and tUnitTrigger and tUnitTrigger.fDeathFunction then
+			if tUnitTrigger and tUnitTrigger.fDeathFunction and (unit:GetHealth() == 0 or unit:IsDead()) then
 				tUnitTrigger.fDeathFunction(unit)
 			end
-
+			
 			ReStrat:destroyPin(unit)
 		end
 	end
