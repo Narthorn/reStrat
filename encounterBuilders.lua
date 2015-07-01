@@ -177,15 +177,9 @@ end
 
 --Checks if the specified mob is casting ANYTHING
 --strCast is entirely optional, if it isn't there we check for ANYTHING being cast
-function ReStrat:isCasting(strUnit, strCast)
-	for id,tUnit in pairs(self.tUnits) do
-		if tUnit.name == strUnit then
-			if (strCast and tUnit.unit.GetCastName() == strCast) -- specific cast
-			or (not strCast and tUnit.unit.IsCasting())          -- any cast
-			then return true end
-		end
-	end
-	return false
+function ReStrat:isCasting(unit, strCast)
+	return (strCast and unit:GetCastName() == strCast) -- specific cast
+		or (not strCast and unit:IsCasting())          -- any cast
 end
 
 --Adds the requested spell into the checklist
