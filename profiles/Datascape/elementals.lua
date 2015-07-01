@@ -183,7 +183,7 @@ local function LifeFireInit()
 	end
 	
 	local function MidphaseEndCheck()
-		for id, tUnit in ReStrat.tUnits do
+		for id, tUnit in ReStrat.tUnits do --FIXME no longer tracking all units
 			if tUnit:IsValid() and tUnit.strName == "Essence of Life" and tUnit.bActive == true then
 				return -- still one orb up, no midphase end
 			end
@@ -193,9 +193,10 @@ local function LifeFireInit()
 		ReStrat:destroyAlert(tWavesParams.strName)
 		ReStrat:createAlert("Midphase", 90, nil, ReStrat.color.green, Midphase)
 	end
+
 	
 	ReStrat:createAlert("Midphase", 90, nil, ReStrat.color.green, Midphase)
-	ReStrat:onUnitDeath("Essence of Life", MidphaseEndCheck)
+	--ReStrat:createUnitTrigger("Essence of Life", nil, MidphaseEndCheck)
 	ReStrat:createPinFromAura("Primal Entanglement")
 end
 

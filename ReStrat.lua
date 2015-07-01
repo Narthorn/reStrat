@@ -161,18 +161,17 @@ function ReStrat:OnHealthTick()
 end
  
 function ReStrat:OnUnitCreated(unit)
-	-- Unit respawn trigger
 	local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
 	if tUnitTrigger and tUnitTrigger.fOnRespawnCallback then
-		tUnitTrigger.fOnRespawnCallback()
+		tUnitTrigger.fOnSpawn()
 	end
 end
 
 function ReStrat:OnUnitDestroyed(unit)
-	-- Unit despawn trigger
+	-- This should use ids since the unit already exists...
 	local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
-	if tUnitTrigger and tUnitTrigger.fOnDespawnCallback then
-		tUnitTrigger.fOnDespawnCallback()
+	if tUnitTrigger and tUnitTrigger.fOnDespawn then
+		tUnitTrigger.fOnDespawn()
 	end
 
 	ReStrat:untrackHealth(unit)
@@ -195,20 +194,8 @@ function ReStrat:OnEnteredCombat(unit, combat)
 				if tProfile.fInitFunction then tProfile.fInitFunction(unit) end
 			end
 
-			-- Unit init trigger
-			local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
-			if tUnitTrigger and tUnitTrigger.fInitFunction then
-				tUnitTrigger.fInitFunction(unit)
-			end
-
 		-- If combat ends, remove unit
 		else
-			-- Unit death trigger
-			local tUnitTrigger = self.tUnitTriggers[unit:GetName()]
-			if tUnitTrigger and tUnitTrigger.fDeathFunction and (unit:GetHealth() == 0 or unit:IsDead()) then
-				tUnitTrigger.fDeathFunction(unit)
-			end
-			
 			ReStrat:destroyPin(unit)
 			ReStrat:untrackHealth(unit)
 			if not self:IsGroupInCombat() then self:Stop() end

@@ -189,21 +189,10 @@ function ReStrat:onPlayerHit(strSpell, strUnitSource, nCooldown, fCallback)
 	self.tSpellTriggers[#self.tSpellTriggers] = {source = strUnitSource, spell = strSpell, cooldown = nCooldown, callback = fCallback}
 end
 
---deprecate for createUnitTrigger
-function ReStrat:onUnitDeath(strUnit, fCallback)
-	if not self.tUnitTriggers[strUnit] then
-		self.tUnitTriggers[strUnit] = {}
-	end
-
-	self.tUnitTriggers[strUnit].fDeathFunction = fCallback
-end
-
-function ReStrat:createUnitTrigger(strUnit, fInitCallback, fDeathCallback, fDespwanCallback, fRespawnCallback)
+function ReStrat:createUnitTrigger(strUnit, fOnSpawn, fOnDespawn)
 	self.tUnitTriggers[strUnit] = {
-		fInitFunction = fInitCallback,
-		fDeathFunction = fDeathCallback,
-		fDespawnFunction = fDespwanCallback,
-		fRespawnFunction = fRespawnCallback
+		fOnSpawn = fOnSpawn,
+		fOnDespawn = fOnDespawn
 	}
 end
 
