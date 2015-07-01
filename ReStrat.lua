@@ -86,6 +86,27 @@ function ReStrat:OnLoad()
 	self.outofcombatTimer:Stop()
 end
 
+function ReStrat:OnSave(eLevel)
+	if eLevel ~= GameLib.CodeEnumAddonSaveLevel.Character then return end
+	return {version = self.version, tConfig = self.tConfig}
+end
+
+function ReStrat:OnRestore(eLevel, tData)
+	if eLevel ~= GameLib.CodeEnumAddonSaveLevel.Character then return end
+	if tData.tConfig then
+		for strEncounter,tSavedEncounter in pairs(tData.tConfig) do
+			local tEncounter = self.tConfig[strEncounter] 
+			if tEncounter and tEncounter.version > tSavedEncounter.version then
+				if tEncounter.fUpdate then
+					self.tConfig[strEncounter] = tEncounter.fUpdate(tSavedEncounter)
+				end
+			else
+				self.tConfig[strEncounter] = tSavedEncounter
+			end
+		end
+	end
+end
+
 -----------------------------------------------------------------------------------------------
 -- ReStrat Functions
 -----------------------------------------------------------------------------------------------
