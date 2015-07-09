@@ -23,7 +23,8 @@ local tSafeZones = {
 		{{vPos = Vector3.New(1315.47,-800.50,875.31)},{vPos = Vector3.New(1290.16,-800.50,919.29)}},
 	},
 	Laser = {
-		{{vPos = Vector3.New(3,0,5)}, {vPos = Vector3.New(20,0,5)}, {vPos = Vector3.New(40,0,5)}, {vPos = Vector3.New(60,0,5)}},
+		{vPos = Vector3.New(60,0,5)}, {vPos = Vector3.New(40,0,5)}, {vPos = Vector3.New(20,0,5)}, {vPos = Vector3.New(3,0,5)},
+		{vPos = Vector3.New(3,0,-5)}, {vPos = Vector3.New(20,0,-5)}, {vPos = Vector3.New(40,0,-5)}, {vPos = Vector3.New(60,0,-5)},
 	},
 }
 
@@ -140,14 +141,15 @@ end }
 
 function incineratorInit(unit)
 	if ReStrat.tConfig["Augmentors"].tModules.LaserLine.bEnabled then
-		local tPath = ReStrat.DrawLib:Path(tSafeZones.Laser[1],	{nLineWidth = 8, crLineColor = ReStrat.color.yellow, bOutline = true})
+		local tStyle = {nLineWidth = 8, crLineColor = "red", bOutline = true}
+		local tPath = ReStrat.DrawLib:Path(tSafeZones.Laser, tStyle)
 		tPath.unit = unit
 		ReStrat:createAuraTrigger(nil, "Degeneration", function() 
 			if not ReStrat.tEncounterVariables.tmrRevert then
-				local crOld = tPath.tStyle.crLineColor 
-				tPath.tStyle.crLineColor = ReStrat.color.green
+				local crOld = tStyle.crLineColor 
+				tStyle.crLineColor = ReStrat.color.green
 				ReStrat.tEncounterVariables.tmrRevert = ApolloTimer.Create(5, false, "OnRevert", { OnRevert = function() 
-					tPath.tStyle.crLineColor = crOld
+					tStyle.crLineColor = crOld
 					ReStrat.tEncounterVariables.tmrRevert = nil
 				end})
 			end
