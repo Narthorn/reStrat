@@ -134,7 +134,7 @@ local function LifeAirInit()
 		ReStrat.tEncounterVariables.fThorns = nil
 		ReStrat:createAlert("Midphase", 34.5, "Icon_SkillStalker_Maelstrom", ReStrat.color.purple, DpsPhase)
 	end
-	ReStrat:createAuraAlert(nil, "Twirl")
+	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Twirl")
 	ReStrat:createAlert("Midphase", 90, "Icon_SkillStalker_Maelstrom", ReStrat.color.purple, MidPhase)
 			
 	-- not sure about life orbs/discoball cooldowns, alternating casts every 12s is a rough approximation
