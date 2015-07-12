@@ -134,16 +134,15 @@ local function LifeAirInit()
 		ReStrat.tEncounterVariables.fThorns = nil
 		ReStrat:createAlert("Midphase", 34.5, "Icon_SkillStalker_Maelstrom", ReStrat.color.purple, DpsPhase)
 	end
-		
+	ReStrat:createAuraAlert(nil, "Twirl")
 	ReStrat:createAlert("Midphase", 90, "Icon_SkillStalker_Maelstrom", ReStrat.color.purple, MidPhase)
 			
 	-- not sure about life orbs/discoball cooldowns, alternating casts every 12s is a rough approximation
 	
 	local function LifeOrbs() ReStrat:createAlert("Next: Life Orbs", 2.5, nil, ReStrat.color.blue) end
 	local function BlindingLight() ReStrat:createAlert("Next: Blinding Light", 9, nil, ReStrat.color.blue) end
-	ReStrat:createCastAlert("Visceralus", "Blinding Light", nil, nil, ReStrat.color.blue, LifeOrbs)
-	ReStrat:createCastAlert("Visceralus", "Life Orbs", nil, nil, ReStrat.color.blue, BlindingLight)
-	
+	ReStrat:createCastAlert("Visceralus", "Blinding Light", nil, nil, ReStrat.color.blue, LifeOrbs, nil, true)
+	ReStrat:createCastAlert("Visceralus", "Life Orbs", nil, nil, ReStrat.color.blue, BlindingLight, nil, true)
 	-- Tree lines
 	
 	ReStrat:createUnitTrigger("Lifekeeper", function(unit) DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit) end)
@@ -209,6 +208,9 @@ end
 local function WaterLogicInit() 
 	local function MidPhase(timer)
 		ReStrat:createAlert("Midphase", timer, "Icon_SkillStalker_Maelstrom", ReStrat.color.blue, nil)
+		if timer == 83 then
+			ReStrat:createAlert("Next Imprison", 22.5, nil, ReStrat.color.purple, nil)
+		end
 	end
 	
 	ReStrat:createPinFromAura("Data Disruptor")
@@ -219,10 +221,21 @@ local function WaterLogicInit()
 	--ReStrat:createCastTrigger("Mnemesis", "Imprison", impPop)
 	ReStrat:createCastAlert("Mnemesis", "Imprison", nil, nil, ReStrat.color.yellow, nil, impPop, true)
 	ReStrat:createAlert("Next Imprison", 31, nil, ReStrat.color.purple, nil)
-	
+
 	MidPhase(75)
 	ReStrat:createCastAlert("Mnemesis", "Circuit Breaker", nil, nil, ReStrat.color.green, function() MidPhase(83) end)
-	
+
+
+	local function defragcd()
+		ReStrat:createAlert("Next Defrag", 27, "Icon_SkillEnergy_UI_srcr_surgeengine", ReStrat.color.orange, nil)
+	end
+	local function defragpop()
+		ReStrat:createPop("Defrag!")
+	end
+	ReStrat:createAlert("First Defrag", 16, "Icon_SkillEnergy_UI_srcr_surgeengine", ReStrat.color.orange, nil)
+	ReStrat:createCastAlert("Mnemesis", "Defragment", 9, "Icon_SkillEnergy_UI_srcr_surgeengine", ReStrat.color.orange, defragcd, defragpop)
+	--ReStrat:createCastAlert(strUnit, strCast, duration_i, strIcon_i, color_i, fCallback_i, fCallbackStart, bSkipActivatedCheck)
+
 	--ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
 end
 
