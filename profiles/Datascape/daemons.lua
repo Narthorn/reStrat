@@ -7,7 +7,7 @@
 -----------------------------------------------------------------------------
 
 
-function ReStrat:daemonInit(unit)
+function ReStrat:daemonInit(unit) --TODO HP Trigger
 	if ReStrat:IsActivated("Binary System Daemon", "Pin on Daemons (N and S)") then
 		if unit:GetName() == "Null System Daemon" then
 			ReStrat:createPin("S", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
@@ -19,6 +19,13 @@ function ReStrat:daemonInit(unit)
 	end
 	
 	local pillarphase = 0
+	local function pushPop() --TODO UI check and sound
+		ReStrat:createPop("Pillars Soon!")
+	end
+	ReStrat:createHpTrigger("Null System Daemon", 10520000, pushPop)
+	ReStrat:createHpTrigger("Null System Daemon", 4720000, pushPop)
+	ReStrat:createHpTrigger("Binary System Daemon", 10520000, pushPop)
+	ReStrat:createHpTrigger("Binary System Daemon", 4720000, pushPop)
 	
 	nulld = "Null System Daemon"
 	binaryd = "Binary System Daemon"
@@ -47,7 +54,8 @@ function ReStrat:daemonInit(unit)
 				end
 			end
 			if ReStrat.tEncounterVariables.afterphase2 == true then
-				if ReStrat.tEncounterVariables.waves == 2 then
+				--Print(ReStrat.tEncounterVariables.waves)
+				if ReStrat.tEncounterVariables.waves == 2 or ReStrat.tEncounterVariables.waves == 3 then
 					ReStrat.tEncounterVariables.waves = 0 -- Clear our counter
 					ReStrat:createPop("Big add!", nil)
 					ReStrat:Sound("Sound\\bigadd.wav")
@@ -178,7 +186,6 @@ function ReStrat:daemonInit(unit)
 			ReStrat:createPop("Pillar phase!", nil)
 			ReStrat:Sound("Sound\\pillar.wav")
 			ReStrat:destroyAllAlerts()
-			
 			if ReStrat.tEncounterVariables.waves == 0 then
 				ReStrat:createAlert("Next Add Wave (Small)", 95, nil, ReStrat.color.green, AddWaves)
 			else

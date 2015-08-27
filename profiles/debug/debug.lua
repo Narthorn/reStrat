@@ -16,7 +16,7 @@ function ReStrat:profileDebug(unit)
 	bombtot = 10
 	
 	ReStrat:createPin("Enemy", unit, "Crafting_RunecraftingSprites:sprRunecrafting_Fire_Colored")
-	DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit, self.color.green)
+	ReStrat.DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit, self.color.green)
 	
 	ReStrat:createLandmark("E", {1423, -709, 1387}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
 	ReStrat:createLandmark("N", {1416, -709, 1400}, nil, "Subtitle")

@@ -3,10 +3,64 @@
 -- FUCKING HYPE
 -----------------------------------------------------------------------------
 function ReStrat:avatusInit(unit) -- also lattice for some reason
+	ReStrat:createLandmark("N", {618, -198, -235 }, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+	ReStrat:createLandmark("S", {618, -198, -114 }, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+
+	self.tKeyRed = {}
+	self.tKeyGreen = {}
+	self.tKeyBlue = {}
+
+	local function yellowInit(unit)
+		if unit:GetDispositionTo(GameLib.GetPlayerUnit()) == 0 then -- portal to yellow room has same name
+			ReStrat:trackHealth(unit, ReStrat.color.yellow)
+			local function blindyellow()
+				ReStrat:createPop("Flare!", nil)
+			end
+			ReStrat:createCastTrigger("Mobius Physics Constructor", "Data Flare", blindyellow)
+		end
+	end
+	ReStrat:createUnitTrigger("Mobius Physics Constructor", yellowInit)
+	local function blueInit(strSpellKey)
+
+			local playerColor = strSpellKey:match("%w+") -- only the first word of "Green/Blue/Red Matrix Key"
+
+			local function Matrix(color)
+				ReStrat:createPop(color .. " Disruption Matrix !")
+				if color == playerColor then
+					ReStrat:createPop(color .. " Disruption Matrix !")
+					ReStrat:Sound("Sound\\quack.wav")
+				end
+			end
+
+			ReStrat:createAuraAlert("Infinite Logic Loop", "Blue Disruption Matrix", 0, nil, function() Matrix("Blue") end) 
+			ReStrat:createAuraAlert("Infinite Logic Loop", "Green Reconstitution Matrix", 0, nil, function() Matrix("Green") end) 
+			ReStrat:createAuraAlert("Infinite Logic Loop", "Red Empowerment Matrix", 0, nil, function() Matrix("Red") end) 
+				
+			ReStrat:createPinFromAura("Disruption Matrix Distortion")
+	end
+	ReStrat:createActionBarTrigger("Red Matrix Key", blueInit)
+	ReStrat:createActionBarTrigger("Green Matrix Key", blueInit)
+	ReStrat:createActionBarTrigger("Blue Matrix Key", blueInit)
+	
+	local function portalRoomBlue()
+		local function redChat(strSender)
+			self.tKeyRed[#self.tKeyRed+1] = strSender
+		end
+		local function blueChat(strSender)
+			self.tKeyBlue[#self.tKeyBlue+1] = strSender
+		end
+		local function greenChat(strSender)
+			self.tKeyGreen[#self.tKeyGreen+1] = strSender
+		end
+		ReStrat:OnPartychron("red", redChat)
+		ReStrat:OnPartychron("green", greenChat)
+		ReStrat:OnPartychron("blue", blueChat)
+	end
+	ReStrat:createUnitTrigger("Infinite Logic Loop", portalRoomBlue)
+	ReStrat:trackHealth(unit, ReStrat.color.red)
 	if not ReStrat.tEncounterVariables.firstPhase then
-		local disthand1, disthand2, hand1id, hand2id, currenthandid
-		local nHands = 0
-		ReStrat:trackHealth(unit, ReStrat.color.red)
+		local nHands = 1
+		
 		ReStrat.tEncounterVariables.firstPhase = true
 
 		ReStrat:createAlert("Gun Grid", 20, "Icon_SkillEngineer_Target_Acquistion", ReStrat.color.red)
@@ -27,37 +81,10 @@ function ReStrat:avatusInit(unit) -- also lattice for some reason
 		end)
 		
 		local function handspawn(unit)
-			local currenthandid = unit:GetId()
-			--Print("current: " .. currenthandid)
-			--if hand1id then
-			--	Print("hand1id: " .. hand1id)
-			--end
-			--if hand2id then
-			--	Print("hand2id: " .. hand2id)
-			--end
-			--Print("nHands: " .. nHands)
-			if nHands == 0 and currenthandid ~= hand1id and currenthandid ~= hand2id then -- first hand
-				ReStrat:createPin("1", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
-				ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand 1")
+			if ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand #" .. nHands) == true then
+				ReStrat:createPin(nHands, unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
 				nHands = nHands + 1
-				local hand1unit = unit
-				hand1id = unit:GetId()
-			elseif nHands == 1 and currenthandid ~= hand1id and currenthandid ~= hand2id then -- second hand
-				ReStrat:createPin("2", unit, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
-				ReStrat:trackHealth(unit, ReStrat.color.orange, "Hand 2")
-				nHands = nHands + 1
-				hand2id = unit:GetId()
-				local hand2unit = unit
-			else
-				avdsc = "sdf"
 			end
-
-
-			--Print("X: " .. tPos.x)
-			--Print("Y: " .. tPos.y)
-			--Print("Z: " .. tPos.z)
-			--1 628, -198, -156
-			--2 627, -198, -191
 		end
 		ReStrat:createUnitTrigger("Holo Hand", handspawn)
 
@@ -83,33 +110,78 @@ function ReStrat:avatusInit(unit) -- also lattice for some reason
 	end
 end
 
-function ReStrat:yellowInit()
-	ReStrat:createCastTrigger("Mobius Physics Constructor", "Data Flare", function()
-		ReStrat:createPop("Flare !", nil)
-		ReStrat:Sound("Sound\\quack.wav")
-	end)
-end
-
-function ReStrat:blueInit(unit)
-	if unit:GetDispositionTo(GameLib.GetPlayerUnit()) == 0 then -- portal to blue room has same name
-		local playerColor = ReStrat.tShortcutBars[7][1].spell:GetName():match("%w+") -- only the first word of "Green/Blue/Red Matrix Key"
-	
-		local function Matrix(color)
-			if color == playerColor then
-				ReStrat:createPop(color .. " Disruption Matrix !")
-				ReStrat:Sound("Sound\\quack.wav")
-			end
+function ReStrat:blueRoom(unit)
+	if unit:GetDispositionTo(GameLib.GetPlayerUnit()) == 0 then
+		Print("blue fight started")
+		local function __genOrderedIndex(t)
+		    local orderedIndex = {}
+		    for key in pairs(t) do
+		        table.insert( orderedIndex, key )
+		    end
+		    table.sort( orderedIndex )
+		    return orderedIndex
 		end
 
-		ReStrat:createAuraAlert("Infinite Logic Loop", "Blue Disruption Matrix", 0, nil, function() Matrix("Blue") end) 
-		ReStrat:createAuraAlert("Infinite Logic Loop", "Green Reconstitution Matrix", 0, nil, function() Matrix("Green") end) 
-		ReStrat:createAuraAlert("Infinite Logic Loop", "Red Empowerment Matrix", 0, nil, function() Matrix("Red") end) 
-	
-		ReStrat:createPinFromAura("Disruption Matrix Distortion")
+		local function orderedNext(t, state)
+		    -- Equivalent of the next function, but returns the keys in the alphabetic
+		    -- order. We use a temporary ordered key table that is stored in the
+		    -- table being iterated.
+
+		    if state == nil then
+		        -- the first time, generate the index
+		        t.__orderedIndex = __genOrderedIndex( t )
+		        key = t.__orderedIndex[1]
+		        return key, t[key]
+		    end
+		    -- fetch the next value
+		    key = nil
+		    for i = 1,table.getn(t.__orderedIndex) do
+		        if t.__orderedIndex[i] == state then
+		            key = t.__orderedIndex[i+1]
+		        end
+		    end
+
+		    if key then
+		        return key, t[key]
+		    end
+
+		    -- no more value to return, cleanup
+		    t.__orderedIndex = nil
+		    return
+		end
+
+		local function orderedPairs(t)
+  		  -- Equivalent of the pairs() function on tables. Allows to iterate
+  		  -- in order
+  		  return orderedNext, t, nil
+		end
+--TODO better ordering
+		local strRed = "Red Buffs: "
+		for key, value in pairs(self.tKeyRed) do
+            strRed = strRed .. " - " .. tostring(key) .. ". " .. value
+        end
+		Print(strRed)
+
+		local strBlue = "Blue Buffs: "
+		for key, value in pairs(self.tKeyBlue) do
+            strBlue = strBlue .. " - " .. tostring(key) .. ". " .. value
+        end
+		Print(strBlue)
+
+		local strGreen = "Green Buffs: "
+		for key, value in pairs(self.tKeyGreen) do
+            strGreen = strGreen .. " - " .. tostring(key) .. ". " .. value
+        end
+		Print(strGreen)
 	end
 end
 
-function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
+
+
+
+
+
+function ReStrat:latticeInit() 
 	oblit = 0
 	firstbeam = false
 
@@ -144,7 +216,7 @@ function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
 	-- jumppphase
 	local function jumpphase()
 		ReStrat:destroyAllAlerts()
-		ReStrat:createAlert("Get Buff and Jump!", 18.83, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
+		ReStrat:createAlert("Get Buff and Jump!", 18.53, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
 			ReStrat:createAlert("Jump!", 7.2, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
 				ReStrat:createAlert("Jump!", 6, "Icon_SkillShadow_UI_stlkr_shadowdash", ReStrat.color.green, function()
 
@@ -178,6 +250,19 @@ function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
 	ReStrat:OnDatachron("Avatus prepares to delete all data!", deletealldata)
 
 
+	--add casts
+	local function bufferPop(unit) --TODO UI check
+		if ReStrat:dist2unit(GameLib.GetPlayerUnit, uni) < 32 then
+			ReStrat:createPop("Data Buffer!")
+		end
+	end
+	local function nullPop(unit)
+		if ReStrat:dist2unit(GameLib.GetPlayerUnit, uni) < 32 then
+			ReStrat:createPop("Nullify!")	
+		end
+	end
+	ReStrat:createCastTrigger("Obstinate Logic Wall", "Data Buffer", bufferPop)
+	ReStrat:createCastTrigger("Obstinate Logic Wall", "Nullify", nullPop)
 	
 
 	-- spreadphase
@@ -196,15 +281,20 @@ function ReStrat:latticeInit() -- TODO adjust timer and fix repeat not working
 		end)
 	end)
 	
-	
+	local function wallSpawn(unit) --TODO test wall hp tracking
+		ReStrat:trackHealth(unit, ReStrat.color.green)
+	end
+	--ReStrat:createUnitTrigger("Wall", wallSpawn)
+	--ReStrat:onPlayerHit("Obliterate", "Avatus", 10, wallSpawn)
+	ReStrat:onHeal("Wall", 10, wallSpawn)
 	ReStrat:createAuraAlert(nil, "Mark of Enmity", nil, "Icon_SkillEngineer_Code_Red", nil)
 end
 
 
 
 function ReStrat:devourerInit(unit)
-	if self:IsActivated("Avatus", "Lines to Devourers") then
-		DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit, ReStrat.color.orange)
+	if self:IsActivated("Avatus", "Lines to Devourers") and ReStrat:dist2unit(GameLib.GetPlayerUnit(), unit) < 60 then
+		ReStrat.DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit, ReStrat.color.orange)
 	end
 end
 
@@ -213,6 +303,9 @@ function ReStrat:latticeEvent(tEventObj)
 		ReStrat:trackEvent(tEventObj, self.color.yellow, "Exit Power")
 	end	
 end
+
+
+
 
 
 ReStrat.tEncounters["Avatus"] = {
@@ -233,4 +326,10 @@ ReStrat.tEncounters["Avatus"] = {
 			bEnabled = true,
 		},
 	},
+}
+
+ReStrat.tEncounters["Infinite Logic Loop"] = {
+	strCategory = "Not Important",
+	trackHealth = ReStrat.color.blue,
+	tModules = {},
 }

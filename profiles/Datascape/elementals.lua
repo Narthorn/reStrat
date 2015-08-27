@@ -28,6 +28,7 @@ end
 
 local function EarthAirInit()
 
+
 	local tornados = function()
 		tTornado = {}
 		tTornado.strLabel = "Next tornado"
@@ -61,7 +62,7 @@ local function EarthFireInit()
 		ReStrat:createPop("Midphase!")
 	end
 	local function afterMid()
-		ReStrat:createAlert("Midphase", 95, nil, ReStrat.color.green, nil)
+		ReStrat:createAlert("Midphase", 88, nil, ReStrat.color.green, nil)
 	end
 	ReStrat:createCastAlert("Pyrobane", "Ragnarok", nil, "Icon_SkillAMP_AMP_Assault_Support_Buff", ReStrat.color.red, afterMid, midPop, true)
 end
@@ -70,20 +71,22 @@ end
 local function LifeLogicInit()
 	local function LifeOrbs() ReStrat:createAlert("Next: Life Orbs", 2.5, nil, ReStrat.color.blue) end
 	local function BlindingLight() ReStrat:createAlert("Next: Blinding Light", 9, nil, ReStrat.color.blue) end
+	local firstsnake = false
 
 	ReStrat:createCastAlert("Visceralus", "Blinding Light", nil, nil, ReStrat.color.blue, LifeOrbs, nil, true)
 	ReStrat:createCastAlert("Visceralus", "Life Orbs", nil, nil, ReStrat.color.blue, BlindingLight, nil, true)
-	ReStrat:createAlert("Thorns", 25, "Icon_SkillMind_UI_espr_rpls", ReStrat.color.red, nil)
+	--ReStrat:createAlert("Thorns", 38, "Icon_SkillMind_UI_espr_rpls", ReStrat.color.red, nil)
+	ReStrat:createAlert("Defrag", 22, nil, ReStrat.color.yellow, nil)
 
 	local function leashes()
 		ReStrat:createPop("Logic Leash soon!")
 	end
-	ReStrat:createHpTrigger("Mnemesis", 12600000, leashes)
+	--ReStrat:createHpTrigger("Mnemesis", 12600000, leashes)
 
 	ReStrat:createPinFromAura("Thorns", "CM_SpellslingerSprites:sprSlinger_NodeBar_InCombatRed", false, "CRB_Interface12_BO")
 	ReStrat:createPinFromAura("Life Force Shackle", "CRB_Basekit:kitAccent_Frame_OrangeStroke", false, "CRB_Interface12_BO")
-	ReStrat:createPinFromAura("Snake Snack")
-	ReStrat:createAuraAlert(nil, "Snake Snack", nil, "Icon_SkillWarrior_Plasma_Pulse_Alt", nil)
+	--ReStrat:createPinFromAura("Snake Snack")
+	--ReStrat:createAuraAlert(nil, "Snake Snack", nil, "Icon_SkillWarrior_Plasma_Pulse_Alt", nil)
 	
 	if ReStrat:IsActivated("Mnemesis", "Logic Leash") then
 		ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Logic Leash")
@@ -96,6 +99,10 @@ local function LifeLogicInit()
 			ReStrat:repeatAlert({strLabel = "Thorns", fRepeat = 30, strColor = ReStrat.color.red, strIcon = "Icon_SkillMind_UI_espr_rpls"})
 		end
 	end)
+	local function defragcd()
+		ReStrat:createAlert("Defrag", 50, nil, ReStrat.color.yellow, nil)
+	end
+	--ReStrat:createCastTrigger(nil, "Defragment", defragcd)
 	
 	ReStrat:createUnitTrigger("Essence of Logic", function()
 		ReStrat:destroyAlert("Thorns")
@@ -104,7 +111,7 @@ local function LifeLogicInit()
 end
 
 -- Visceralus & Aileron 24/02/2015
-local function LifeAirInit()
+local function LifeAirInit() --TODO Twirl and windwall sound
 	
 	-- Roots every 15s, twirls every other root
 
@@ -135,6 +142,7 @@ local function LifeAirInit()
 		ReStrat:createAlert("Midphase", 34.5, "Icon_SkillStalker_Maelstrom", ReStrat.color.purple, DpsPhase)
 	end
 	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Twirl")
+	
 	ReStrat:createAlert("Midphase", 90, "Icon_SkillStalker_Maelstrom", ReStrat.color.purple, MidPhase)
 			
 	-- not sure about life orbs/discoball cooldowns, alternating casts every 12s is a rough approximation
@@ -144,9 +152,11 @@ local function LifeAirInit()
 	ReStrat:createCastAlert("Visceralus", "Blinding Light", nil, nil, ReStrat.color.blue, LifeOrbs, nil, true)
 	ReStrat:createCastAlert("Visceralus", "Life Orbs", nil, nil, ReStrat.color.blue, BlindingLight, nil, true)
 	-- Tree lines
-	
-	ReStrat:createUnitTrigger("Lifekeeper", function(unit) DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit) end)
-	
+	local function treespawn(unit)
+		ReStrat.DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit)
+	end
+	ReStrat:createUnitTrigger("Lifekeeper", treespawn)
+	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Lightning Strike")
 	ReStrat:createPinFromAura("Lightning Strike", "abilities:sprAbility_CapEnd3")
 	
 	--ReStrat:createAlert("Enrage", 420, nil, ReStrat.color.red, nil)
@@ -214,6 +224,7 @@ local function WaterLogicInit()
 	end
 	
 	ReStrat:createPinFromAura("Data Disruptor")
+	ReStrat:createAuraAlert(GameLib.GetPlayerUnit():GetName(), "Data Disruptor")
 
 	local function impPop()
 		ReStrat:createPop("Imprison!!")
@@ -342,6 +353,7 @@ function ReStrat:earthInit()
 end
 
 function ReStrat:airInit()
+
 	local wallofwind = function()
 		ReStrat:createAlert("[Aileron] Wind Wall", 21, "Icon_SkillNature_UI_srcr_dstdvl", ReStrat.color.red, nil)
 	end

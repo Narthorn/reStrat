@@ -146,13 +146,17 @@ function ReStrat:trackHealth(unit, strColor, displayname)
 		progressBar:SetBarColor(strColor or self.color.red)
 		if displayname == nil then
 			wndBarContainer:FindChild("unitName"):SetText(unit:GetName())
+			barName = unit:GetName()
 		else
 			wndBarContainer:FindChild("unitName"):SetText(displayname)
+			barName = displayname
 		end
-		self.tHealth[unit:GetId()] = {bar = wndBar, unit = unit, current = 100}
+		self.tHealth[unit:GetId()] = {bar = wndBar, unit = unit, current = 100, orgName = barName}
 			
 		self:OnHealthTick()
 		self:arrangeBars(self.tHealth, "health")
+
+		return true
 	end
 end
 
@@ -369,6 +373,10 @@ function ReStrat:isCasting(strUnit, strCast)
 	return false
 end
 
+function ReStrat:createActionBarTrigger(strSkillname, fCallback)
+	self.tActionBarTrigger[#self.tActionBarTrigger+1] = { strTriggerName = strSkillname, fInitFunction = fCallback }
+end
+
 function ReStrat:createUnitTrigger(strUnit, fCallback)
 	self.tUnits[strUnit] = { fInitFunction = fCallback }
 end
@@ -389,7 +397,7 @@ end
 --This will call the callback function and returns the target as first parameter
 function ReStrat:onHeal(strUnitTarget, nCooldown, fCallback)
 	if not nCooldown then nCooldown = 1 end -- By default we place a 1 second cooldown on these to avoid spam
-	self.tHealTriggers[#self.tSpellTriggers] = {target = strUnitTarget, cooldown = nCooldown, callback = fCallback}
+	self.tHealTriggers[#self.tHealTriggers] = {target = strUnitTarget, cooldown = nCooldown, callback = fCallback}
 end
 
 function ReStrat:onUnitDeath(strUnit, fCallback)
@@ -469,5 +477,10 @@ end
 function ReStrat:OnDatachron(strText, fCallback)
 	if not self.tDatachron then self.tDatachron = {} end
 	self.tDatachron[strText] = { fCallback = fCallback, strText = strText}
+end
+
+function ReStrat:OnPartychron(strText, fCallback)
+	if not self.tPartychron then self.tPartychron = {} end
+	self.tPartychron[strText] = { fCallback = fCallback, strText = strText}
 end
 

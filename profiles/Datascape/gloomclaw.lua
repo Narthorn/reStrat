@@ -28,6 +28,20 @@ function ReStrat:gloomInit(unit)
 		ReStrat:createLandmark("Right", rightSpawn[phase])
 	end
 	
+
+	--TODO ui check and sounds
+	local function cr(unit)
+		if ReStrat:dist2unit(GameLib.GetPlayerUnit(), unit) < 30 then
+			ReStrat:createPop("Corrupting Rays!")
+		end
+	end
+	local function ca(unit)
+		if ReStrat:dist2unit(GameLib.GetPlayerUnit(), unit) < 30 then
+			ReStrat:createPop("Command Attack!")
+		end
+	end
+	ReStrat:createCastTrigger(nil, "Corrupting Rays", cr)
+	ReStrat:createCastTrigger(nil, "Command Attack", ca)
 	--Rupture
 	
     local ruptureCD = 	function() 

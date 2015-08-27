@@ -42,6 +42,8 @@ ReStrat = {
 	tPinAuras = {},
 	tEncounterVariables = {},
 	tDatachron = {},
+	tPartychron = {},
+	tActionBarTrigger = {},
 	tLandmarks = {},
 	tEncounters = {},
 } 
@@ -52,6 +54,7 @@ ReStrat = {
 function ReStrat:OnLoad()
 	Apollo.LoadSprites("respr.xml", "SassyMedicSimSprites")
 	self.xmlDoc = XmlDoc.CreateFromFile("ReStrat.xml")
+	self.DrawLib = setmetatable({}, {__index = DrawLib or function() return function() end end }) -- fail silently
 
 	self.wndMain       = Apollo.LoadForm(self.xmlDoc, "mainForm", nil, self)
 	self.wndHealthBars = Apollo.LoadForm(self.xmlDoc, "healthForm", nil, self)
@@ -178,12 +181,24 @@ function ReStrat:OnHealthTick() -- also events
 			local unitName = unit:GetName()
 			local cur = unit:GetHealth() or 0
 			local max = unit:GetMaxHealth() or 0
-		
+			local target = unit:GetTarget()
+			local fulldisplay = "lol"
+
+			if target ~= nil then
+				fulldisplay = tHealth.orgName .. " - " .. target:GetName()
+			end
+			
 			progressBar:SetMax(max)
 			progressBar:SetProgress(cur)
 			tHealth.current = cur/max*100
 			wndBar:FindChild("healthAmount"):SetText(string.format("%.1fk/%.1fk", cur/1000, max/1000))
 			wndBar:FindChild("healthPercent"):SetText(string.format("%.1f%%", cur/max*100))
+
+			if fulldisplay ~= "lol" then
+				wndBar:FindChild("unitName"):SetText(fulldisplay)
+			end
+
+
 
 			if self.tHpTriggers[unitName] ~= nil then
 				if cur < self.tHpTriggers[unitName].nTriggerHP then
@@ -295,11 +310,13 @@ function ReStrat:OnPublicEvent(tEventObj) --PublicEventObjectiveUpdate
 end
 
 function ReStrat:RegisterCombatEvents()
+
 	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
 	Apollo.RegisterEventHandler("UnitDestroyed",         "OnUnitDestroyed",     self)
 	--Apollo.RegisterEventHandler("ChatMessage",           "OnChatMessage",       self)
 	Apollo.RegisterEventHandler("CombatLogDamage" ,              "OnCombatLogDamage",               self) 
 	Apollo.RegisterEventHandler("CombatLogHeal",                 "OnCombatLogHeal",                 self) 
+	Print("Restrat: Registered Combat Events")
 	
 end
 
@@ -309,6 +326,7 @@ function ReStrat:UnregisterCombatEvents()
 	Apollo.RemoveEventHandler("CombatLogDamage",    self)
 	--Apollo.RemoveEventHandler("ChatMessage",    self)
 	Apollo.RemoveEventHandler("CombatLogHeal",    self)
+	--Print("Restrat: Unregistered Combat Events")
 end
 
 
@@ -1039,6 +1057,14 @@ function ReStrat:OnDelayLoad()
 			},
 		}
 	end
+	if ReStrat.tEncounters["Infinite Logic Loop"] == nil then
+		ReStrat.tEncounters["Infinite Logic Loop"] = {
+			strCategory = "Not Important",
+			trackHealth = ReStrat.color.blue,
+			tModules = {},
+		}
+	end
+
 	if ReStrat.tEncounters["Fully-Optimized Canimid"] == nil then
 		ReStrat.tEncounters["Fully-Optimized Canimid"] = {
 			strCategory  = "Datascape",
@@ -1113,7 +1139,7 @@ function ReStrat:OnUnitDestroyed(unit)
 end
 
 function ReStrat:OnEnteredCombat(unit, combat)
-	if unit:IsInYourGroup() then
+	if unit:IsInYourGroup() then -- group member started combat
 		if combat then
 			--Clear combat log
 			self.combatLog = {}
@@ -1122,19 +1148,20 @@ function ReStrat:OnEnteredCombat(unit, combat)
 			self:Stop()
 		end
 		
-	elseif unit:IsThePlayer() then
+	elseif unit:IsThePlayer() then -- player started combat
 		if combat then
 			self:Start()
 		else
 			self.outofcombatTimer:Start()
 		end
 	
-	else
+	else -- enemy started combat
 		--If combat starts, init unit profile
 		if combat then
 			local tProfile = ReStrat.tEncounters[unit:GetName()] 
-			if tProfile then 
-			
+			if tProfile then
+
+				self:RegisterCombatEvents()
 				uName = unit:GetName()
 					--debug
 				if uName == "Holographic Chompacabra" then
@@ -1152,10 +1179,8 @@ function ReStrat:OnEnteredCombat(unit, combat)
 					else
 						ReStrat:avatusInit(unit)
 					end
-				elseif uName == "Mobius Physics Constructor" then
-					ReStrat:yellowInit(unit)
 				elseif uName == "Infinite Logic Loop" then
-					ReStrat:blueInit(unit)
+					ReStrat:blueRoom(unit)
 				elseif uName == "Data Devourer" then
 					ReStrat:devourerInit(unit)
 					
@@ -1285,7 +1310,7 @@ function ReStrat:OnEnteredCombat(unit, combat)
 end
 
 function ReStrat:Start()
-	self:RegisterCombatEvents()
+	--self:RegisterCombatEvents()
 	self.combatStarted = GameLib.GetGameTime()
 	self.gameTimer:Start()
 	self.healthTimer:Start()
@@ -1305,6 +1330,8 @@ function ReStrat:Stop()
 	self.tSpellTriggers = {}
 	self.tHealTriggers = {}
 	self.tDatachron = {}
+	self.tPartychron = {}
+	self.tActionBarTrigger = {}
 	self.tPinAuras = {}
 	self.tHpTriggers = {}
 	self.tShortcutBars = {}
@@ -1387,17 +1414,26 @@ function ReStrat:onCreateTestAlerts(wndHandler, wndControl)
 	self:createAlert("Energon Cubes", 15.5, "Icon_SkillMedic_repairstation", self.color.purple, function() ReStrat:Stop(); wndControl:Enable(true) end)
 end
 
---Parse chat messages for datachron triggers
+--Parse chat messages for datachron triggers and partychron as well
 function ReStrat:OnChatMessage(channel, tMessage)
 	if not tMessage then return end --Shouldn't happen but hey this game
 	local strText = tMessage.arMessageSegments[1].strText
 	
 	
-	if channel:GetName() == "Datachron" then --and self.tDatachron[strText]
+	if channel:GetName() == "Datachron" then
 		for k,v in pairs(self.tDatachron) do
 			if string.find(strText, self.tDatachron[k].strText) then
 				self.tDatachron[k].fCallback()
-				--Print(self.tDatachron[k].strText)
+			end	
+		end
+	end
+
+	if channel:GetName() == "Party" then
+		local strTextParty = strText:lower()
+		local strSender = tMessage.strSender
+		for k,v in pairs(self.tPartychron) do
+			if string.find(strText, self.tPartychron[k].strText) then
+				self.tPartychron[k].fCallback(strSender)
 			end	
 		end
 	end
@@ -1406,7 +1442,6 @@ function ReStrat:OnChatMessage(channel, tMessage)
 		for k,v in pairs(self.tDatachron) do
 			if string.find(strText, self.tDatachron[k].strText) then
 				self.tDatachron[k].fCallback()
-				--Print(self.tDatachron[k].strText)
 			end	
 		end
 	end
@@ -1432,11 +1467,21 @@ function ReStrat:OnChatMessage(channel, tMessage)
 end
 
 function ReStrat:OnShowActionBarShortcut(nBar, bIsVisible, nShortcuts)
+
 	self.tShortcutBars[nBar] = {}
 	if bIsVisible then
 		for iBar=0,7 do
 			self.wndActionBarItem:SetContentId(nBar * 12 + iBar)
 			self.tShortcutBars[nBar][iBar+1] = self.wndActionBarItem:GetContent()
+			if self.tShortcutBars[nBar][iBar+1].strType == "SBar" and ReStrat.tShortcutBars[nBar][iBar+1].spell ~= nil then
+				local strSpellName = ReStrat.tShortcutBars[nBar][iBar+1].spell:GetName()
+				--Print(strSpellName)
+				for i = 1, #ReStrat.tActionBarTrigger do
+					if strSpellName == ReStrat.tActionBarTrigger[i].strTriggerName then
+						ReStrat.tActionBarTrigger[i].fInitFunction(strSpellName)
+					end
+				end
+			end
 		end
 	end
 end
@@ -1501,4 +1546,4 @@ end
 
 
 
-Apollo.RegisterAddon(ReStrat, false, "", {"DrawLib"})
+Apollo.RegisterAddon(ReStrat, false, "")

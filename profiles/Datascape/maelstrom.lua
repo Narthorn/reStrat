@@ -4,6 +4,7 @@
 -----------------------------------------------------------------------------
 function ReStrat:maelInit(unit)
 	local mael = "Maelstrom Authority"
+	local maelUnit = unit
 	--phase = "jump"
 	--stationnum = 1
 	
@@ -49,7 +50,7 @@ function ReStrat:maelInit(unit)
 	ReStrat:createCastTrigger(mael, "Wind Wall", windwall)
 	
 	-- weather stations
-	local stations = function()
+	local function stations()
 		tStations = {}
 		tStations.strLabel = "Next Station"
 		tStations.fDelay = 25
@@ -58,16 +59,29 @@ function ReStrat:maelInit(unit)
 		tStations.strIcon = "Icon_SkillStalker_Destructive_Sweep"
 	
 		ReStrat:repeatAlert(tStations, 99)
+		
+	end
+
+	local function stationsPop(unit)
+		ReStrat:destroyAllLandmarks()
+		local tPos = unit:GetPosition()
+		if tPos then
+			--ReStrat:createLandmark("M", {tPos.x, tPos.y, tPos.z}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+			ReStrat:createLandmark("O", {tPos.x+30, tPos.y, tPos.z}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+			ReStrat:createLandmark("W", {tPos.x-30, tPos.y, tPos.z}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+			ReStrat:createLandmark("S", {tPos.x, tPos.y, tPos.z+30}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+			ReStrat:createLandmark("N", {tPos.x, tPos.y, tPos.z-30}, "ClientSprites:MiniMapMarkerTiny", "Subtitle")
+		end
 	end
 	
-	ReStrat:createCastAlert(mael, "Activate Weather Cycle", nil, "Icon_SkillStalker_Destructive_Sweep", ReStrat.color.yellow, stations)
+	ReStrat:createCastAlert(mael, "Activate Weather Cycle", nil, "Icon_SkillStalker_Destructive_Sweep", ReStrat.color.yellow, stations, stationsPop)
 	ReStrat:createPinFromAura("Icicle Chain")
 end
 
 function ReStrat:stationInit(unit2)
 	--stationnum = stationnum +1
 	if ReStrat:IsActivated("Maelstrom Authority", "Lines to Stations") then
-		DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit2, ReStrat.color.blue)
+		ReStrat.DrawLib:UnitLine(GameLib.GetPlayerUnit(), unit2, ReStrat.color.blue)
 	end
 	ReStrat:createPop("Stun station!", nil)
 	ReStrat:Sound("Sound\\stations.wav")
