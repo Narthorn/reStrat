@@ -23,6 +23,7 @@
     <Script Name="profiles\Genetic Archives\ohmna.lua"/>
     <!--Datascape -->
     <Script Name="profiles\Datascape\daemons.lua"/>
+    <Script Name="profiles\Datascape\gloomclaw.lua"/>
     <Script Name="profiles\Datascape\maelstrom.lua"/>
     <Script Name="profiles\Datascape\elementals.lua"/>
     <Script Name="profiles\Datascape\avatus.lua"/>
