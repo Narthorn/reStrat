@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Addon Author="Reglitch" APIVersion="10" Name="ReStrat" Description="Rapid iteration boss mods">
+<Addon Author="Vim, Reglitch" APIVersion="11" Name="ReStrat" Description="Rapid iteration boss mods">
     <!-- Stem files -->
     <Script Name="ReStrat.lua"/>
     <Script Name="encounterBuilders.lua"/>
