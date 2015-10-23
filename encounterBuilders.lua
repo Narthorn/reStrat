@@ -126,6 +126,14 @@ function ReStrat:destroyLandmark(strLabel)
 	end
 end
 
+--Destroy all Landmarks
+function ReStrat:destroyAllLandmarks()
+	for i=1,#self.tLandmarks do
+		self.tLandmarks[i].form:Destroy()
+	end
+	self.tLandmarks = {}
+end
+
 --Create pin
 function ReStrat:createPin(strLabel, unit, graphic)
 	local pin = Apollo.LoadForm(self.xmlDoc, "pinForm", "InWorldHudStratum", self)
