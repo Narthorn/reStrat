@@ -60,6 +60,8 @@ function ReStrat:OnLoad()
 	
 	-- Register handlers for events, slash commands and timer, etc.
 	Apollo.RegisterSlashCommand("restrat", "OnReStrat", self)
+
+	self:OnWindowManagementReady()
 	Apollo.RegisterEventHandler("WindowManagementReady", "OnWindowManagementReady", self)
 
 	Apollo.RegisterEventHandler("UnitCreated",           "OnUnitCreated",       self)
@@ -115,6 +117,9 @@ end
 -----------------------------------------------------------------------------------------------
 --Add windows to carbines window management
 function ReStrat:OnWindowManagementReady()
+	Event_FireGenericEvent("WindowManagementRegister", {strName = "reStratHealthBars"})
+	Event_FireGenericEvent("WindowManagementRegister", {strName = "reStratAlert"})
+	Event_FireGenericEvent("WindowManagementRegister", {strName = "reStratPop"})
 	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndHealthBars, strName = "reStratHealthBars"})
 	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndAlerts, strName = "reStratAlert"})
 	Event_FireGenericEvent("WindowManagementAdd", {wnd = self.wndPop, strName = "reStratPop"})
