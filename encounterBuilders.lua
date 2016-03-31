@@ -1,8 +1,6 @@
 -----------------------------------------------------------------------------------------------
--- Encounter Building Functions
---- Created by Ryan Park, aka Reglitch of Codex
----- Maintained by Vim <Codex>
------------------------------------------------------------------------------------------------
+-- Profile building functions
+--
 
 --Generate alert
 function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)

@@ -1,8 +1,10 @@
 -----------------------------------------------------------------------------------------------
 -- reStrat - Wildstar Boss Mods
---- Created by Ryan Park, aka Reglitch of Codex
----- Maintained by Vim <Codex>
------------------------------------------------------------------------------------------------
+--- © 2014 Ryan Park, aka Reglitch of Codex
+--- © 2015-2016 Vim Exe @ Jabbit <narthorn@gmail.com>
+--
+--- reStrat is free software. All files licensed under the GPLv2 unless otherwise specified.
+--- See LICENSE for details.
 
 require "Sound"
 
