@@ -48,7 +48,7 @@ function ReStrat:OnAuraApplied(nBuffId, intStackCount, tTargetUnit)
 			self.tAuraCache[spellName] = {
 				nMaxDuration = math.ceil(duration*10)*0.1,
 				strIcon = spell:GetIcon(),
-				strFlavor = spell:GetFlavor()
+				tTooltips = spell:GetTooltips()
 			}
 		end
 		
