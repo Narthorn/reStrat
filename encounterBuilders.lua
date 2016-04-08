@@ -62,16 +62,19 @@ end
 
 --Create health bar
 function ReStrat:trackHealth(unit, strColor, strName)
-	local wndBar = Apollo.LoadForm("ReStrat.xml", "healthInstance", self.wndHealthBars, self)
-	local wndBarContainer = wndBar:FindChild("ProgressBarContainer")
-	local progressBar = wndBarContainer:FindChild("progressBar")
+	local id = unit:GetId()
+	if not self.tHealth[id] then
+		local wndBar = Apollo.LoadForm("ReStrat.xml", "healthInstance", self.wndHealthBars, self)
+		local wndBarContainer = wndBar:FindChild("ProgressBarContainer")
+		local progressBar = wndBarContainer:FindChild("progressBar")
 
-	progressBar:SetBarColor(strColor or self.color.red)
-	wndBarContainer:FindChild("unitName"):SetText(strName or unit:GetName())
-	self.tHealth[unit:GetId()] = {bar = wndBar, unit = unit, tCallbacks = {}}
-	
-	self:OnHealthTick()
-	self.wndHealthBars:ArrangeChildrenVert()
+		progressBar:SetBarColor(strColor or self.color.red)
+		wndBarContainer:FindChild("unitName"):SetText(strName or unit:GetName())
+		self.tHealth[id] = {bar = wndBar, unit = unit, tCallbacks = {}}
+		
+		self:OnHealthTick()
+		self.wndHealthBars:ArrangeChildrenVert()
+	end
 end
 
 --Destroy health bar

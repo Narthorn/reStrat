@@ -215,7 +215,7 @@ function ReStrat:OnEnteredCombat(unit, combat)
 			if tProfile then
 				self:Start()
 				-- FIXME?: need to track health before init 
-				if tProfile.trackHealth and not self.tHealth[unit:GetId()] then
+				if tProfile.trackHealth then
 					self:trackHealth(unit, tProfile.trackHealth)
 				end
 				if tProfile.fInitFunction then tProfile.fInitFunction(unit) end
