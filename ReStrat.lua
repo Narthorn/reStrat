@@ -151,9 +151,15 @@ function ReStrat:OnGameTick()
 			table.remove(self.tAlerts, i)           --in case the callback destroys other alerts and fucks up table indices
 			if callback then callback()	end
 			
-			self.wndAlerts:ArrangeChildrenVert()
+			self:RefreshAlerts()
 		end
 	end
+end
+
+function ReStrat:RefreshAlerts()
+	self.wndAlerts:ArrangeChildrenVert(0, function(a1,a2) 
+		return a1:GetData().currDuration < a2:GetData().currDuration
+	end)
 end
 
 -- Health tracking

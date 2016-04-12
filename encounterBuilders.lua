@@ -19,9 +19,10 @@ function ReStrat:createAlert(strLabel, duration, strIcon, strColor, fCallback)
 	if strIcon then icon:FindChild("Icon"):SetSprite(strIcon) else icon:Close() end
 	
 	tAlert = {bar = alertBar, name = strLabel, callback = fCallback, currDuration = duration, maxDuration = duration}		
+	alertBar:SetData(tAlert)
 	
 	self.tAlerts[#self.tAlerts+1] = tAlert
-	self.wndAlerts:ArrangeChildrenVert()
+	self:RefreshAlerts()
 	
 	return tAlert
 end
@@ -47,7 +48,7 @@ function ReStrat:destroyAlert(name, bExecCallback)
 			
 			tAlert.bar:Destroy()
 			table.remove(self.tAlerts, i)
-			self.wndAlerts:ArrangeChildrenVert()
+			self:RefreshAlerts()
 		end
 	end
 end
